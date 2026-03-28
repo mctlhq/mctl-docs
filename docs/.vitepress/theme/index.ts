@@ -1,10 +1,8 @@
 import DefaultTheme from 'vitepress/theme'
 import { onContentUpdated } from 'vitepress'
-import mermaid from 'mermaid'
 import './custom.css'
 import Layout from './Layout.vue'
-
-let mermaidInitialized = false
+import { renderMermaidSvg } from './mermaid'
 
 async function renderMermaidDiagrams() {
   if (typeof document === 'undefined') return
@@ -14,16 +12,6 @@ async function renderMermaidDiagrams() {
   )
 
   if (!nodes.length) return
-
-  if (!mermaidInitialized) {
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'dark',
-      securityLevel: 'loose',
-    })
-    mermaidInitialized = true
-  }
-
   let index = 0
 
   for (const node of nodes) {
@@ -31,10 +19,22 @@ async function renderMermaidDiagrams() {
     if (!encoded) continue
 
     const source = decodeURIComponent(encoded)
-    const renderId = `mermaid-${Date.now()}-${index++}`
-    const { svg } = await mermaid.render(renderId, source)
+    const { svg } = await renderMermaidSvg(source, `inline-${index++}`)
     node.innerHTML = svg
     node.dataset.rendered = 'true'
+    node.dataset.mermaidReady = 'true'
+    node.tabIndex = 0
+    node.setAttribute('role', 'button')
+    node.setAttribute('aria-label', 'Expand diagram')
+    node.onclick = () => {
+      window.dispatchEvent(new CustomEvent('mctl:open-mermaid', { detail: { source } }))
+    }
+    node.onkeydown = (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        window.dispatchEvent(new CustomEvent('mctl:open-mermaid', { detail: { source } }))
+      }
+    }
   }
 }
 

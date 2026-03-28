@@ -6,18 +6,25 @@ Every infrastructure change in MCTL flows through Git. ArgoCD watches the `mctl-
 
 ```mermaid
 sequenceDiagram
-    participant User
+    autonumber
+    participant User as Operator
     participant API as mctl-api
     participant Git as mctl-gitops
     participant Argo as ArgoCD
     participant K8s as Kubernetes
 
+    Note over User,API: Request accepted quickly
     User->>API: Deploy service
-    API->>Git: Commit manifest
+    API->>Git: Commit desired state
     API-->>User: Operation ID
-    Git->>Argo: Webhook / poll
-    Argo->>K8s: Apply changes
-    Argo-->>Git: Sync status
+
+    Note over Git,K8s: Cluster converges later via GitOps
+    Git->>Argo: Poll / refresh sees new commit
+    Argo->>K8s: Apply manifests
+    K8s-->>Argo: Reconcile resources
+    Argo-->>Git: Sync / health status
+
+    Note over User,API: Status remains queryable throughout
     User->>API: Check operation
     API-->>User: Completed
 ```

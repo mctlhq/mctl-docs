@@ -334,8 +334,33 @@
   padding: 1.25rem;
   border: 1px solid rgba(0, 245, 255, 0.2);
   border-radius: 16px;
-  background: #0d111d;
+  background:
+    radial-gradient(circle at top, rgba(0, 245, 255, 0.08), transparent 45%),
+    #0d111d;
   overflow-x: auto;
+  cursor: zoom-in;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.vp-doc .mermaid-diagram:hover,
+.vp-doc .mermaid-diagram:focus-visible {
+  border-color: rgba(0, 245, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(0, 245, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.35);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.vp-doc .mermaid-diagram::after {
+  content: 'Click to expand';
+  display: block;
+  margin-top: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-align: right;
 }
 
 .vp-doc .mermaid-diagram svg {
@@ -343,6 +368,105 @@
   margin: 0 auto;
   max-width: 100%;
   height: auto;
+}
+
+.vp-doc .mermaid-diagram :is(.node rect, .node polygon, .node path, .node circle) {
+  stroke-width: 1.5px;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.28));
+}
+
+.vp-doc .mermaid-diagram .cluster rect {
+  rx: 16px;
+}
+
+.vp-doc .mermaid-diagram .label text,
+.vp-doc .mermaid-diagram .nodeLabel,
+.vp-doc .mermaid-diagram .edgeLabel {
+  letter-spacing: 0.01em;
+}
+
+.mermaid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(5, 8, 22, 0.84);
+  backdrop-filter: blur(18px);
+}
+
+.mermaid-overlay__panel {
+  position: relative;
+  width: min(1400px, calc(100vw - 4rem));
+  max-height: calc(100vh - 4rem);
+  border: 1px solid rgba(0, 245, 255, 0.28);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top, rgba(0, 245, 255, 0.08), transparent 42%),
+    #0d111d;
+  box-shadow:
+    0 40px 120px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(0, 245, 255, 0.08);
+}
+
+.mermaid-overlay__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(5, 8, 22, 0.78);
+  color: #e6edf3;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mermaid-overlay__close:hover {
+  border-color: #00f5ff;
+  color: #00f5ff;
+}
+
+.mermaid-overlay__content {
+  overflow: auto;
+  max-height: calc(100vh - 4rem);
+  padding: 4rem 1.5rem 1.5rem;
+}
+
+.mermaid-overlay__diagram {
+  min-width: max-content;
+}
+
+.mermaid-overlay__diagram svg {
+  display: block;
+  margin: 0 auto;
+  max-width: none;
+  width: auto;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .mermaid-overlay {
+    padding: 0.75rem;
+  }
+
+  .mermaid-overlay__panel {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 1.5rem);
+    border-radius: 16px;
+  }
+
+  .mermaid-overlay__content {
+    max-height: calc(100vh - 1.5rem);
+    padding: 3.5rem 1rem 1rem;
+  }
+
+  .vp-doc .mermaid-diagram::after {
+    text-align: left;
+  }
 }
 
 /* ── Code blocks — portal terminal aesthetic ── */

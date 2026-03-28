@@ -6,6 +6,12 @@ MCTL follows a GitOps architecture where every infrastructure change flows throu
 
 ```mermaid
 graph TB
+    classDef clients fill:#0f1d2e,stroke:#38bdf8,color:#f8fafc,stroke-width:1.5px
+    classDef control fill:#102234,stroke:#00f5ff,color:#ffffff,stroke-width:2px
+    classDef gitops fill:#11281f,stroke:#34d399,color:#f8fafc,stroke-width:2px
+    classDef cluster fill:#20172e,stroke:#a78bfa,color:#f8fafc,stroke-width:1.5px
+    classDef external fill:#261b14,stroke:#fb923c,color:#f8fafc,stroke-width:1.5px
+
     subgraph Clients
         clientClaude["Claude / Cursor / VS Code"]
         clientPortal["Developer Portal\napp.mctl.ai"]
@@ -34,6 +40,12 @@ graph TB
         externalDex["Dex SSO"]
         externalAlertmanager["AlertManager"]
     end
+
+    class clientClaude,clientPortal,clientApi clients
+    class controlMcp,controlApi,controlAgent control
+    class gitopsRepo,gitopsArgo gitops
+    class clusterNsA,clusterNsB,clusterPlatform cluster
+    class externalGithub,externalDex,externalAlertmanager external
 
     clientClaude -->|MCP Protocol| controlMcp
     clientPortal -->|REST| controlApi
