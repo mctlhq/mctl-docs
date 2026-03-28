@@ -1,0 +1,311 @@
+/* MCTL Theme — matches mctl-portal (Backstage) mctlTheme.ts
+   Dark-only: appearance: 'dark' in config.ts forces dark mode.
+   All selectors use :root / html.dark for specificity. */
+
+:root {
+  /* Portal: JetBrains Mono for everything */
+  --vp-font-family-base: 'JetBrains Mono', monospace;
+  --vp-font-family-mono: 'JetBrains Mono', monospace;
+
+  /* Brand — portal palette.primary #00f5ff */
+  --vp-c-brand-1: #00f5ff;
+  --vp-c-brand-2: #00d4db;
+  --vp-c-brand-3: #00b3b8;
+  --vp-c-brand-soft: rgba(0, 245, 255, 0.14);
+
+  /* Backgrounds — portal: default #050816, paper #0d111d */
+  --vp-c-bg: #050816;
+  --vp-c-bg-alt: #0d111d;
+  --vp-c-bg-elv: #0d111d;
+  --vp-c-bg-soft: #0d111d;
+
+  /* Text — portal: primary #ffffff, secondary #e6edf3, muted rgba(255,255,255,0.8) */
+  --vp-c-text-1: #e6edf3;
+  --vp-c-text-2: rgba(255, 255, 255, 0.8);
+  --vp-c-text-3: #6b7280;
+
+  /* Borders — portal: rgba(0,245,255, 0.08/0.12/0.2) */
+  --vp-c-divider: rgba(0, 245, 255, 0.12);
+  --vp-c-border: rgba(0, 245, 255, 0.2);
+  --vp-c-gutter: rgba(0, 245, 255, 0.08);
+
+  /* Hero */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(135deg, #00f5ff 0%, #00b3b8 100%);
+  --vp-home-hero-image-background-image: radial-gradient(circle, rgba(0, 245, 255, 0.08) 0%, transparent 70%);
+
+  /* Defaults */
+  --vp-c-default-1: #e6edf3;
+  --vp-c-default-2: rgba(255, 255, 255, 0.8);
+  --vp-c-default-3: #6b7280;
+  --vp-c-default-soft: rgba(0, 245, 255, 0.08);
+
+  /* Buttons — portal: contained #00f5ff bg / #050816 text */
+  --vp-button-brand-bg: #00f5ff;
+  --vp-button-brand-text: #050816;
+  --vp-button-brand-hover-bg: #00d4db;
+  --vp-button-brand-hover-text: #050816;
+
+  /* Buttons alt — portal: outlined, #00f5ff border */
+  --vp-button-alt-bg: transparent;
+  --vp-button-alt-text: #00f5ff;
+  --vp-button-alt-border: rgba(0, 245, 255, 0.4);
+  --vp-button-alt-hover-bg: rgba(0, 245, 255, 0.1);
+  --vp-button-alt-hover-text: #00f5ff;
+  --vp-button-alt-hover-border: #00f5ff;
+
+  /* Code — portal: terminal bg */
+  --vp-code-bg: rgba(13, 17, 29, 0.85);
+  --vp-code-color: #e6edf3;
+
+  /* Custom blocks — portal: info=#00f5ff, warning=#ff9800, error=#f85149 */
+  --vp-custom-block-tip-bg: rgba(0, 245, 255, 0.06);
+  --vp-custom-block-tip-border: rgba(0, 245, 255, 0.3);
+  --vp-custom-block-tip-text: #e6edf3;
+  --vp-custom-block-tip-code-bg: rgba(0, 245, 255, 0.08);
+
+  --vp-custom-block-info-bg: rgba(0, 245, 255, 0.06);
+  --vp-custom-block-info-border: rgba(0, 245, 255, 0.3);
+  --vp-custom-block-info-text: #e6edf3;
+
+  --vp-custom-block-warning-bg: rgba(255, 152, 0, 0.06);
+  --vp-custom-block-warning-border: rgba(255, 152, 0, 0.3);
+  --vp-custom-block-warning-text: #e6edf3;
+
+  --vp-custom-block-danger-bg: rgba(248, 81, 73, 0.06);
+  --vp-custom-block-danger-border: rgba(248, 81, 73, 0.3);
+  --vp-custom-block-danger-text: #e6edf3;
+
+  /* Sidebar */
+  --vp-sidebar-bg-color: #050816;
+}
+
+/* Duplicate under .dark for VitePress specificity */
+.dark {
+  --vp-c-brand-1: #00f5ff;
+  --vp-c-brand-2: #00d4db;
+  --vp-c-brand-3: #00b3b8;
+  --vp-c-brand-soft: rgba(0, 245, 255, 0.14);
+  --vp-c-bg: #050816;
+  --vp-c-bg-alt: #0d111d;
+  --vp-c-bg-elv: #0d111d;
+  --vp-c-bg-soft: #0d111d;
+  --vp-c-text-1: #e6edf3;
+  --vp-c-text-2: rgba(255, 255, 255, 0.8);
+  --vp-c-text-3: #6b7280;
+  --vp-c-divider: rgba(0, 245, 255, 0.12);
+  --vp-c-border: rgba(0, 245, 255, 0.2);
+  --vp-c-gutter: rgba(0, 245, 255, 0.08);
+}
+
+/* ── Hero ── */
+
+.VPHero .VPImage {
+  max-width: 180px;
+}
+
+.VPHero {
+  position: relative;
+}
+
+.VPHero::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(0, 245, 255, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Portal header: 800 weight, uppercase, -0.5px spacing */
+.VPHero .name {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.VPHero .text {
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.VPHero .tagline {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ── Nav — portal nav: #050816, indicator #00f5ff ── */
+
+.VPNavBar {
+  background-color: rgba(5, 8, 22, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 245, 255, 0.12) !important;
+}
+
+.VPNavBar .title {
+  color: #e6edf3 !important;
+}
+
+/* ── Sidebar — portal: border-right rgba(0,245,255,0.2) ── */
+
+.VPSidebar {
+  background-color: #050816 !important;
+  border-right: 1px solid rgba(0, 245, 255, 0.2) !important;
+}
+
+.VPContent {
+  background-color: #050816;
+}
+
+/* Sidebar active — portal: selectedColor #00f5ff */
+.VPSidebar .is-active > .link > .text {
+  color: #00f5ff !important;
+}
+
+/* ── Footer — portal terminal bg ── */
+
+.VPFooter {
+  background-color: rgba(13, 17, 23, 0.85) !important;
+  border-top: 1px solid rgba(0, 245, 255, 0.2) !important;
+}
+
+/* ── Feature cards — portal MuiCard: #0d111d, 16px radius, cyan border, lift+glow ── */
+
+.VPFeature {
+  background-color: #0d111d !important;
+  border: 1px solid rgba(0, 245, 255, 0.2) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+}
+
+.VPFeature:hover {
+  border-color: #00f5ff !important;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 245, 255, 0.1);
+}
+
+.VPFeature .title {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.VPFeature .details {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ── Links ── */
+
+.vp-doc a {
+  color: #00f5ff;
+  transition: color 0.3s ease;
+}
+
+.vp-doc a:hover {
+  color: #00d4db;
+}
+
+/* ── Buttons — portal: 6px radius, 600 weight, JetBrains Mono ── */
+
+.VPButton {
+  border-radius: 6px !important;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.3s ease;
+}
+
+.VPButton.brand:hover {
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+}
+
+.VPButton.alt {
+  border: 1px solid rgba(0, 245, 255, 0.4) !important;
+  background-color: transparent !important;
+  color: #00f5ff !important;
+}
+
+.VPButton.alt:hover {
+  border-color: #00f5ff !important;
+  background-color: rgba(0, 245, 255, 0.1) !important;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+/* ── Tables — portal cyan borders ── */
+
+.vp-doc table {
+  border-color: rgba(0, 245, 255, 0.15);
+}
+
+.vp-doc tr {
+  border-color: rgba(0, 245, 255, 0.1);
+  background-color: transparent;
+}
+
+.vp-doc tr:nth-child(2n) {
+  background-color: rgba(0, 245, 255, 0.03);
+}
+
+.vp-doc th {
+  color: #ffffff;
+  font-weight: 600;
+  background-color: rgba(0, 245, 255, 0.06);
+  border-color: rgba(0, 245, 255, 0.15);
+}
+
+.vp-doc td {
+  color: #e6edf3;
+  border-color: rgba(0, 245, 255, 0.1);
+}
+
+/* ── Code blocks — portal terminal aesthetic ── */
+
+.vp-code-group .tabs label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.vp-code-group .tabs label.active {
+  color: #00f5ff;
+}
+
+div[class*='language-'] {
+  border: 1px solid rgba(0, 245, 255, 0.12);
+  border-radius: 6px;
+}
+
+/* ── Search — portal input: 6px radius, cyan focus ── */
+
+.VPLocalSearchBox input {
+  border-radius: 6px;
+  border-color: rgba(0, 245, 255, 0.3);
+}
+
+.VPLocalSearchBox input:focus {
+  border-color: #00f5ff;
+  box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
+}
+
+/* ── Headings — portal header: 800/700/600 weights ── */
+
+.vp-doc h1 {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.vp-doc h2 {
+  color: #ffffff;
+  font-weight: 700;
+  border-color: rgba(0, 245, 255, 0.15);
+}
+
+.vp-doc h3 {
+  color: #e6edf3;
+  font-weight: 600;
+}
+
+/* ── Nav logo text — portal LogoFull: "M" in #00f5ff, rest white, 800 weight ── */
+
+.VPNavBarTitle .title {
+  font-weight: 800 !important;
+  letter-spacing: 2px;
+}
