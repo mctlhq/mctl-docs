@@ -24,9 +24,9 @@ sequenceDiagram
     Git->>Argo: Poll / refresh sees new commit
     Argo->>K8s: Apply manifests
     K8s-->>Argo: Resource state updated
-    WF->>K8s: Execute workflow tasks
-    Argo-->>API: Health / sync view
-    WF-->>API: Workflow status view
+    Note over WF,K8s: Some operations also run provisioning jobs directly
+    Argo-->>API: Deployment sync / health
+    WF-->>API: Workflow execution status
 
     Note over User,API: Status remains queryable throughout
     User->>API: Check operation

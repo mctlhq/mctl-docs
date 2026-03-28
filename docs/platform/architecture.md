@@ -13,19 +13,20 @@ graph TB
     subgraph Clients
         direction LR
         clientClaude["Claude / Cursor / VS Code"]
-        clientPortal["Developer Portal\napp.mctl.ai"]
+        clientPortal["Developer Portal UI"]
         clientApi["REST API Clients"]
     end
 
     subgraph "Control Plane"
         direction TB
         controlMcp["MCP Server\nStreamable HTTP"]
-        controlApi["mctl-api\napi.mctl.ai\naccepts requests + returns status"]
-        subgraph controlAsync[" "]
+        controlApi["Developer Portal\napp.mctl.ai\naccepts requests + returns status"]
+        subgraph controlAutomation["Automation"]
             direction LR
+            controlAgent["mctl-agent\ntickets + skills + dispatch"]
             controlWorkflows["Argo Workflows\nworkflows.mctl.ai\nasync operations"]
-            controlAgent["mctl-agent\nSelf-Healing"]
         end
+        controlExternal["External agents\nclaim + result callbacks"]
     end
 
     subgraph "Delivery Plane"
@@ -43,7 +44,7 @@ graph TB
 
     class controlMcp,controlApi,controlAgent,controlWorkflows core
     class gitopsRepo,gitopsArgo delivery
-    class clientClaude,clientPortal,clientApi,clusterPlatform,clusterAlerts,clusterTenants muted
+    class clientClaude,clientPortal,clientApi,clusterPlatform,clusterAlerts,clusterTenants,controlExternal muted
 
     clientClaude -->|MCP Protocol| controlMcp
     clientPortal -->|REST| controlApi
@@ -53,14 +54,20 @@ graph TB
     controlApi -->|Submits ops| controlWorkflows
     controlWorkflows -->|Commits| gitopsRepo
     controlAgent -->|PRs| gitopsRepo
+    controlAgent -. incident webhooks .-> controlExternal
+    controlExternal -. claims / results .-> controlAgent
     gitopsRepo -->|Sync| gitopsArgo
     gitopsArgo --> clusterPlatform
     gitopsArgo --> clusterTenants
-    controlWorkflows -->|Executes jobs| clusterPlatform
-    gitopsArgo -. health / sync .-> controlApi
-    controlWorkflows -. workflow status .-> controlApi
+    controlWorkflows -. provisioning / platform jobs .-> clusterPlatform
+    gitopsArgo -. deployment sync / health .-> controlApi
+    controlWorkflows -. workflow execution status .-> controlApi
 
     clusterAlerts -. alerts .-> controlAgent
+
+    click controlApi href "https://app.mctl.ai" "Open app.mctl.ai"
+    click controlWorkflows href "https://workflows.mctl.ai" "Open workflows.mctl.ai"
+    click gitopsArgo href "https://ops.mctl.ai" "Open ops.mctl.ai"
 ```
 
 ## Request Flow
@@ -74,15 +81,15 @@ graph TB
 5. An operation ID is returned immediately
 6. The workflow commits the desired state to `mctl-gitops`
 7. ArgoCD detects the change and syncs the cluster
-8. The client polls `mctl-api` for current workflow and sync status
+8. The client polls `mctl-api` for workflow execution status and deployment sync/health
 
 ### Self-Healing Flow
 
 1. AlertManager fires an alert (e.g., pod crash loop)
-2. `mctl-agent` receives the alert webhook
-3. The agent analyzes the alert using Claude API
-4. A skill is selected and executed (e.g., increase memory, rollback)
-5. A PR is created in `mctl-gitops` with the fix
+2. `mctl-agent` receives the alert webhook and creates a ticket
+3. Evidence is collected and a skill is selected for diagnosis
+4. The agent either prepares a direct fix PR or dispatches the incident to an external agent such as OpenClaw
+5. A fix lands in `mctl-gitops` as a PR rather than mutating the cluster directly
 6. On merge, ArgoCD syncs the change
 
 ## Data Flow
@@ -94,3 +101,4 @@ graph TB
 | Argo Workflows -> GitOps | Git (SSH) | Deploy key |
 | ArgoCD -> Cluster | Kubernetes API | ServiceAccount |
 | AlertManager -> Agent | Webhook (HTTP) | Internal network |
+| Agent -> External agents | Signed webhook callbacks | Shared secret / callback auth |

@@ -70,10 +70,13 @@ MCTL consists of five core components, each in its own repository.
 **Self-healing agent** — automated incident response.
 
 - Subscribes to AlertManager webhooks
-- Analyzes alerts using Claude API
-- Executes skills (rollback, scale, restart, etc.)
-- Creates PRs to `mctl-gitops` with fixes
-- Full incident lifecycle: detect, analyze, fix, verify
+- Creates tickets and stores incident state
+- Analyzes alerts using Claude API plus builtin, YAML, and remote skills
+- Executes skills (rollback, scale, restart, quota, probe, drift, etc.)
+- Can dispatch incidents to external agents such as OpenClaw through signed webhooks
+- Creates PRs to `mctl-gitops` with fixes and tracks PR metadata
+- Notifies operators through Telegram for updates, review, and approvals
+- Full incident lifecycle: detect, analyze, propose fix, review, verify
 
 | | |
 |---|---|
