@@ -148,19 +148,24 @@
   color: #e6edf3 !important;
 }
 
-.VPNavBarTitle .title .logo {
+/* Brand mark — matches mctl-web LogoDefault */
+.brand-mark {
   font-size: 1.5rem;
   font-weight: 800;
-  text-decoration: none;
   color: #fff;
   letter-spacing: 2px;
   display: flex;
   align-items: center;
+  text-decoration: none;
 }
 
-.VPNavBarTitle .title .logo-m {
+.brand-mark__m {
   color: #00f5ff;
   margin-right: 2px;
+}
+
+.brand-mark__ctl {
+  color: #fff;
 }
 
 /* ── Sidebar — portal: border-right rgba(0,245,255,0.2) ── */
@@ -179,11 +184,10 @@
   color: #00f5ff !important;
 }
 
-/* ── Footer — portal terminal bg ── */
+/* ── Hide default VPFooter (DocsFooter replaces it) ── */
 
 .VPFooter {
-  background-color: rgba(13, 17, 23, 0.85) !important;
-  border-top: 1px solid rgba(0, 245, 255, 0.2) !important;
+  display: none !important;
 }
 
 /* ── Feature cards — portal MuiCard: #0d111d, 16px radius, cyan border, lift+glow ── */
@@ -341,4 +345,65 @@ div[class*='language-'] {
 .VPNavBarTitle .title {
   font-weight: 800 !important;
   letter-spacing: 2px;
+}
+
+/* ── Hero brand — "M" cyan, "CTL" white ── */
+
+.hero-brand {
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.hero-brand__m {
+  color: #00f5ff;
+}
+
+.hero-brand__ctl {
+  color: #fff;
+}
+
+/* ── Footer — matches mctl-web AppFooter ── */
+
+.docs-footer {
+  padding: 3rem 0;
+  background: rgba(13, 17, 23, 0.85);
+  border-top: 1px solid rgba(0, 245, 255, 0.2);
+}
+
+.docs-footer__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  text-align: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.docs-footer__logo .brand-mark {
+  font-size: 1.25rem;
+}
+
+.docs-footer__links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.docs-footer__links a {
+  color: #00f5ff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.docs-footer__links a:hover {
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.docs-footer__copy {
+  font-size: 0.8rem;
+  color: #9ca3af;
 }

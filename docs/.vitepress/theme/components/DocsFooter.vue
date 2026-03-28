@@ -12,8 +12,9 @@
         <a href="/api/">API</a>
         <a href="https://app.mctl.ai">Portal</a>
         <a href="https://github.com/mctlhq">GitHub</a>
+        <a href="https://mctl.ai/privacy">Privacy Policy</a>
       </div>
-      <div class="docs-footer__copy">© 2025 MCTL. All rights reserved.</div>
+      <div class="docs-footer__copy">© 2026 MCTL. All rights reserved.</div>
     </div>
   </footer>
 </template>
