@@ -24,9 +24,16 @@ async function renderMermaidDiagrams() {
     mermaidInitialized = true
   }
 
-  await mermaid.run({ nodes })
+  let index = 0
 
   for (const node of nodes) {
+    const encoded = node.dataset.mermaid
+    if (!encoded) continue
+
+    const source = decodeURIComponent(encoded)
+    const renderId = `mermaid-${Date.now()}-${index++}`
+    const { svg } = await mermaid.render(renderId, source)
+    node.innerHTML = svg
     node.dataset.rendered = 'true'
   }
 }

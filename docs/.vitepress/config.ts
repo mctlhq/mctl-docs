@@ -121,7 +121,8 @@ export default defineConfig({
         const language = token.info.trim().split(/\s+/)[0]
 
         if (language === 'mermaid') {
-          return `<div class="mermaid-diagram">${md.utils.escapeHtml(token.content.trim())}</div>`
+          const source = encodeURIComponent(token.content.trim())
+          return `<div class="mermaid-diagram" data-mermaid="${source}"></div>`
         }
 
         return defaultFence(tokens, idx, options, env, self)
