@@ -6,11 +6,9 @@ MCTL follows a GitOps architecture where every infrastructure change flows throu
 
 ```mermaid
 graph TB
-    classDef clients fill:#0f1d2e,stroke:#38bdf8,color:#f8fafc,stroke-width:1.5px
-    classDef control fill:#102234,stroke:#00f5ff,color:#ffffff,stroke-width:2px
-    classDef gitops fill:#11281f,stroke:#34d399,color:#f8fafc,stroke-width:2px
-    classDef cluster fill:#20172e,stroke:#a78bfa,color:#f8fafc,stroke-width:1.5px
-    classDef external fill:#261b14,stroke:#fb923c,color:#f8fafc,stroke-width:1.5px
+    classDef core fill:#102234,stroke:#00f5ff,color:#ffffff,stroke-width:2px
+    classDef delivery fill:#11281f,stroke:#34d399,color:#f8fafc,stroke-width:2px
+    classDef muted fill:#101827,stroke:#475569,color:#e6edf3,stroke-width:1.2px
 
     subgraph Clients
         clientClaude["Claude / Cursor / VS Code"]
@@ -22,17 +20,17 @@ graph TB
         controlMcp["MCP Server\nStreamable HTTP"]
         controlApi["mctl-api\napi.mctl.ai"]
         controlAgent["mctl-agent\nSelf-Healing"]
+        controlWorkflows["Argo Workflows\nworkflows.mctl.ai"]
     end
 
-    subgraph "GitOps"
+    subgraph "Delivery Plane"
         gitopsRepo["mctl-gitops\nSource of Truth"]
         gitopsArgo["ArgoCD\nops.mctl.ai"]
     end
 
     subgraph "Kubernetes Cluster"
-        clusterNsA["Tenant Namespace A"]
-        clusterNsB["Tenant Namespace B"]
         clusterPlatform["Platform Services"]
+        clusterTenants["Tenant Namespaces"]
     end
 
     subgraph "External"
@@ -41,11 +39,9 @@ graph TB
         externalAlertmanager["AlertManager"]
     end
 
-    class clientClaude,clientPortal,clientApi clients
-    class controlMcp,controlApi,controlAgent control
-    class gitopsRepo,gitopsArgo gitops
-    class clusterNsA,clusterNsB,clusterPlatform cluster
-    class externalGithub,externalDex,externalAlertmanager external
+    class controlMcp,controlApi,controlAgent,controlWorkflows core
+    class gitopsRepo,gitopsArgo delivery
+    class clientClaude,clientPortal,clientApi,clusterPlatform,clusterTenants,externalGithub,externalDex,externalAlertmanager muted
 
     clientClaude -->|MCP Protocol| controlMcp
     clientPortal -->|REST| controlApi
@@ -53,11 +49,12 @@ graph TB
     controlMcp --> controlApi
 
     controlApi -->|Commits| gitopsRepo
+    controlApi -->|Runs operations| controlWorkflows
     controlAgent -->|PRs| gitopsRepo
     gitopsRepo -->|Sync| gitopsArgo
-    gitopsArgo -->|Apply| clusterNsA
-    gitopsArgo -->|Apply| clusterNsB
     gitopsArgo -->|Apply| clusterPlatform
+    gitopsArgo -->|Apply| clusterTenants
+    controlWorkflows -->|Executes tasks| clusterPlatform
 
     externalGithub -->|Auth| controlApi
     externalDex -->|SSO| controlApi
