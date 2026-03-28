@@ -7,49 +7,49 @@ MCTL follows a GitOps architecture where every infrastructure change flows throu
 ```mermaid
 graph TB
     subgraph Clients
-        Claude["Claude / Cursor / VS Code"]
-        Portal["Developer Portal\napp.mctl.ai"]
-        API_Client["REST API Clients"]
+        clientClaude["Claude / Cursor / VS Code"]
+        clientPortal["Developer Portal\napp.mctl.ai"]
+        clientApi["REST API Clients"]
     end
 
     subgraph "Control Plane"
-        MCP["MCP Server\nStreamable HTTP"]
-        API["mctl-api\napi.mctl.ai"]
-        Agent["mctl-agent\nSelf-Healing"]
+        controlMcp["MCP Server\nStreamable HTTP"]
+        controlApi["mctl-api\napi.mctl.ai"]
+        controlAgent["mctl-agent\nSelf-Healing"]
     end
 
     subgraph "GitOps"
-        GitOps["mctl-gitops\nSource of Truth"]
-        ArgoCD["ArgoCD\nops.mctl.ai"]
+        gitopsRepo["mctl-gitops\nSource of Truth"]
+        gitopsArgo["ArgoCD\nops.mctl.ai"]
     end
 
     subgraph "Kubernetes Cluster"
-        NS1["Tenant Namespace A"]
-        NS2["Tenant Namespace B"]
-        NS3["Platform Services"]
+        clusterNsA["Tenant Namespace A"]
+        clusterNsB["Tenant Namespace B"]
+        clusterPlatform["Platform Services"]
     end
 
     subgraph "External"
-        GitHub["GitHub OAuth"]
-        Dex["Dex SSO"]
-        AlertManager["AlertManager"]
+        externalGithub["GitHub OAuth"]
+        externalDex["Dex SSO"]
+        externalAlertmanager["AlertManager"]
     end
 
-    Claude -->|MCP Protocol| MCP
-    Portal -->|REST| API
-    API_Client -->|REST| API
-    MCP --> API
+    clientClaude -->|MCP Protocol| controlMcp
+    clientPortal -->|REST| controlApi
+    clientApi -->|REST| controlApi
+    controlMcp --> controlApi
 
-    API -->|Commits| GitOps
-    Agent -->|PRs| GitOps
-    GitOps -->|Sync| ArgoCD
-    ArgoCD -->|Apply| NS1
-    ArgoCD -->|Apply| NS2
-    ArgoCD -->|Apply| NS3
+    controlApi -->|Commits| gitopsRepo
+    controlAgent -->|PRs| gitopsRepo
+    gitopsRepo -->|Sync| gitopsArgo
+    gitopsArgo -->|Apply| clusterNsA
+    gitopsArgo -->|Apply| clusterNsB
+    gitopsArgo -->|Apply| clusterPlatform
 
-    GitHub -->|Auth| API
-    Dex -->|SSO| API
-    AlertManager -->|Alerts| Agent
+    externalGithub -->|Auth| controlApi
+    externalDex -->|SSO| controlApi
+    externalAlertmanager -->|Alerts| controlAgent
 ```
 
 ## Request Flow
