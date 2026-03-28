@@ -4,6 +4,8 @@ import './custom.css'
 import Layout from './Layout.vue'
 import { renderMermaidSvg } from './mermaid'
 
+const guardedMermaidHosts = new Set(['app.mctl.ai', 'workflows.mctl.ai', 'ops.mctl.ai'])
+
 async function renderMermaidDiagrams() {
   if (typeof document === 'undefined') return
 
@@ -23,6 +25,27 @@ async function renderMermaidDiagrams() {
     node.innerHTML = svg
     node.dataset.rendered = 'true'
     node.dataset.mermaidReady = 'true'
+
+    for (const link of node.querySelectorAll<SVGAElement>('a')) {
+      const href = link.getAttribute('href')
+      if (!href) continue
+
+      let host = ''
+      try {
+        host = new URL(href).hostname
+      } catch {
+        continue
+      }
+
+      if (!guardedMermaidHosts.has(host)) continue
+
+      link.addEventListener('click', (event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        window.dispatchEvent(new CustomEvent('mctl:confirm-mermaid-link', { detail: { href } }))
+      })
+    }
+
     node.tabIndex = 0
     node.setAttribute('role', 'button')
     node.setAttribute('aria-label', 'Expand diagram')

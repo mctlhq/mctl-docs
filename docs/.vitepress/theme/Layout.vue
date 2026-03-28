@@ -8,6 +8,7 @@
     </template>
   </DefaultTheme.Layout>
   <MermaidOverlay />
+  <MermaidLinkConfirm />
 </template>
 
 <script setup lang="ts">
@@ -16,6 +17,7 @@ import { useRoute } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import BrandMark from './components/BrandMark.vue'
 import DocsFooter from './components/DocsFooter.vue'
+import MermaidLinkConfirm from './components/MermaidLinkConfirm.vue'
 import MermaidOverlay from './components/MermaidOverlay.vue'
 
 const route = useRoute()

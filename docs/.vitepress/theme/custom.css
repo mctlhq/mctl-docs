@@ -448,6 +448,109 @@
   height: auto;
 }
 
+.mermaid-link-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(5, 8, 22, 0.84);
+  backdrop-filter: blur(16px);
+}
+
+.mermaid-link-confirm__panel {
+  width: min(560px, calc(100vw - 3rem));
+  border: 1px solid rgba(0, 245, 255, 0.24);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top, rgba(0, 245, 255, 0.08), transparent 50%),
+    #0d111d;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(0, 245, 255, 0.08);
+  padding: 1.5rem;
+}
+
+.mermaid-link-confirm__eyebrow {
+  margin: 0 0 0.5rem;
+  color: #00f5ff;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mermaid-link-confirm__title {
+  margin: 0 0 0.85rem;
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.mermaid-link-confirm__text {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.65;
+}
+
+.mermaid-link-confirm__target {
+  margin: 1rem 0 0;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(0, 245, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 245, 255, 0.04);
+  color: #e6edf3;
+  word-break: break-all;
+}
+
+.mermaid-link-confirm__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.mermaid-link-confirm__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mermaid-link-confirm__button--secondary {
+  border: 1px solid rgba(0, 245, 255, 0.28);
+  background: transparent;
+  color: #e6edf3;
+}
+
+.mermaid-link-confirm__button--secondary:hover {
+  border-color: #00f5ff;
+  color: #00f5ff;
+}
+
+.mermaid-link-confirm__button--primary {
+  border: 1px solid #00f5ff;
+  background: #00f5ff;
+  color: #050816;
+}
+
+.mermaid-link-confirm__button--primary:hover {
+  background: #00d4db;
+  border-color: #00d4db;
+  box-shadow: 0 0 24px rgba(0, 245, 255, 0.22);
+}
+
 @media (max-width: 768px) {
   .mermaid-overlay {
     padding: 0.75rem;
@@ -466,6 +569,23 @@
 
   .vp-doc .mermaid-diagram::after {
     text-align: left;
+  }
+
+  .mermaid-link-confirm {
+    padding: 0.75rem;
+  }
+
+  .mermaid-link-confirm__panel {
+    width: calc(100vw - 1.5rem);
+    border-radius: 16px;
+  }
+
+  .mermaid-link-confirm__actions {
+    flex-direction: column-reverse;
+  }
+
+  .mermaid-link-confirm__button {
+    width: 100%;
   }
 }
 
