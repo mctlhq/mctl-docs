@@ -78,6 +78,9 @@
 
   /* Sidebar */
   --vp-sidebar-bg-color: #050816;
+
+  /* Mobile nav screen */
+  --vp-nav-screen-bg-color: #0d111d;
 }
 
 /* Duplicate under .dark for VitePress specificity */
@@ -158,6 +161,41 @@
 
 .VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink:hover {
   color: #00f5ff;
+}
+
+/* ── Mobile nav screen — match mctl.ai drawer style ── */
+
+.VPNavScreen {
+  background-color: #0d111d !important;
+}
+
+.VPNavScreenMenuLink {
+  color: #9ca3af !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  border-bottom: none !important;
+  padding: 14px 0 !important;
+  transition: color 0.3s ease !important;
+}
+
+.VPNavScreenMenuLink:hover {
+  color: #00f5ff !important;
+}
+
+/* Mobile menu group titles & links */
+.VPNavScreenMenuGroup .title {
+  color: #9ca3af !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  border-bottom: none !important;
+}
+
+.VPNavScreenMenuGroupLink {
+  color: #9ca3af !important;
+}
+
+.VPNavScreenMenuGroupLink:hover {
+  color: #00f5ff !important;
 }
 
 /* Brand mark — matches mctl-web LogoDefault */
