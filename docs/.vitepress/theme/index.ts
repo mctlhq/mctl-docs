@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme'
 import { onContentUpdated } from 'vitepress'
 import mermaid from 'mermaid'
 import './custom.css'
+import Layout from './Layout.vue'
 
 let mermaidInitialized = false
 
@@ -32,6 +33,7 @@ async function renderMermaidDiagrams() {
 
 export default {
   extends: DefaultTheme,
+  Layout,
   enhanceApp() {
     onContentUpdated(() => {
       void renderMermaidDiagrams()

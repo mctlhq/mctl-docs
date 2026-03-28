@@ -16,7 +16,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    siteTitle: '<span class="logo"><span class="logo-m">M</span>CTL</span>',
+    siteTitle: '',
 
     search: {
       provider: 'local',
@@ -27,12 +27,12 @@ export default defineConfig({
       { text: 'Guides', link: '/guides/tenants' },
       { text: 'MCP', link: '/mcp/overview' },
       { text: 'API', link: '/api/' },
-      { text: 'Docs Portal', link: 'https://docs.mctl.ai' },
       {
         text: 'Links',
         items: [
           { text: 'mctl.ai', link: 'https://mctl.ai' },
           { text: 'Portal', link: 'https://app.mctl.ai' },
+          { text: 'Docs', link: 'https://docs.mctl.ai' },
           { text: 'GitHub', link: 'https://github.com/mctlhq' },
         ],
       },
@@ -107,11 +107,6 @@ export default defineConfig({
     editLink: {
       pattern: 'https://github.com/mctlhq/mctl-docs/edit/main/docs/:path',
       text: 'Edit this page on GitHub',
-    },
-
-    footer: {
-      message: 'Released under the Apache 2.0 License.',
-      copyright: 'Copyright 2025-present MCTL',
     },
   },
 

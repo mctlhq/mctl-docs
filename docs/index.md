@@ -1,7 +1,7 @@
 ---
 layout: home
 hero:
-  name: MCTL
+  name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
   text: AI-Native Infrastructure Management
   tagline: Deploy services, manage tenants, and operate your Kubernetes platform through natural language — no kubectl, no tickets, no waiting.
   image:
