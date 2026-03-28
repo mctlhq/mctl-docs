@@ -7,32 +7,32 @@ MCTL follows a GitOps architecture where every infrastructure change flows throu
 ```mermaid
 graph TB
     subgraph Clients
-        Claude[Claude / Cursor / VS Code]
-        Portal[Developer Portal<br/>app.mctl.ai]
-        API_Client[REST API Clients]
+        Claude["Claude / Cursor / VS Code"]
+        Portal["Developer Portal\napp.mctl.ai"]
+        API_Client["REST API Clients"]
     end
 
     subgraph "Control Plane"
-        MCP[MCP Server<br/>Streamable HTTP]
-        API[mctl-api<br/>api.mctl.ai]
-        Agent[mctl-agent<br/>Self-Healing]
+        MCP["MCP Server\nStreamable HTTP"]
+        API["mctl-api\napi.mctl.ai"]
+        Agent["mctl-agent\nSelf-Healing"]
     end
 
     subgraph "GitOps"
-        GitOps[mctl-gitops<br/>Source of Truth]
-        ArgoCD[ArgoCD<br/>ops.mctl.ai]
+        GitOps["mctl-gitops\nSource of Truth"]
+        ArgoCD["ArgoCD\nops.mctl.ai"]
     end
 
     subgraph "Kubernetes Cluster"
-        NS1[Tenant Namespace A]
-        NS2[Tenant Namespace B]
-        NS3[Platform Services]
+        NS1["Tenant Namespace A"]
+        NS2["Tenant Namespace B"]
+        NS3["Platform Services"]
     end
 
     subgraph "External"
-        GitHub[GitHub OAuth]
-        Dex[Dex SSO]
-        AlertManager[AlertManager]
+        GitHub["GitHub OAuth"]
+        Dex["Dex SSO"]
+        AlertManager["AlertManager"]
     end
 
     Claude -->|MCP Protocol| MCP
