@@ -148,6 +148,21 @@
   color: #e6edf3 !important;
 }
 
+.VPNavBarTitle .title .logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-decoration: none;
+  color: #fff;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.VPNavBarTitle .title .logo-m {
+  color: #00f5ff;
+  margin-right: 2px;
+}
+
 /* ── Sidebar — portal: border-right rgba(0,245,255,0.2) ── */
 
 .VPSidebar {
@@ -256,6 +271,24 @@
 .vp-doc td {
   color: #e6edf3;
   border-color: rgba(0, 245, 255, 0.1);
+}
+
+/* ── Mermaid ── */
+
+.vp-doc .mermaid-diagram {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid rgba(0, 245, 255, 0.2);
+  border-radius: 16px;
+  background: #0d111d;
+  overflow-x: auto;
+}
+
+.vp-doc .mermaid-diagram svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
 }
 
 /* ── Code blocks — portal terminal aesthetic ── */

@@ -16,8 +16,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/logo.svg',
-    siteTitle: 'MCTL',
+    siteTitle: '<span class="logo"><span class="logo-m">M</span>CTL</span>',
 
     search: {
       provider: 'local',
@@ -28,6 +27,7 @@ export default defineConfig({
       { text: 'Guides', link: '/guides/tenants' },
       { text: 'MCP', link: '/mcp/overview' },
       { text: 'API', link: '/api/' },
+      { text: 'Docs Portal', link: 'https://docs.mctl.ai' },
       {
         text: 'Links',
         items: [
@@ -104,10 +104,6 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/mctlhq' },
-    ],
-
     editLink: {
       pattern: 'https://github.com/mctlhq/mctl-docs/edit/main/docs/:path',
       text: 'Edit this page on GitHub',
@@ -116,6 +112,25 @@ export default defineConfig({
     footer: {
       message: 'Released under the Apache 2.0 License.',
       copyright: 'Copyright 2025-present MCTL',
+    },
+  },
+
+  markdown: {
+    config(md) {
+      const defaultFence =
+        md.renderer.rules.fence?.bind(md.renderer.rules) ??
+        ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options))
+
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const token = tokens[idx]
+        const language = token.info.trim().split(/\s+/)[0]
+
+        if (language === 'mermaid') {
+          return `<div class="mermaid-diagram">${md.utils.escapeHtml(token.content.trim())}</div>`
+        }
+
+        return defaultFence(tokens, idx, options, env, self)
+      }
     },
   },
 })
