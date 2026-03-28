@@ -18,13 +18,13 @@ graph TB
 
     subgraph "Control Plane"
         controlMcp["MCP Server\nStreamable HTTP"]
-        controlApi["mctl-api\napi.mctl.ai"]
+        controlApi["mctl-api\napi.mctl.ai\naccepts requests + returns status"]
         controlAgent["mctl-agent\nSelf-Healing"]
-        controlWorkflows["Argo Workflows\nworkflows.mctl.ai"]
+        controlWorkflows["Argo Workflows\nworkflows.mctl.ai\nasync operations"]
     end
 
     subgraph "Delivery Plane"
-        gitopsRepo["mctl-gitops\nSource of Truth"]
+        gitopsRepo["mctl-gitops\nSource of Truth\ncommitted desired state"]
         gitopsArgo["ArgoCD\nops.mctl.ai"]
     end
 
@@ -34,8 +34,8 @@ graph TB
     end
 
     subgraph "External"
-        externalGithub["GitHub OAuth"]
-        externalDex["Dex SSO"]
+        externalGithub["GitHub OAuth / Token"]
+        externalDex["Dex SSO / JWT"]
         externalAlertmanager["AlertManager"]
     end
 
@@ -48,17 +48,19 @@ graph TB
     clientApi -->|REST| controlApi
     controlMcp --> controlApi
 
-    controlApi -->|Commits| gitopsRepo
-    controlApi -->|Runs operations| controlWorkflows
+    controlApi -->|Submits ops| controlWorkflows
+    controlWorkflows -->|Commits| gitopsRepo
     controlAgent -->|PRs| gitopsRepo
     gitopsRepo -->|Sync| gitopsArgo
-    gitopsArgo -->|Apply| clusterPlatform
-    gitopsArgo -->|Apply| clusterTenants
-    controlWorkflows -->|Executes tasks| clusterPlatform
+    gitopsArgo --> clusterPlatform
+    gitopsArgo --> clusterTenants
+    controlWorkflows -->|Executes jobs| clusterPlatform
+    gitopsArgo -. health / sync .-> controlApi
+    controlWorkflows -. workflow status .-> controlApi
 
-    externalGithub -->|Auth| controlApi
-    externalDex -->|SSO| controlApi
-    externalAlertmanager -->|Alerts| controlAgent
+    externalGithub -. auth .-> controlApi
+    externalDex -. sso .-> controlApi
+    externalAlertmanager -. alerts .-> controlAgent
 ```
 
 ## Request Flow
@@ -68,11 +70,11 @@ graph TB
 1. AI client sends a tool call via Streamable HTTP to `api.mctl.ai/mcp`
 2. `mctl-api` authenticates the request (GitHub token, Dex JWT, or OAuth JWT)
 3. The handler validates input and checks RBAC for the tenant
-4. A Git commit is created in `mctl-gitops` with the desired state
+4. `mctl-api` submits an Argo Workflow for the requested operation
 5. An operation ID is returned immediately
-6. ArgoCD detects the change and syncs the cluster
-7. An Argo Workflow runs to execute the operation
-8. The client can poll the operation status until completion
+6. The workflow commits the desired state to `mctl-gitops`
+7. ArgoCD detects the change and syncs the cluster
+8. The client polls `mctl-api` for current workflow and sync status
 
 ### Self-Healing Flow
 
@@ -89,6 +91,6 @@ graph TB
 |------|----------|------|
 | Client -> MCP Server | Streamable HTTP (POST/GET) | Bearer token per request |
 | Client -> REST API | HTTPS | GitHub token / Dex JWT / OAuth JWT |
-| API -> GitOps | Git (SSH) | Deploy key |
+| Argo Workflows -> GitOps | Git (SSH) | Deploy key |
 | ArgoCD -> Cluster | Kubernetes API | ServiceAccount |
 | AlertManager -> Agent | Webhook (HTTP) | Internal network |

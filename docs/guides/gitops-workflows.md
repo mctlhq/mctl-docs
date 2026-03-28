@@ -9,24 +9,28 @@ sequenceDiagram
     autonumber
     participant User as Operator
     participant API as mctl-api
+    participant WF as Argo Workflows
     participant Git as mctl-gitops
     participant Argo as ArgoCD
     participant K8s as Kubernetes
 
     Note over User,API: Request accepted quickly
     User->>API: Deploy service
-    API->>Git: Commit desired state
-    API-->>User: Operation ID
+    API->>WF: Submit async operation
+    API-->>User: Return operation ID
 
-    Note over Git,K8s: Cluster converges later via GitOps
+    Note over WF,K8s: Cluster converges asynchronously via GitOps
+    WF->>Git: Commit desired state
     Git->>Argo: Poll / refresh sees new commit
     Argo->>K8s: Apply manifests
-    K8s-->>Argo: Reconcile resources
-    Argo-->>Git: Sync / health status
+    K8s-->>Argo: Resource state updated
+    WF->>K8s: Execute workflow tasks
+    Argo-->>API: Health / sync view
+    WF-->>API: Workflow status view
 
     Note over User,API: Status remains queryable throughout
     User->>API: Check operation
-    API-->>User: Completed
+    API-->>User: Current status
 ```
 
 ## Argo Workflows
