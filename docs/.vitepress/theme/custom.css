@@ -139,13 +139,25 @@
 /* ── Nav — portal nav: #050816, indicator #00f5ff ── */
 
 .VPNavBar {
-  background-color: rgba(5, 8, 22, 0.85) !important;
+  background-color: rgba(5, 8, 22, 0.8) !important;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 245, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.2) !important;
 }
 
 .VPNavBar .title {
   color: #e6edf3 !important;
+}
+
+/* Nav links — match mctl.ai: muted gray, cyan on hover */
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink:hover {
+  color: #00f5ff;
 }
 
 /* Brand mark — matches mctl-web LogoDefault */
