@@ -11,37 +11,39 @@ graph TB
     classDef muted fill:#101827,stroke:#475569,color:#e6edf3,stroke-width:1.2px
 
     subgraph Clients
+        direction LR
         clientClaude["Claude / Cursor / VS Code"]
         clientPortal["Developer Portal\napp.mctl.ai"]
         clientApi["REST API Clients"]
     end
 
     subgraph "Control Plane"
+        direction TB
         controlMcp["MCP Server\nStreamable HTTP"]
         controlApi["mctl-api\napi.mctl.ai\naccepts requests + returns status"]
-        controlAgent["mctl-agent\nSelf-Healing"]
-        controlWorkflows["Argo Workflows\nworkflows.mctl.ai\nasync operations"]
+        subgraph controlAsync[" "]
+            direction LR
+            controlWorkflows["Argo Workflows\nworkflows.mctl.ai\nasync operations"]
+            controlAgent["mctl-agent\nSelf-Healing"]
+        end
     end
 
     subgraph "Delivery Plane"
+        direction LR
         gitopsRepo["mctl-gitops\nSource of Truth\ncommitted desired state"]
         gitopsArgo["ArgoCD\nops.mctl.ai"]
     end
 
     subgraph "Kubernetes Cluster"
+        direction LR
+        clusterAlerts["AlertManager"]
         clusterPlatform["Platform Services"]
         clusterTenants["Tenant Namespaces"]
     end
 
-    subgraph "External"
-        externalGithub["GitHub OAuth / Token"]
-        externalDex["Dex SSO / JWT"]
-        externalAlertmanager["AlertManager"]
-    end
-
     class controlMcp,controlApi,controlAgent,controlWorkflows core
     class gitopsRepo,gitopsArgo delivery
-    class clientClaude,clientPortal,clientApi,clusterPlatform,clusterTenants,externalGithub,externalDex,externalAlertmanager muted
+    class clientClaude,clientPortal,clientApi,clusterPlatform,clusterAlerts,clusterTenants muted
 
     clientClaude -->|MCP Protocol| controlMcp
     clientPortal -->|REST| controlApi
@@ -58,9 +60,7 @@ graph TB
     gitopsArgo -. health / sync .-> controlApi
     controlWorkflows -. workflow status .-> controlApi
 
-    externalGithub -. auth .-> controlApi
-    externalDex -. sso .-> controlApi
-    externalAlertmanager -. alerts .-> controlAgent
+    clusterAlerts -. alerts .-> controlAgent
 ```
 
 ## Request Flow
