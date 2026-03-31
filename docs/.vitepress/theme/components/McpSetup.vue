@@ -236,7 +236,7 @@ const tabs = [
         <!-- Authenticated -->
         <template v-else>
           <div v-if="mcpLogin" class="user-profile">
-            <img v-if="mcpAvatarUrl" class="user-avatar" :src="mcpAvatarUrl" :alt="mcpLogin" referrerpolicy="no-referrer" crossorigin="anonymous">
+            <img v-if="mcpAvatarUrl" class="user-avatar" :src="mcpAvatarUrl" :alt="mcpLogin">
             <div class="user-info">
               <div class="user-login">@{{ mcpLogin }}</div>
               <div v-if="mcpName !== mcpLogin" class="user-name">{{ mcpName }}</div>
