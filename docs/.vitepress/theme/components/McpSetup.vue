@@ -45,7 +45,7 @@ const maskedToken = computed(() => mcpToken.value
   ? mcpToken.value.slice(0, 8) + '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' + mcpToken.value.slice(-4)
   : '')
 
-const activeTab = ref('claude')
+const activeTab = ref('claude-ai')
 const copied = ref<Record<string, boolean>>({})
 
 async function copy(key: string, text: string) {
@@ -236,7 +236,7 @@ const tabs = [
         <!-- Authenticated -->
         <template v-else>
           <div v-if="mcpLogin" class="user-profile">
-            <img v-if="mcpAvatarUrl" class="user-avatar" :src="mcpAvatarUrl" :alt="mcpLogin">
+            <img v-if="mcpAvatarUrl" class="user-avatar" :src="mcpAvatarUrl" :alt="mcpLogin" referrerpolicy="no-referrer" crossorigin="anonymous">
             <div class="user-info">
               <div class="user-login">@{{ mcpLogin }}</div>
               <div v-if="mcpName !== mcpLogin" class="user-name">{{ mcpName }}</div>
@@ -284,19 +284,25 @@ const tabs = [
         <div v-show="activeTab === 'claude-ai'" class="tab-content">
           <p class="config-path"><strong>Claude.ai</strong> &rarr; Settings &rarr; Connectors &rarr; Add custom connector</p>
           <div class="connector-values">
-            <div class="val-row">
+            <div class="val-block">
               <span class="val-label">Remote MCP server URL</span>
-              <code>https://api.mctl.ai/mcp</code>
-              <button class="btn-copy" :class="{ copied: copied['ai-url'] }" @click="copy('ai-url', 'https://api.mctl.ai/mcp')">{{ copied['ai-url'] ? 'copied!' : 'copy' }}</button>
+              <div class="val-value-row">
+                <code>https://api.mctl.ai/mcp</code>
+                <button class="btn-copy" :class="{ copied: copied['ai-url'] }" @click="copy('ai-url', 'https://api.mctl.ai/mcp')">{{ copied['ai-url'] ? 'copied!' : 'copy' }}</button>
+              </div>
             </div>
-            <div class="val-row">
+            <div class="val-block">
               <span class="val-label">OAuth Client ID</span>
-              <code>mctl-connector</code>
-              <button class="btn-copy" :class="{ copied: copied['ai-id'] }" @click="copy('ai-id', 'mctl-connector')">{{ copied['ai-id'] ? 'copied!' : 'copy' }}</button>
+              <div class="val-value-row">
+                <code>mctl-connector</code>
+                <button class="btn-copy" :class="{ copied: copied['ai-id'] }" @click="copy('ai-id', 'mctl-connector')">{{ copied['ai-id'] ? 'copied!' : 'copy' }}</button>
+              </div>
             </div>
-            <div class="val-row">
+            <div class="val-block">
               <span class="val-label">Client Secret</span>
-              <span class="muted">Leave empty (PKCE)</span>
+              <div class="val-value-row">
+                <span class="muted">Leave empty (PKCE)</span>
+              </div>
             </div>
           </div>
           <p class="config-note">Click Connect &mdash; GitHub will open for sign-in, then you'll be returned to Claude automatically. No token needed.</p>
@@ -685,10 +691,7 @@ const tabs = [
   margin-bottom: 0.75rem;
 }
 
-.val-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.val-block {
   padding: 0.5rem 0.75rem;
   background: #050816;
   border: 1px solid #1a2740;
@@ -697,21 +700,31 @@ const tabs = [
 }
 
 .val-label {
+  display: block;
   color: #6b7280;
-  flex-shrink: 0;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  margin-bottom: 0.3rem;
 }
 
-.val-row code {
+.val-value-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.val-value-row code {
   flex: 1;
   color: #fff;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   background: none;
   padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.val-row .muted {
+.val-value-row .muted {
   flex: 1;
   color: #475569;
   font-size: 0.78rem;
