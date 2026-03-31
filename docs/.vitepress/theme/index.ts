@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme'
 import { onContentUpdated } from 'vitepress'
 import './custom.css'
 import Layout from './Layout.vue'
+import McpSetup from './components/McpSetup.vue'
 import { renderMermaidSvg } from './mermaid'
 
 const guardedMermaidHosts = new Set(['app.mctl.ai', 'workflows.mctl.ai', 'ops.mctl.ai'])
@@ -64,7 +65,8 @@ async function renderMermaidDiagrams() {
 export default {
   extends: DefaultTheme,
   Layout,
-  enhanceApp() {
+  enhanceApp({ app }) {
+    app.component('McpSetup', McpSetup)
     onContentUpdated(() => {
       void renderMermaidDiagrams()
     })
