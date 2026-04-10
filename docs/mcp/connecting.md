@@ -31,7 +31,7 @@ MCTL accepts three token types. The API auto-detects the type:
 |---|---|---|
 | No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
 | 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
-| 2 dots, self-issued | OAuth JWT | OAuth flow at `mctl.ai/mcp` |
+| 2 dots, self-issued | OAuth JWT | OAuth flow on this page (sign in above) |
 
 ## Troubleshooting
 

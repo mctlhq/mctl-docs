@@ -28,6 +28,25 @@ With the MCTL MCP server you can:
 - **Preview environments** — create and manage preview deployments
 - **Resource management** — check usage, get sizing recommendations
 
+## What You Get
+
+Once connected, your AI assistant can:
+
+1. **Inspect platform state** — query services, tenants, resource usage, logs, and workflow status in real time
+2. **Deploy and manage apps** — onboard, deploy, rollback, and preview services; create workspaces; provision databases
+3. **Manage domains and scaling** — add custom domains with auto-TLS, configure autoscaling, verify DNS
+4. **Full audit trail** — every write operation creates a git commit in the GitOps repo for complete traceability
+
+## How Access Works
+
+Authentication follows a three-step model:
+
+1. **Token validated per request** — your GitHub token or OAuth credential is checked on every MCP call. The server never stores tokens.
+2. **Team-scoped access** — access is limited to workspaces resolved from your GitHub team memberships in the GitOps repo. Admins can operate on all tenants.
+3. **Full audit trail** — every write operation submits an Argo Workflow that produces a git commit. All changes are traceable and reversible.
+
+For detailed auth information, see [Authentication](/security/authentication).
+
 ## Tool Annotations
 
 Every tool is annotated with its behavior:
