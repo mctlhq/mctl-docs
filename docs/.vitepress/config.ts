@@ -99,6 +99,7 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'FAQ', link: '/reference/faq' },
+          { text: 'Diagram Types', link: '/reference/diagrams' },
           { text: 'Troubleshooting', link: '/reference/troubleshooting' },
           { text: 'Glossary', link: '/reference/glossary' },
         ],
