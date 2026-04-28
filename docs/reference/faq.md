@@ -45,4 +45,9 @@ Yes. Use the `mctl_rollback_service` tool or API endpoint. Since every deploymen
 **How is tenant isolation enforced?**
 Each tenant has its own Kubernetes namespace with RBAC policies, network policies, and resource quotas. Cross-tenant access is not possible.
 
+## Documentation site
+
+**Which version of VitePress does this site use?**
+mctl docs runs on VitePress 1.6. VitePress 2.x is still in alpha (`2.0.0-alpha.17` at time of writing) and will be evaluated for upgrade once it reaches a stable release. See [ADR 0003 — VitePress 2.x upgrade strategy](https://github.com/mctlhq/mctl-docs/blob/main/context/decisions/0003-vitepress-2-upgrade-strategy.md) for the full rationale and migration checklist.
+
 <!-- TODO: Add more FAQ entries based on user questions -->
