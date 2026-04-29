@@ -8,7 +8,7 @@ Common issues and how to resolve them.
 
 Your token may be expired or invalid.
 
-1. Sign in again at [mctl.ai/mcp](https://mctl.ai/mcp)
+1. Sign in again from the [Connecting](/mcp/connecting) page
 2. Verify your GitHub account has organization membership
 3. Check the `Authorization: Bearer` header format
 
@@ -30,7 +30,7 @@ MCTL accepts three token types. The API auto-detects the type:
 |------------------|------|------------|
 | No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
 | 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
-| 2 dots, self-issued | OAuth JWT | OAuth flow at `mctl.ai/mcp` |
+| 2 dots, self-issued | OAuth JWT | OAuth flow on the [Connecting](/mcp/connecting) page |
 
 If your token is rejected, ensure you're using the right type for your client.
 
@@ -40,7 +40,7 @@ If your token is rejected, ensure you're using the right type for your client.
 
 1. Disconnect the MCP server from Claude.ai settings
 2. Clear your browser cache
-3. Reconnect via [mctl.ai/mcp](https://mctl.ai/mcp)
+3. Reconnect from the [Connecting](/mcp/connecting) page
 4. Start a **new** conversation (existing conversations don't pick up tool changes)
 
 ### Timeout errors on tool calls
