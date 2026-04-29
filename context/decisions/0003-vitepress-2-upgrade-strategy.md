@@ -7,7 +7,7 @@
 
 mctl-docs runs on VitePress 1.6 (see `package.json`, `devDependencies.vitepress`).
 As of April 2026 the upstream VitePress 2.0 release line is still in alpha
-(latest tag at the time of writing: `v2.0.0-alpha.17`, published 2025-03-19).
+(latest tag at the time of writing: `v2.0.0-alpha.17`, published 2026-03-19).
 The 1.6 → 2.x transition involves breaking changes to sidebar config, theme
 internals and the `defineConfig` shape — the upgrade is not a drop-in.
 
