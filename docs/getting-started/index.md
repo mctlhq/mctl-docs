@@ -31,7 +31,7 @@ Tenant names become Kubernetes namespace names. Use lowercase letters, numbers, 
 
 The fastest way to connect:
 
-1. Visit [mctl.ai/mcp](https://mctl.ai/mcp)
+1. Open the [Connecting](/mcp/connecting) page in these docs
 2. Click **Connect with Claude.ai**
 3. Authorize the OAuth connection
 4. Start a new conversation in Claude.ai
@@ -43,7 +43,7 @@ claude mcp add mctl --transport streamable-http https://api.mctl.ai/mcp \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-Get your token at [mctl.ai/mcp](https://mctl.ai/mcp) after signing in.
+Get your token at the [Connecting](/mcp/connecting) page after signing in.
 
 ### Cursor / VS Code
 
