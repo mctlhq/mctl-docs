@@ -114,7 +114,7 @@ client (e.g. Claude Desktop, Claude Code).
 | `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` |
 | `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` |
 | `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` |
-| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | JSON array |
+| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` |
 | `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` |
 
 ---
