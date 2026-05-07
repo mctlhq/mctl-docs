@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.18](https://github.com/mctlhq/mctl-docs/compare/0.1.17...0.1.18) (2026-05-07)
+
+
+### Features
+
+* **agents:** mcp-agents-tools ([c2de0ab](https://github.com/mctlhq/mctl-docs/commit/c2de0abfc4fc8fe008b6ca7e5ec49bc44e701177))
+* **agents:** mcp-agents-tools ([c37f81e](https://github.com/mctlhq/mctl-docs/commit/c37f81edd22c5eaeb6d9479e5d5a6829aaf9257f))
+
+
+### Bug Fixes
+
+* **agents:** address P1/P2 codex findings on mcp-agents-tools ([22255ab](https://github.com/mctlhq/mctl-docs/commit/22255ab9c374ee353ae5d9723bb0f677a95006af))
+* **ci:** use plain semver tag (no package-name prefix) ([403f08e](https://github.com/mctlhq/mctl-docs/commit/403f08ec077d428d4f187988822c4b85e1fc2758))
+* **ci:** use plain semver tag (no package-name prefix) ([bafa6b5](https://github.com/mctlhq/mctl-docs/commit/bafa6b514b7b03eb9dc353f9facf8271ad29f8b7))
+* **ci:** use RELEASE_PLEASE_TOKEN so the tag triggers build.yml ([f609ab9](https://github.com/mctlhq/mctl-docs/commit/f609ab9b3f5f7190e9ab7a4dca4f3918b303bc82))
+
 ## [0.1.18](https://github.com/mctlhq/mctl-docs/compare/mctl-docs-0.1.17...mctl-docs-0.1.18) (2026-05-07)
 
 
