@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 44 tools for managing your infrastructure. Each tool is annotated as either **read-only** or **destructive**.
+The MCTL MCP server exposes 45 tools for managing your infrastructure. Each tool is annotated as either **read-only** or **destructive**.
 
 ## Identity
 
@@ -116,6 +116,7 @@ client (e.g. Claude Desktop, Claude Code).
 | `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` |
 | `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` |
 | `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` |
+| `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` |
 
 ---
 
@@ -230,6 +231,39 @@ Triggers Tier 2 implementer agents. The implementer scans
 ```
 mctl_trigger_implementer(service="mctl-docs", slug="mcp-agents-tools")
 # → { "workflow_name": "mctl-agents-implement-abc34" }
+```
+
+---
+
+### `mctl_trigger_shepherd`
+
+Triggers the Tier 3 PR shepherd. The shepherd scans every open PR opened by the
+implementer (`feat/agents-*` branches in `mctlhq/mctl-*` repos) and advances each one
+toward merge:
+
+1. Reads the latest Codex review state for the PR.
+2. If P1/P2 findings are present, runs the per-service implementer sub-agent to push a
+   fix-up commit addressing the feedback.
+3. If the review is clean and CI is green, merges the PR with `--merge --delete-branch`
+   and flips the proposal's `.status.yaml` to `status: merged`.
+4. If the proposal is unsalvageable (repeated review failures, or Codex flags a hard
+   blocker), it closes the PR and flips the status to `status: rejected`.
+
+The shepherd also runs autonomously on a `30 */2 * * *` UTC cron, so on-demand triggers
+are mainly for "I just merged a fix, advance the queue now" cases.
+
+**Parameters:** none
+
+**Cost / duration:** ~$1–5 per active PR; 2–15 minutes total per run.
+
+**Concurrency:** Contends on the `mctl-gitops-main-writes` Argo mutex with the
+implementer and other gitops-writing workflows, so two runs cannot overlap.
+
+**Returns:** `workflow_name`
+
+```
+mctl_trigger_shepherd()
+# → { "workflow_name": "mctl-agents-shepherd-xyz78" }
 ```
 
 ---
