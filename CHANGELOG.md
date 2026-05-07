@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.19](https://github.com/mctlhq/mctl-docs/compare/0.1.18...0.1.19) (2026-05-07)
+
+
+### Bug Fixes
+
+* **docs:** add missing mctl_trigger_shepherd to MCP tools reference ([80f5a0a](https://github.com/mctlhq/mctl-docs/commit/80f5a0ae662e0d174b13d7d74aa1148ae3970ea6))
+* **docs:** add missing mctl_trigger_shepherd to MCP tools reference ([bc2169b](https://github.com/mctlhq/mctl-docs/commit/bc2169b0936ae076417058c91bbfde97560f142e))
+
 ## [0.1.18](https://github.com/mctlhq/mctl-docs/compare/0.1.17...0.1.18) (2026-05-07)
 
 
