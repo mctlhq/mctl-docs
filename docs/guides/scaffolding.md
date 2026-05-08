@@ -172,7 +172,7 @@ The snippet below implements the **continuous deployment** pattern:
 every push to `main` is auto-tagged with the next SemVer patch and
 triggers `mctl_deploy_service`. To switch to **tag-based**, change the
 `if:` to `startsWith(github.ref, 'refs/tags/')`, drop the *Compute next
-SemVer patch* and *Push new tag* steps, and pass `${{ github.ref_name }}`
+SemVer patch* and *Push new tag* steps, and pass <code v-pre>${{ github.ref_name }}</code>
 as `git_tag` in the curl payload.
 
 ## Pre-merge docker build (recommended)
