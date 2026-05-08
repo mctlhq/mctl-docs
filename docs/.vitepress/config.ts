@@ -61,6 +61,7 @@ export default defineConfig({
         items: [
           { text: 'Tenants', link: '/guides/tenants' },
           { text: 'Services', link: '/guides/services' },
+          { text: 'Scaffolding (Dockerfile + CI)', link: '/guides/scaffolding' },
           { text: 'GitOps Workflows', link: '/guides/gitops-workflows' },
           { text: 'Custom Domains', link: '/guides/domains' },
           { text: 'Databases', link: '/guides/databases' },
