@@ -155,12 +155,62 @@ server {
 The SPA fallback (`try_files … /index.html`) lets client-side routing
 work without 404s.
 
+## When does the deploy fire?
+
+mctl doesn't watch your repo on its own — your CI workflow is what calls
+`mctl_deploy_service` when you want a deploy. Pick the trigger that
+matches your release model.
+
+| Pattern | Trigger | When it fits |
+| --- | --- | --- |
+| **Continuous deployment** | `on: push` to `main` (recommended for one-environment services) | Single env, tags auto-bumped, fast feedback. Every merge ships. |
+| **Tag-based** | `on: push` of tags matching `*.*.*` (and skip the auto-bump step) | You want to decide what's a release. Push a tag manually with `git tag X.Y.Z && git push --tags`. |
+| **Manual** | `on: workflow_dispatch` | Full human control. No automation. Useful for fragile / regulated services. |
+| **Hybrid** | Push to `main` runs validation only; tag push does the deploy | Multi-environment (e.g. staging vs prod) or when validation should diverge from release cadence. |
+
+The snippet below implements the **continuous deployment** pattern:
+every push to `main` is auto-tagged with the next SemVer patch and
+triggers `mctl_deploy_service`. To switch to **tag-based**, change the
+`if:` to `startsWith(github.ref, 'refs/tags/')`, drop the *Compute next
+SemVer patch* and *Push new tag* steps, and pass `${{ github.ref_name }}`
+as `git_tag` in the curl payload.
+
+## Pre-merge docker build (recommended)
+
+Run a `docker build` job on **PRs only** as a pre-merge gate against
+broken Dockerfiles. On push to `main`, mctl rebuilds the same image
+centrally — duplicating that locally just burns CI minutes. Pattern:
+
+```yaml
+docker:
+  name: docker image build (pre-merge gate)
+  if: github.event_name == 'pull_request'
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: docker/setup-buildx-action@v3
+    - uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: false
+        load: false
+        tags: <service>:ci
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+```
+
+**Important:** because this job is skipped on push, it cannot appear in
+the `deploy` job's `needs:` list — a skipped dependency would skip
+`deploy` too. Only list jobs that actually run on the deploy trigger
+(typically `lint`, `type-check`, `test`).
+
 ## CI auto-deploy job
 
 Drop this `deploy` job into `.github/workflows/ci.yml`, after your
-existing build / lint / test jobs (it should `needs:` the heaviest one
-so it only runs on green). Replace `<team>`, `<service>`,
-`<owner>/<repo>`, and the `needs:` job name.
+existing build / lint / test jobs. The `needs:` list should reference
+jobs that actually run on push to `main` — not the PR-only docker
+build above. Replace `<team>`, `<service>`, `<owner>/<repo>`, and the
+`needs:` job name.
 
 ```yaml
 deploy:
