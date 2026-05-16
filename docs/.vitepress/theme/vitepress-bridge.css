@@ -1,0 +1,57 @@
+/*
+ * Maps VitePress CSS variables to MCTL design token variables (--surface-*,
+ * --accent, --font-*) provided by @mctlhq/css/theme.css, which is imported
+ * before this file in theme/index.ts.
+ *
+ * This file replaces the duplicate :root color block that was previously in
+ * custom.css. VitePress component overrides (layout, mermaid, etc.) remain
+ * in custom.css.
+ *
+ * Color shift note: this converges docs onto the canonical MCTL palette —
+ *   brand cyan  #00e5ff (was #00f5ff — portal palette)
+ *   bg          #0a0b0d (was #050816 — portal palette)
+ */
+
+:root {
+  /* Brand → accent */
+  --vp-c-brand-1: var(--accent);
+  --vp-c-brand-2: var(--accent-highlight);
+  --vp-c-brand-3: var(--accent-highlight);
+  --vp-c-brand-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+
+  /* Backgrounds → surface */
+  --vp-c-bg: var(--surface-bg);
+  --vp-c-bg-alt: var(--surface-elevated);
+  --vp-c-bg-elv: var(--surface-elevated);
+  --vp-c-bg-soft: var(--surface-card);
+
+  /* Text → surface fg */
+  --vp-c-text-1: var(--surface-fg);
+  --vp-c-text-2: var(--surface-fg-muted);
+  --vp-c-text-3: var(--surface-fg-subtle);
+
+  /* Borders → surface line */
+  --vp-c-divider: var(--surface-line);
+  --vp-c-border: var(--surface-line-strong);
+  --vp-c-gutter: var(--surface-line);
+
+  /* Fonts */
+  --vp-font-family-base: var(--font-mono);
+  --vp-font-family-mono: var(--font-mono);
+
+  /* Status */
+  --vp-c-warning-1: var(--status-warn);
+  --vp-c-warning-2: color-mix(in srgb, var(--status-warn) 70%, transparent);
+  --vp-c-warning-soft: color-mix(in srgb, var(--status-warn) 10%, transparent);
+  --vp-c-danger-1: var(--status-bad);
+  --vp-c-danger-2: color-mix(in srgb, var(--status-bad) 70%, transparent);
+  --vp-c-danger-soft: color-mix(in srgb, var(--status-bad) 10%, transparent);
+  --vp-c-tip-1: var(--accent);
+  --vp-c-tip-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+
+  /* Code blocks */
+  --vp-code-bg: var(--surface-card);
+  --vp-code-color: var(--syntax-string);
+  --vp-code-block-bg: var(--surface-card);
+  --vp-code-block-divider-color: var(--surface-line);
+}

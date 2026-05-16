@@ -23,3 +23,5 @@ jobs:
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          secrets: |
+            github_token=${{ secrets.GH_PACKAGES_TOKEN }}

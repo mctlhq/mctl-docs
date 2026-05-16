@@ -1,8 +1,10 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache git
-COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+COPY package.json package-lock.json .npmrc ./
+RUN --mount=type=secret,id=github_token \
+    GITHUB_PACKAGES_TOKEN="$(cat /run/secrets/github_token 2>/dev/null || true)" \
+    npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 

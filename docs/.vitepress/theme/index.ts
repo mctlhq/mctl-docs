@@ -1,5 +1,7 @@
 import DefaultTheme from 'vitepress/theme'
 import { onContentUpdated } from 'vitepress'
+import '@mctlhq/css/theme.css'
+import './vitepress-bridge.css'
 import './custom.css'
 import Layout from './Layout.vue'
 import McpSetup from './components/McpSetup.vue'

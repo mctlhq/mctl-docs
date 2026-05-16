@@ -1,104 +1,54 @@
-/* MCTL Theme — matches mctl-portal (Backstage) mctlTheme.ts
-   Dark-only: appearance: 'dark' in config.ts forces dark mode.
-   All selectors use :root / html.dark for specificity. */
+/* MCTL Theme — structural VitePress overrides.
+   Token variables (brand, bg, text, borders, fonts) now come from
+   @mctlhq/css/theme.css + vitepress-bridge.css imported before this file. */
 
 :root {
-  /* Portal: JetBrains Mono for everything */
-  --vp-font-family-base: 'JetBrains Mono', monospace;
-  --vp-font-family-mono: 'JetBrains Mono', monospace;
-
-  /* Brand — portal palette.primary #00f5ff */
-  --vp-c-brand-1: #00f5ff;
-  --vp-c-brand-2: #00d4db;
-  --vp-c-brand-3: #00b3b8;
-  --vp-c-brand-soft: rgba(0, 245, 255, 0.14);
-
-  /* Backgrounds — portal: default #050816, paper #0d111d */
-  --vp-c-bg: #050816;
-  --vp-c-bg-alt: #0d111d;
-  --vp-c-bg-elv: #0d111d;
-  --vp-c-bg-soft: #0d111d;
-
-  /* Text — portal: primary #ffffff, secondary #e6edf3, muted rgba(255,255,255,0.8) */
-  --vp-c-text-1: #e6edf3;
-  --vp-c-text-2: rgba(255, 255, 255, 0.8);
-  --vp-c-text-3: #6b7280;
-
-  /* Borders — portal: rgba(0,245,255, 0.08/0.12/0.2) */
-  --vp-c-divider: rgba(0, 245, 255, 0.12);
-  --vp-c-border: rgba(0, 245, 255, 0.2);
-  --vp-c-gutter: rgba(0, 245, 255, 0.08);
-
-  /* Hero */
+  /* Hero gradient — uses MCTL accent token */
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(135deg, #00f5ff 0%, #00b3b8 100%);
-  --vp-home-hero-image-background-image: radial-gradient(circle, rgba(0, 245, 255, 0.08) 0%, transparent 70%);
+  --vp-home-hero-name-background: linear-gradient(135deg, var(--accent) 0%, var(--accent-highlight) 100%);
+  --vp-home-hero-image-background-image: radial-gradient(circle, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 70%);
 
   /* Defaults */
-  --vp-c-default-1: #e6edf3;
-  --vp-c-default-2: rgba(255, 255, 255, 0.8);
-  --vp-c-default-3: #6b7280;
-  --vp-c-default-soft: rgba(0, 245, 255, 0.08);
+  --vp-c-default-1: var(--surface-fg);
+  --vp-c-default-2: var(--surface-fg-muted);
+  --vp-c-default-3: var(--surface-fg-subtle);
+  --vp-c-default-soft: color-mix(in srgb, var(--accent) 8%, transparent);
 
-  /* Buttons — portal: contained #00f5ff bg / #050816 text */
-  --vp-button-brand-bg: #00f5ff;
-  --vp-button-brand-text: #050816;
-  --vp-button-brand-hover-bg: #00d4db;
-  --vp-button-brand-hover-text: #050816;
-
-  /* Buttons alt — portal: outlined, #00f5ff border */
+  /* Buttons */
+  --vp-button-brand-bg: var(--accent);
+  --vp-button-brand-text: var(--surface-bg);
+  --vp-button-brand-hover-bg: var(--accent-highlight);
+  --vp-button-brand-hover-text: var(--surface-bg);
   --vp-button-alt-bg: transparent;
-  --vp-button-alt-text: #00f5ff;
-  --vp-button-alt-border: rgba(0, 245, 255, 0.4);
-  --vp-button-alt-hover-bg: rgba(0, 245, 255, 0.1);
-  --vp-button-alt-hover-text: #00f5ff;
-  --vp-button-alt-hover-border: #00f5ff;
+  --vp-button-alt-text: var(--accent);
+  --vp-button-alt-border: color-mix(in srgb, var(--accent) 40%, transparent);
+  --vp-button-alt-hover-bg: color-mix(in srgb, var(--accent) 10%, transparent);
+  --vp-button-alt-hover-text: var(--accent);
+  --vp-button-alt-hover-border: var(--accent);
 
-  /* Code — portal: terminal bg */
-  --vp-code-bg: rgba(13, 17, 29, 0.85);
-  --vp-code-color: #e6edf3;
+  /* Code */
+  --vp-code-bg: var(--surface-card);
+  --vp-code-color: var(--surface-fg);
+  --vp-code-block-bg: var(--surface-card);
 
-  /* Custom blocks — portal: info=#00f5ff, warning=#ff9800, error=#f85149 */
-  --vp-custom-block-tip-bg: rgba(0, 245, 255, 0.06);
-  --vp-custom-block-tip-border: rgba(0, 245, 255, 0.3);
-  --vp-custom-block-tip-text: #e6edf3;
-  --vp-custom-block-tip-code-bg: rgba(0, 245, 255, 0.08);
+  /* Custom blocks */
+  --vp-custom-block-tip-bg: color-mix(in srgb, var(--accent) 6%, transparent);
+  --vp-custom-block-tip-border: color-mix(in srgb, var(--accent) 30%, transparent);
+  --vp-custom-block-tip-text: var(--surface-fg);
+  --vp-custom-block-tip-code-bg: color-mix(in srgb, var(--accent) 8%, transparent);
+  --vp-custom-block-info-bg: color-mix(in srgb, var(--accent) 6%, transparent);
+  --vp-custom-block-info-border: color-mix(in srgb, var(--accent) 30%, transparent);
+  --vp-custom-block-info-text: var(--surface-fg);
+  --vp-custom-block-warning-bg: color-mix(in srgb, var(--status-warn) 6%, transparent);
+  --vp-custom-block-warning-border: color-mix(in srgb, var(--status-warn) 30%, transparent);
+  --vp-custom-block-warning-text: var(--surface-fg);
+  --vp-custom-block-danger-bg: color-mix(in srgb, var(--status-bad) 6%, transparent);
+  --vp-custom-block-danger-border: color-mix(in srgb, var(--status-bad) 30%, transparent);
+  --vp-custom-block-danger-text: var(--surface-fg);
 
-  --vp-custom-block-info-bg: rgba(0, 245, 255, 0.06);
-  --vp-custom-block-info-border: rgba(0, 245, 255, 0.3);
-  --vp-custom-block-info-text: #e6edf3;
-
-  --vp-custom-block-warning-bg: rgba(255, 152, 0, 0.06);
-  --vp-custom-block-warning-border: rgba(255, 152, 0, 0.3);
-  --vp-custom-block-warning-text: #e6edf3;
-
-  --vp-custom-block-danger-bg: rgba(248, 81, 73, 0.06);
-  --vp-custom-block-danger-border: rgba(248, 81, 73, 0.3);
-  --vp-custom-block-danger-text: #e6edf3;
-
-  /* Sidebar */
-  --vp-sidebar-bg-color: #050816;
-
-  /* Mobile nav screen */
-  --vp-nav-screen-bg-color: #0d111d;
-}
-
-/* Duplicate under .dark for VitePress specificity */
-.dark {
-  --vp-c-brand-1: #00f5ff;
-  --vp-c-brand-2: #00d4db;
-  --vp-c-brand-3: #00b3b8;
-  --vp-c-brand-soft: rgba(0, 245, 255, 0.14);
-  --vp-c-bg: #050816;
-  --vp-c-bg-alt: #0d111d;
-  --vp-c-bg-elv: #0d111d;
-  --vp-c-bg-soft: #0d111d;
-  --vp-c-text-1: #e6edf3;
-  --vp-c-text-2: rgba(255, 255, 255, 0.8);
-  --vp-c-text-3: #6b7280;
-  --vp-c-divider: rgba(0, 245, 255, 0.12);
-  --vp-c-border: rgba(0, 245, 255, 0.2);
-  --vp-c-gutter: rgba(0, 245, 255, 0.08);
+  /* Sidebar / nav screen */
+  --vp-sidebar-bg-color: var(--surface-bg);
+  --vp-nav-screen-bg-color: var(--surface-elevated);
 }
 
 /* ── Hero ── */
