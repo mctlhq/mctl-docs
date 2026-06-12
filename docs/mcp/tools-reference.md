@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 45 tools for managing your infrastructure. Each tool is annotated as either **read-only** or **destructive**.
+The MCTL MCP server exposes 45 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 

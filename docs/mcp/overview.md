@@ -13,7 +13,7 @@ MCP is an open protocol that connects AI models to external tools and data sourc
 | **Endpoint** | `https://api.mctl.ai/mcp` |
 | **Transport** | Streamable HTTP (POST/GET) |
 | **Auth** | OAuth 2.0 PKCE or Bearer token |
-| **Tools** | 39 (21 read-only, 14 write, 4 destructive) |
+| **Tools** | 45 (21 read-only, 14 write, 4 destructive, 6 agent pipeline) |
 
 ## Capabilities
 

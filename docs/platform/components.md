@@ -10,7 +10,7 @@ MCTL consists of five core components, each in its own repository.
 - Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
-- Exposes 39 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
+- Exposes 45 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
 
 | | |
 |---|---|
