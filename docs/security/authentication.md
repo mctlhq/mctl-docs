@@ -12,7 +12,7 @@ Direct GitHub personal access token authentication. The API validates the token 
 Authorization: Bearer ghp_xxxxxxxxxxxx
 ```
 
-The token must have `read:org` scope to verify organization membership.
+The token must have `read:user` and `user:email` scopes to verify your identity.
 
 ## Dex SSO (JWT)
 
