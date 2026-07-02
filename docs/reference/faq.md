@@ -17,7 +17,7 @@ Any client that supports the Model Context Protocol (MCP): Claude.ai, Claude Cod
 Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 54 tools.
 
 **What can it NOT do?**
-No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`) are explicitly annotated and require AI client confirmation before execution.
+No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`, `mctl_delete_openclaw_skill`, `mctl_delete_openclaw_identity`, `mctl_trigger_implementer`, `mctl_trigger_shepherd`) are explicitly annotated and require AI client confirmation before execution.
 
 **Where do write operations go?**
 Every write operation submits an Argo Workflow that produces a git commit in the GitOps repository. ArgoCD detects the change and syncs it to the cluster. Use `mctl_get_workflow_status` to track progress.
