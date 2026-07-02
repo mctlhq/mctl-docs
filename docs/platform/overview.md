@@ -37,6 +37,6 @@ Every action is an async **operation** with a trackable ID. You can check status
 
 **Multi-tenant** — each team gets isolated namespaces with RBAC policies and resource quotas. No cross-tenant access.
 
-**AI-native** — built from the ground up for AI interaction. The MCP server exposes 39 tools covering the full platform lifecycle.
+**AI-native** — built from the ground up for AI interaction. The MCP server exposes 54 tools covering the full platform lifecycle.
 
 **Self-healing** — the mctl-agent watches AlertManager and automatically creates PRs to fix common issues.

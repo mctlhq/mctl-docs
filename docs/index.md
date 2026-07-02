@@ -19,7 +19,7 @@ hero:
       link: https://github.com/mctlhq
 features:
   - title: MCP Server
-    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 39 tools for full platform control through natural language.
+    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 54 tools for full platform control through natural language.
   - title: GitOps-First
     details: Every change flows through Git. ArgoCD ensures your cluster matches your desired state, with full audit trail and zero imperative commands.
   - title: Tenant Isolation
