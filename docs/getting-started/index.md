@@ -153,7 +153,7 @@ Are there any open incidents?
 | [Service Deployment](/guides/services) | Advanced deployment options |
 | [Custom Domains](/guides/domains) | Configure DNS and TLS |
 | [Databases](/guides/databases) | Provision PostgreSQL databases |
-| [MCP Tools Reference](/mcp/tools-reference) | All 39 available tools |
+| [MCP Tools Reference](/mcp/tools-reference) | All 54 available tools |
 | [REST API](/api/) | Direct API access for scripts and CI/CD |
 | [Troubleshooting](/reference/troubleshooting) | Common issues and solutions |
 

@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 45 tools for managing your infrastructure. Each tool is annotated as either **read-only** or **destructive**.
+The MCTL MCP server exposes 54 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -90,6 +90,14 @@ The MCTL MCP server exposes 45 tools for managing your infrastructure. Each tool
 | `mctl_deploy_openclaw` | Prepare self-service OpenClaw deployment. Returns Telegram bot-token intake URL | Write |
 | `mctl_resume_openclaw_deploy` | Resume onboarding after bot token saved. Provisions database and submits deploy workflow | Write |
 | `mctl_apply_openclaw_resource_profile` | Apply a named runtime profile (startup, steady-medium, steady-small) via GitOps | Write |
+| `mctl_list_openclaw_skills` | List OpenClaw skills managed in gitops for a team | Read |
+| `mctl_read_openclaw_skill` | Return the raw content of a single skill from gitops | Read |
+| `mctl_save_openclaw_skill` | Save a skill (SKILL.md) to the tenant's OpenClaw agent | Write |
+| `mctl_delete_openclaw_skill` | Remove a skill from the tenant's OpenClaw agent | Destructive |
+| `mctl_list_openclaw_identity` | List identity override files managed in gitops for a team | Read |
+| `mctl_read_openclaw_identity` | Return the raw content of a single identity override file | Read |
+| `mctl_save_openclaw_identity` | Save an identity override (AGENTS.md, SOUL.md, IDENTITY.md, USER.md, TOOLS.md) | Write |
+| `mctl_delete_openclaw_identity` | Remove an identity override from the tenant's OpenClaw agent | Destructive |
 
 ## mctl-agents pipeline controls
 
@@ -104,7 +112,7 @@ repos for changes, identifies documentation gaps, and writes spec proposals — 
 service (researcher → analyst → spec-writer). A Tier 2 implementer can also convert accepted
 proposals into pull requests automatically.
 
-The five tools below let platform admins drive this pipeline on demand from any MCP-capable
+The seven tools below let platform admins drive this pipeline on demand from any MCP-capable
 client (e.g. Claude Desktop, Claude Code).
 
 ### Tool summary
@@ -117,6 +125,7 @@ client (e.g. Claude Desktop, Claude Code).
 | `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` |
 | `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` |
 | `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` |
+| `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` |
 
 ---
 

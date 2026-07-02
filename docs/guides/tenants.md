@@ -32,7 +32,7 @@ Visit [mctl.ai](https://mctl.ai) and use the tenant creation form. You'll need t
 ### Via API
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" https://api.mctl.ai/api/tenants
+curl -H "Authorization: Bearer $TOKEN" https://api.mctl.ai/api/v1/tenants
 ```
 
 ## Get Tenant Details
