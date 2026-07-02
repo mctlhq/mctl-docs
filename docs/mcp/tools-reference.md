@@ -117,15 +117,15 @@ client (e.g. Claude Desktop, Claude Code).
 
 ### Tool summary
 
-| Tool | Purpose | Returns |
-|---|---|---|
-| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` |
-| `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` |
-| `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` |
-| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` |
-| `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` |
-| `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` |
-| `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` |
+| Tool | Purpose | Returns | Type |
+|---|---|---|---|
+| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` | Write |
+| `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` | Write |
+| `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` | Write |
+| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` | Read |
+| `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` | Destructive |
+| `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` | Destructive |
+| `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` | Write |
 
 ---
 
@@ -276,6 +276,34 @@ mctl_trigger_shepherd()
 ```
 
 ---
+
+### `mctl_trigger_issue`
+
+Triggers the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven
+proposal. Given an issue URL under the `mctlhq` org, the investigator reads the issue,
+clones the target repo read-only to ground the design in real code, and writes
+`requirements.md` / `design.md` / `tasks.md` plus a `.status.yaml` (`status: proposed`)
+under `platform-gitops/agents-state/<service>/proposals/<slug>/`. It then comments the
+proposal link back on the issue.
+
+The proposal stops at `status: proposed` and awaits human approval — review the spec and
+flip `.status.yaml` to `accepted` before the Tier 2 implementer
+(`mctl_trigger_implementer`) picks it up. No PR is opened by this step, which is why the
+tool is annotated Write rather than Destructive.
+
+**Parameters:**
+
+| Name | Required | Description |
+|---|---|---|
+| `issue_url` | yes | Full GitHub issue URL under the mctlhq org, e.g. `https://github.com/mctlhq/mctl-telegram/issues/123` |
+
+**Cost / duration:** ~$3 against Claude subscription quota; ~5–10 minutes.
+
+**Result:** a new proposal directory committed to `mctl-gitops` main, plus a comment on
+the issue.
+
+**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` or
+`mctl_list_recent_agent_runs` to track progress.
 
 ### Status polling
 

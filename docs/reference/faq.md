@@ -29,7 +29,7 @@ GitHub OAuth with PKCE flow. Only `read:user` and `user:email` scopes are reques
 No for Claude.ai — use the native connector. For developer clients (Cursor, VS Code, Claude Desktop, etc.), add a one-time MCP server config with your GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
 
 **What GitHub token scope is needed?**
-For developer clients: `read:user` and `user:email`. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
+For developer clients: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
 
 **How many tools are available?**
 54 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
