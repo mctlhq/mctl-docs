@@ -21,7 +21,8 @@ Since every deployment is a Git commit, rollbacks are simply reverting to the pr
 - Full audit trail of what changed and when
 - The rollback itself is a new commit (not a force-push)
 - ArgoCD handles the actual Kubernetes rollout
-- Blue-green strategy ensures zero-downtime rollbacks
+- Most services roll back via a standard rolling update; blue-green is an
+  opt-in strategy for services that need it, not the default
 
 ## Check Rollback Status
 
