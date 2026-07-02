@@ -54,6 +54,7 @@ Every tool is annotated with its behavior:
 | Annotation | Meaning |
 |------------|---------|
 | `readOnly` | Only reads data, no side effects |
-| `destructive` | Modifies or deletes resources |
+| `write` | Creates or modifies resources (deploys, scaling, config changes) |
+| `destructive` | Deletes or retires resources; AI clients ask for confirmation |
 
 See the full [Tools Reference](/mcp/tools-reference) for details on each tool.
