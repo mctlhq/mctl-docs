@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.22](https://github.com/mctlhq/mctl-docs/compare/0.1.21...0.1.22) (2026-07-03)
+
+
+### Bug Fixes
+
+* keep git history in docs build so lastUpdated works ([987e2cb](https://github.com/mctlhq/mctl-docs/commit/987e2cb541da472eef8492d171a2617c66fe33f7))
+
 ## [0.1.21](https://github.com/mctlhq/mctl-docs/compare/0.1.20...0.1.21) (2026-07-02)
 
 
