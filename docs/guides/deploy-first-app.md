@@ -7,6 +7,14 @@ the MCP-based path for each step.
 By the end you will have a live service URL in the form
 `https://<team>-<service>.mctl.ai` with a passing health check.
 
+::: info Managing MCTL through MCP
+MCTL can also be managed through MCP-compatible AI tools such as Claude, Cursor, and VS Code.
+You can use MCP to inspect tenants, deploy services, check workflow status, and operate the
+platform conversationally. Each step in this guide includes both a portal path and an MCP path.
+
+To use the MCP path, connect your AI client first: [Connecting to MCTL MCP](/mcp/connecting).
+:::
+
 ## Before you begin
 
 - A GitHub account with push access to your application repository.
