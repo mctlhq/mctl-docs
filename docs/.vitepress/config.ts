@@ -59,6 +59,7 @@ export default defineConfig({
         text: 'Guides',
         collapsed: false,
         items: [
+          { text: 'First-user checklist', link: '/guides/first-user-checklist' },
           { text: 'Deploy your first app', link: '/guides/deploy-first-app' },
           { text: 'Tenants', link: '/guides/tenants' },
           { text: 'Services', link: '/guides/services' },
