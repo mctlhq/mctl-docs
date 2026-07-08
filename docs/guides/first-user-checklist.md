@@ -18,26 +18,33 @@ the relevant deep-dive guide or URL for more detail.
   contact your platform operator before proceeding.
 
 - [ ] **3. Verify ArgoCD access**
-  Open [argocd.mctl.ai](https://argocd.mctl.ai) and confirm that you can sign in and
+  Open [ops.mctl.ai](https://ops.mctl.ai) and confirm that you can sign in and
   see your tenant's applications. ArgoCD is the GitOps engine that manages continuous
   deployment for your services.
 
 - [ ] **4. Verify Argo Workflows access**
   Open [workflows.mctl.ai](https://workflows.mctl.ai) and confirm that you can sign in
   and view the workflow namespace for your tenant. Argo Workflows runs the build and
-  deployment pipelines triggered by each push to your repository.
+  deployment pipeline submitted by `mctl_deploy_service` in Step 6 below. Auto-deploy
+  on every push to your repository is optional and requires the CI job described in the
+  [Scaffolding guide](/guides/scaffolding) — it is not enabled by default.
 
 - [ ] **5. Prepare a Git repository or Docker image**
   Your workload must be reachable from MCTL. For source-based deployments, push your
   application code to a GitHub repository and ensure you have a Dockerfile (or use
   MCTL scaffolding to generate one). See
   [Deploy your first app - Step 2](/guides/deploy-first-app#step-2-prepare-a-repository)
-  and the [Scaffolding guide](/guides/scaffolding) for details.
+  and the [Scaffolding guide](/guides/scaffolding) for details. If you already have a
+  container image published to a registry, skip straight to
+  [Deploy a Service](/guides/services#deploy-a-service) instead — it deploys from an
+  existing image reference with no repository or Dockerfile required.
 
 - [ ] **6. Deploy your first workload**
   Follow the [Deploy your first app](/guides/deploy-first-app) guide to connect your
-  repository to MCTL, run the onboarding workflow, and obtain a live service URL. This
-  step covers both the portal path and the MCP path.
+  repository to MCTL, run the onboarding workflow, and obtain a live service URL. The
+  MCP path is fully documented end to end; the portal path currently covers tenant and
+  dashboard steps only — repository access and sync are MCP-only for now (see the tips
+  in [Deploy your first app](/guides/deploy-first-app#step-4-grant-mctl-access-to-the-repository)).
 
 - [ ] **7. Review logs and deployment status**
   After deployment completes, confirm the service is healthy by checking the workflow
