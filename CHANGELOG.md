@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.24](https://github.com/mctlhq/mctl-docs/compare/0.1.23...0.1.24) (2026-07-08)
+
+
+### Features
+
+* **agents:** issue-38-add-first-user-onboarding-checklist ([6f745e6](https://github.com/mctlhq/mctl-docs/commit/6f745e6e299c73f13f9535f72b1697e4b231cde5))
+* **agents:** issue-38-add-first-user-onboarding-checklist ([bb1c0e7](https://github.com/mctlhq/mctl-docs/commit/bb1c0e70158419a9abc6be5d0c81842ba50a1525))
+
+
+### Bug Fixes
+
+* **docs:** correct first-user-checklist per Codex P2 findings ([1ccbd88](https://github.com/mctlhq/mctl-docs/commit/1ccbd882f4dd91d64f4f110bdc4a27c5cd9ec0f3))
+* **docs:** correct first-user-checklist per Codex P2 findings ([919c25d](https://github.com/mctlhq/mctl-docs/commit/919c25dd912d3b4a2f6eacde68f41e1fb41735ec))
+
 ## [0.1.23](https://github.com/mctlhq/mctl-docs/compare/0.1.22...0.1.23) (2026-07-08)
 
 
