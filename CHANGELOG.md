@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.23](https://github.com/mctlhq/mctl-docs/compare/0.1.22...0.1.23) (2026-07-08)
+
+
+### Features
+
+* **agents:** issue-37-add-deploy-your-first-app-onboarding-gui ([60f9cef](https://github.com/mctlhq/mctl-docs/commit/60f9cef41cdd2afce4969e89c8171fb22b0d3073))
+* **agents:** issue-37-add-deploy-your-first-app-onboarding-gui ([9b67ce9](https://github.com/mctlhq/mctl-docs/commit/9b67ce9c465c8114e6362ce435b31a87b121ac48))
+
+
+### Bug Fixes
+
+* **ci:** detect claude-review SDK failure the outcome field misses ([b83c63d](https://github.com/mctlhq/mctl-docs/commit/b83c63d8a8c7b8c41b19622385d11c4990d57c83))
+* **ci:** detect claude-review SDK failure the outcome field misses ([d35ba11](https://github.com/mctlhq/mctl-docs/commit/d35ba11bd056e3dc8ff4bce170a4e495b03700e9))
+
 ## [0.1.22](https://github.com/mctlhq/mctl-docs/compare/0.1.21...0.1.22) (2026-07-03)
 
 
