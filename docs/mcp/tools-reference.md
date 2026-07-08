@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 54 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The MCTL MCP server exposes 61 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -81,6 +81,18 @@ The MCTL MCP server exposes 54 tools for managing your infrastructure. Each tool
 | `mctl_list_repos` | List GitHub repos available to a team. Admins see org + personal repos | Read |
 | `mctl_grant_repo_access` | Generate GitHub App installation URL to grant platform access to a repo | Write |
 | `mctl_sync_repos` | Discover and register GitHub repos from App installations for a team | Write |
+
+## Platform Skills
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_platform_skills` | List the platform-wide skill catalog, filtered to what the caller can see | Read |
+| `mctl_read_platform_skill` | Read a single platform skill's metadata and raw SKILL.md content | Read |
+| `mctl_list_tenant_skill_bindings` | List which platform skills are enabled for which tenants | Read |
+| `mctl_enable_tenant_skill` | Enable a platform skill for a tenant via GitOps (admin only) | Write |
+| `mctl_disable_tenant_skill` | Disable a platform skill for a tenant via GitOps (admin only) | Write |
+| `mctl_publish_platform_skill` | Publish or update a platform skill catalog entry via GitOps (admin only) | Write |
+| `mctl_deprecate_platform_skill` | Mark a platform skill as deprecated via GitOps (admin only) | Write |
 
 ## OpenClaw (Resource Optimization)
 

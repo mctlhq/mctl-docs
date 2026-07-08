@@ -27,6 +27,7 @@ With the MCTL MCP server you can:
 - **Provision databases** — create databases with auto-configured secrets
 - **Preview environments** — create and manage preview deployments
 - **Resource management** — check usage, get sizing recommendations
+- **Platform skill registry** — list, read, publish, deprecate, and enable/disable platform-wide skills per tenant
 
 ## What You Get
 
