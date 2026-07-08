@@ -2,6 +2,12 @@
 
 This guide takes you from zero to a running service on MCTL in under 10 minutes. No Kubernetes experience required.
 
+::: tip Portal alternative
+Prefer a graphical interface? The [MCTL Portal](https://app.mctl.ai) at `app.mctl.ai` provides
+a Backstage-powered service catalog and dashboard for the same operations. The MCP and Portal
+interfaces are complementary — you can switch between them at any time.
+:::
+
 ## Prerequisites
 
 - A GitHub account
