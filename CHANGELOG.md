@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.25](https://github.com/mctlhq/mctl-docs/compare/0.1.24...0.1.25) (2026-07-08)
+
+
+### Features
+
+* **agents:** issue-39-document-mcp-as-a-platform-management-op ([4d60f8a](https://github.com/mctlhq/mctl-docs/commit/4d60f8a5a7449c9cf965b52161f4db44e8ea077e))
+
 ## [0.1.24](https://github.com/mctlhq/mctl-docs/compare/0.1.23...0.1.24) (2026-07-08)
 
 
