@@ -13,7 +13,7 @@ MCP is an open protocol that connects AI models to external tools and data sourc
 | **Endpoint** | `https://api.mctl.ai/mcp` |
 | **Transport** | Streamable HTTP (POST/GET) |
 | **Auth** | OAuth 2.0 PKCE or Bearer token |
-| **Tools** | 54 (26 read-only, 20 write, 8 destructive) |
+| **Tools** | 61 (29 read-only, 24 write, 8 destructive) |
 
 ## Capabilities
 
@@ -27,6 +27,7 @@ With the MCTL MCP server you can:
 - **Provision databases** — create databases with auto-configured secrets
 - **Preview environments** — create and manage preview deployments
 - **Resource management** — check usage, get sizing recommendations
+- **Platform skill registry** — list, read, publish, deprecate, and enable/disable platform-wide skills per tenant
 
 ## What You Get
 
