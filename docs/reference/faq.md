@@ -14,7 +14,7 @@ Any client that supports the Model Context Protocol (MCP): Claude.ai, Claude Cod
 ## MCP
 
 **What can the AI do?**
-Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 54 tools.
+Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 62 tools.
 
 **What can it NOT do?**
 No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`, `mctl_delete_openclaw_skill`, `mctl_delete_openclaw_identity`, `mctl_trigger_implementer`, `mctl_trigger_shepherd`) are explicitly annotated and require AI client confirmation before execution.
@@ -32,7 +32,7 @@ No for Claude.ai — use the native connector. For developer clients (Cursor, VS
 For developer clients: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
 
 **How many tools are available?**
-54 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
+62 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
 
 ## Platform
 

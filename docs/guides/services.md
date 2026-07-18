@@ -79,8 +79,15 @@ Retiring a service removes it from the cluster. The GitOps history preserves the
 
 ## Deployment Strategies
 
-MCTL supports blue-green deployments by default. The platform handles:
+By default services deploy with a standard Kubernetes rolling update, applied
+by ArgoCD when the new image tag lands in the GitOps repository.
+
+Blue-green is available as an opt-in strategy (Argo Rollouts) for services
+that need atomic traffic switching. When enabled, the platform handles:
 - Creating the new version alongside the old
-- Health checking the new version
-- Switching traffic
+- Health checking the new version before it receives traffic
+- Switching traffic on promotion
 - Cleaning up the old version
+
+Rollbacks follow the same model: a rolling update back to the previous image
+tag — see [Rollbacks](/guides/rollbacks).
