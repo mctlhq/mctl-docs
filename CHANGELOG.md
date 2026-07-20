@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.26](https://github.com/mctlhq/mctl-docs/compare/0.1.25...0.1.26) (2026-07-20)
+
+
+### Bug Fixes
+
+* **ci:** preserve zero diff-line count in Claude review ([#48](https://github.com/mctlhq/mctl-docs/issues/48)) ([16916ec](https://github.com/mctlhq/mctl-docs/commit/16916ec81867a003567db78d4bd53b473e0349ed))
+* update stale tool-count breakdown in MCP overview ([b0027ae](https://github.com/mctlhq/mctl-docs/commit/b0027aea01e9d6fd2af5ae7a78c7c2f682845243))
+
 ## [0.1.25](https://github.com/mctlhq/mctl-docs/compare/0.1.24...0.1.25) (2026-07-08)
 
 
