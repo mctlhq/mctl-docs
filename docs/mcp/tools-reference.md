@@ -1,6 +1,10 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 61 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+<!-- Tool count must match the expectation in mctl-api internal/mcp/server_test.go.
+     When adding/removing a tool, update: this line, docs/index.md,
+     getting-started/index.md, reference/faq.md (2x), platform/overview.md,
+     platform/components.md. -->
+The MCTL MCP server exposes 62 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -137,6 +141,7 @@ client (e.g. Claude Desktop, Claude Code).
 | `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` | Read |
 | `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` | Destructive |
 | `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` | Destructive |
+| `mctl_trigger_incident_responder` | Diagnose stuck TypeGeneric incidents into auto-accepted proposals, then resolve them | `workflow_name` | Write |
 | `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` | Write |
 
 ---
@@ -286,6 +291,24 @@ implementer and other gitops-writing workflows, so two runs cannot overlap.
 mctl_trigger_shepherd()
 # → { "workflow_name": "mctl-agents-shepherd-xyz78" }
 ```
+
+---
+
+### `mctl_trigger_incident_responder`
+
+Triggers the incident responder: diagnoses TypeGeneric incidents stuck in
+`status=analyzing` for more than 30 minutes, writes auto-accepted proposals
+(`requirements.md` / `design.md` / `tasks.md` + `.status.yaml` with
+`status: accepted`) under `platform-gitops/agents-state/<service>/proposals/incident-<id>/`
+for the Tier 2 implementer to pick up, then resolves the matched incidents.
+Same as the every-30-minute cron (`15,45 * * * *` UTC), on demand. Admin-only.
+
+**Parameters:** none
+
+**Cost / duration:** ~$2 per run (subscription quota), max 5 incidents per run; up to ~10 minutes.
+
+**Returns:** `workflow_name` — poll `mctl_get_workflow_status` or
+`mctl_list_recent_agent_runs` for progress.
 
 ---
 
