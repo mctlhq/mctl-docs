@@ -22,6 +22,25 @@ Your GitHub identity does not have access to the requested tenant.
 - Destructive operations (`delete_tenant`, `retire_service`) require admin group membership
 - Ask your tenant admin to verify your access
 
+### "Forbidden" on workflows.mctl.ai
+
+If you deploy or check logs via `mctl_deploy_service` / MCP, requests go
+through `mctl-api`'s service account and the tenant-group check described
+above. Browsing or submitting workflows directly at
+[workflows.mctl.ai](https://workflows.mctl.ai) is a separate path: it uses
+Argo Workflows' own SSO, which maps your session to a per-tenant
+ServiceAccount by group membership rather than by the mctl-api RBAC model.
+
+A `forbidden ... cannot get resource "workflows" ... in namespace
+"<tenant>"` error here usually means your SSO session resolved to a
+*different* tenant's ServiceAccount than the one you're trying to act in.
+This happens when you belong to more than one tenant and their SSO
+group-resolution rules tie — most commonly because you were once part of
+a duplicate or since-renamed tenant that was never fully deleted. Ask a
+platform admin to check for stale tenants tied to your account and remove
+them; recreating your session (sign out and back in) after cleanup clears
+the stale group claim.
+
 ### Token type confusion
 
 MCTL accepts three token types. The API auto-detects the type:
