@@ -71,9 +71,18 @@ code, and return to this guide.
 
 ## Step 3: Add a Dockerfile
 
-MCTL builds your container image from a `Dockerfile` at the repository root.
-A minimal Node.js example is shown below. For other runtimes (Python, Go,
-static SPA) see [Scaffolding](/guides/scaffolding).
+By default MCTL builds your container image from a `Dockerfile` at the
+repository root. A minimal Node.js example is shown below. For other
+runtimes (Python, Go, static SPA) see [Scaffolding](/guides/scaffolding).
+
+::: tip Monorepo or non-root Dockerfile
+If your Dockerfile lives somewhere other than the repository root (for
+example a monorepo with the app under `apps/api/Dockerfile`), pass
+`dockerfile_path` when you onboard the service in Step 6 — see the
+parameter table there. Omitting it defaults to `Dockerfile` at the repo
+root, which fails the build with `open Dockerfile: no such file or
+directory` if that is not where your Dockerfile actually is.
+:::
 
 ```dockerfile
 FROM node:22.11-alpine3.20
@@ -186,6 +195,22 @@ mctl_deploy_service(
 )
 ```
 
+If your Dockerfile is not at the repository root (a monorepo, for
+example), add `dockerfile_path`:
+
+```
+mctl_deploy_service(
+  action="onboard",
+  team_name="my-team",
+  component_name="my-service",
+  dockerfile_repo="<owner>/<repo>",
+  dockerfile_path="apps/api/Dockerfile",
+  git_tag="0.1.0",
+  port="8787",
+  service_template="default"
+)
+```
+
 Parameters:
 
 | Parameter | Description |
@@ -197,6 +222,7 @@ Parameters:
 | `git_tag` | The Git tag to build. Tag your repository before onboarding (`git tag 0.1.0 && git push --tags`) |
 | `port` | The container port your application listens on (matches the `EXPOSE` in your Dockerfile) |
 | `service_template` | Use `"default"` unless you have a specific template |
+| `dockerfile_path` | Optional. Path to the Dockerfile relative to the repo root. Defaults to `"Dockerfile"` (repo root). Set this for monorepos, e.g. `"apps/api/Dockerfile"` |
 
 The tool returns an operation ID. MCTL submits an Argo Workflow in the
 background — proceed to Step 7 to track it.
