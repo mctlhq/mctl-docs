@@ -164,6 +164,12 @@ If you see `ImagePullBackOff` or `ErrImagePull`:
    "Grant access to repo myorg/my-app for my-team"
    ```
 3. Check that the image tag is correct — tags are case-sensitive
+4. If the image builds and pushes successfully (check the source repo's
+   Actions tab) but still won't pull, your tenant namespace may be missing
+   the `ghcr-credentials` secret used to authenticate to `ghcr.io`. This is
+   provisioned automatically for new tenants — contact the platform team if
+   you're on an older tenant that predates it. Repository access (step 2)
+   only covers the build; the registry pull is a separate credential.
 
 ## Databases
 

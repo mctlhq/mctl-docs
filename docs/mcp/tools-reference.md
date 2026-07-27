@@ -26,10 +26,65 @@ The MCTL MCP server exposes 61 tools for managing your infrastructure. Each tool
 | `mctl_get_service_config` | Get full configuration from GitOps: image tag, host, port, component type, database status | Read |
 | `mctl_get_service_logs` | Fetch recent log lines from Loki, sorted by timestamp (most recent first) | Read |
 | `mctl_get_resource_usage` | Get resource quota usage: CPU, memory, pods used vs allocated | Read |
-| `mctl_deploy_service` | Deploy a service. Actions: "onboard" (first-time), "deploy" (update version), "update-config" (change env/secrets) | Write |
+| `mctl_deploy_service` | Deploy a service. Actions: "onboard" (first-time), "deploy" (update version), "update-config" (change env/secrets) — see [details below](#mctl-deploy-service) | Write |
 | `mctl_scale_service` | Update autoscaling: enable/disable HPA, set min/max replicas and CPU threshold | Write |
 | `mctl_rollback_service` | Roll back to a previously deployed image tag via GitOps | Write |
 | `mctl_retire_service` | Permanently remove a service: deletes GitOps manifests, Vault secrets, ArgoCD app, and K8s resources | Destructive |
+
+### `mctl_deploy_service`
+
+Deploys or reconfigures a service. The `action` parameter selects the mode:
+
+| Action | Purpose |
+|---|---|
+| `onboard` | First-time deploy — creates the GitOps manifests and submits the initial build + deploy workflow |
+| `deploy` | Update an already-onboarded service to a new image tag |
+| `update-config` | Change environment variables, secrets, or the health-check path without a new image build |
+
+**Parameters** (not all apply to every action; see [Deploy your first app](/guides/deploy-first-app) for the full onboard walkthrough):
+
+| Name | Applies to | Description |
+|---|---|---|
+| `team_name` | all | Tenant name |
+| `component_name` | all | Service name — used in the generated URL |
+| `dockerfile_repo` | onboard, deploy | GitHub repository in `<owner>/<repo>` format |
+| `dockerfile_path` | onboard | Path to the Dockerfile if not at the repo root. Defaults to `"Dockerfile"` |
+| `git_tag` | onboard, deploy | Git tag to build/deploy |
+| `port` | onboard | Container port the app listens on |
+| `service_template` | onboard | Use `"default"` unless a custom template applies |
+| `health_check_path` | onboard, update-config | Overrides both liveness and readiness probe paths. Defaults to `"/healthz"` — set this if the app can't implement that exact path |
+| `secret_env_vars` | update-config | Map of env var name → secret value to inject into the pod (see below) |
+| `env_vars` | update-config | Map of plain, non-secret env vars |
+
+**How `update-config` with `secret_env_vars` actually works:**
+
+This is not instant — it's a three-step chain, and each step has its own propagation delay:
+
+1. The value is written to Vault under the tenant's secret path.
+2. An `ExternalSecret` is created/updated in the tenant namespace. The External
+   Secrets Operator syncs it into a Kubernetes `Secret` — this sync is not
+   immediate; check the `ExternalSecret`'s status if the value hasn't landed
+   yet.
+3. The Kubernetes `Secret` is wired into the pod via `envFrom`. `update-config`
+   triggers a rollout for you, but a running pod will not see the new value
+   until it restarts.
+
+If a secret isn't reaching your app, check in order: the `ExternalSecret`
+synced (the `Secret` exists in-namespace) → the Deployment's `envFrom`
+references that `Secret` → the pod actually restarted after the update.
+
+**Example:**
+
+```
+mctl_deploy_service(
+  action="update-config",
+  team_name="my-team",
+  component_name="my-service",
+  secret_env_vars={"API_KEY": "sk-..."}
+)
+```
+
+---
 
 ## Operations & Workflows
 

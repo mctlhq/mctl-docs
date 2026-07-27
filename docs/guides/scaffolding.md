@@ -51,8 +51,10 @@ CMD ["node", "server.js"]
 ```
 
 Implement a `GET /healthz` endpoint returning `200 {"ok": true}` so the
-HEALTHCHECK passes. If your service uses a different entrypoint
-(`index.js`, `dist/main.js`), update the final `CMD`.
+HEALTHCHECK passes. Can't use `/healthz`? Pass `health_check_path=/your-path`
+when onboarding to override both liveness and readiness probe paths. If your
+service uses a different entrypoint (`index.js`, `dist/main.js`), update the
+final `CMD`.
 
 ## Python
 
