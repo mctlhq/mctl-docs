@@ -303,6 +303,12 @@ exists.
    ```
    curl https://<team>-<service>.mctl.ai/healthz
    ```
+   If you passed `health_check_path` to override the platform probe path,
+   curl that path instead — and update the Dockerfile's `HEALTHCHECK` line
+   to match too. `health_check_path` only changes the Kubernetes liveness/
+   readiness probes; it can't rewrite the image's own `HEALTHCHECK`, so an
+   app exposing only the custom path will still fail Docker's own health
+   check even though the platform reports it healthy.
 6. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
    without human intervention from then on.
 

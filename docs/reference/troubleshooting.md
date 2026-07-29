@@ -164,12 +164,19 @@ If you see `ImagePullBackOff` or `ErrImagePull`:
    "Grant access to repo myorg/my-app for my-team"
    ```
 3. Check that the image tag is correct — tags are case-sensitive
-4. If the image builds and pushes successfully (check the source repo's
-   Actions tab) but still won't pull, your tenant namespace may be missing
-   the `ghcr-credentials` secret used to authenticate to `ghcr.io`. This is
-   provisioned automatically for new tenants — contact the platform team if
-   you're on an older tenant that predates it. Repository access (step 2)
-   only covers the build; the registry pull is a separate credential.
+4. If the image builds and pushes successfully but still won't pull, your
+   tenant namespace may be missing the `ghcr-credentials` secret used to
+   authenticate to `ghcr.io`. This is provisioned automatically for new
+   tenants — contact the platform team if you're on an older tenant that
+   predates it. Repository access (step 2) only covers the build; the
+   registry pull is a separate credential.
+
+   Note: your source repo's own Actions job only *triggers* the build — it
+   doesn't run it. MCTL builds and pushes the image centrally via an Argo
+   Workflow, so a green check on your repo's Actions tab just means the
+   trigger request was sent, not that the build itself succeeded. Use
+   `mctl_get_workflow_status` (or `mctl_list_workflows`) to check the actual
+   build/deploy workflow before assuming the image exists.
 
 ## Databases
 
