@@ -113,7 +113,9 @@ CMD ["node", "server.js"]
 ```
 
 Add a `GET /healthz` endpoint to your application that returns `200 {"ok": true}`.
-MCTL uses this endpoint for liveness checks.
+Can't use `/healthz`? Pass `health_check_path=/your-path` when onboarding in
+Step 6 to override both liveness and readiness probe paths. MCTL uses this
+endpoint for liveness checks.
 
 Commit the Dockerfile to the default branch before proceeding.
 
@@ -223,6 +225,7 @@ Parameters:
 | `port` | The container port your application listens on (matches the `EXPOSE` in your Dockerfile) |
 | `service_template` | Use `"default"` unless you have a specific template |
 | `dockerfile_path` | Optional. Path to the Dockerfile relative to the repo root. Defaults to `"Dockerfile"` (repo root). Set this for monorepos, e.g. `"apps/api/Dockerfile"` |
+| `health_check_path` | Optional. Path used for both liveness and readiness probes. Defaults to `"/healthz"`. Set this if your app can't implement that exact path, e.g. `"/api/health"` |
 
 The tool returns an operation ID. MCTL submits an Argo Workflow in the
 background — proceed to Step 7 to track it.
@@ -273,6 +276,12 @@ Verify the service is responding:
 ```bash
 curl https://my-team-my-service.mctl.ai/healthz
 ```
+
+(If you passed `health_check_path` in Step 6, curl that path instead — and
+update the Dockerfile's `HEALTHCHECK` line to match too. `health_check_path`
+only changes the Kubernetes liveness/readiness probes; it can't rewrite the
+image's own `HEALTHCHECK`, so an app exposing only the custom path will still
+fail Docker's own health check even though the platform reports it healthy.)
 
 You should receive `200 {"ok": true}`. If the health check fails and the
 workflow reported `Succeeded`, wait 30 seconds for DNS propagation and

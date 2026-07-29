@@ -51,8 +51,14 @@ CMD ["node", "server.js"]
 ```
 
 Implement a `GET /healthz` endpoint returning `200 {"ok": true}` so the
-HEALTHCHECK passes. If your service uses a different entrypoint
-(`index.js`, `dist/main.js`), update the final `CMD`.
+HEALTHCHECK passes. Can't use `/healthz`? Pass `health_check_path=/your-path`
+when onboarding to override both liveness and readiness probe paths — but
+note that only changes the Kubernetes probes, not this Dockerfile's own
+`HEALTHCHECK` line. Update the `HEALTHCHECK` (and any later verification
+`curl`) to the same custom path too, or the image will report unhealthy in
+any environment that runs Docker's own check (e.g. local `docker run`) even
+though the platform reports it healthy. If your service uses a different
+entrypoint (`index.js`, `dist/main.js`), update the final `CMD`.
 
 ## Python
 
@@ -301,6 +307,12 @@ exists.
    ```
    curl https://<team>-<service>.mctl.ai/healthz
    ```
+   If you passed `health_check_path` to override the platform probe path,
+   curl that path instead — and update the Dockerfile's `HEALTHCHECK` line
+   to match too. `health_check_path` only changes the Kubernetes liveness/
+   readiness probes; it can't rewrite the image's own `HEALTHCHECK`, so an
+   app exposing only the custom path will still fail Docker's own health
+   check even though the platform reports it healthy.
 6. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
    without human intervention from then on.
 
