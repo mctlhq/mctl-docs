@@ -39,7 +39,7 @@ Deploys or reconfigures a service. The `action` parameter selects the mode:
 |---|---|
 | `onboard` | First-time deploy — creates the GitOps manifests and submits the initial build + deploy workflow |
 | `deploy` | Update an already-onboarded service to a new image tag |
-| `update-config` | Change environment variables, secrets, or the health-check path without a new image build |
+| `update-config` | Change environment variables or secrets without a new image build |
 
 **Parameters** (not all apply to every action; see [Deploy your first app](/guides/deploy-first-app) for the full onboard walkthrough):
 

@@ -277,6 +277,12 @@ Verify the service is responding:
 curl https://my-team-my-service.mctl.ai/healthz
 ```
 
+(If you passed `health_check_path` in Step 6, curl that path instead — and
+update the Dockerfile's `HEALTHCHECK` line to match too. `health_check_path`
+only changes the Kubernetes liveness/readiness probes; it can't rewrite the
+image's own `HEALTHCHECK`, so an app exposing only the custom path will still
+fail Docker's own health check even though the platform reports it healthy.)
+
 You should receive `200 {"ok": true}`. If the health check fails and the
 workflow reported `Succeeded`, wait 30 seconds for DNS propagation and
 retry.
