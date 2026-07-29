@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.27](https://github.com/mctlhq/mctl-docs/compare/0.1.26...0.1.27) (2026-07-29)
+
+
+### Bug Fixes
+
+* **docs:** address Codex review findings on health_check_path/ghcr docs ([2228530](https://github.com/mctlhq/mctl-docs/commit/22285305ba0cbbfee4b9ca5689395045441cc78b))
+* **docs:** address second review round on health_check_path docs ([8861d52](https://github.com/mctlhq/mctl-docs/commit/8861d52515eb7c972933155f5b00cedb7ce45314))
+* **docs:** move health_check_path/build-check guidance where users need it ([52c5272](https://github.com/mctlhq/mctl-docs/commit/52c52723e74ba94e4abda1425f5f94aa956d48fd))
+
 ## [0.1.26](https://github.com/mctlhq/mctl-docs/compare/0.1.25...0.1.26) (2026-07-26)
 
 
