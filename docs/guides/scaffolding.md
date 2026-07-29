@@ -52,9 +52,13 @@ CMD ["node", "server.js"]
 
 Implement a `GET /healthz` endpoint returning `200 {"ok": true}` so the
 HEALTHCHECK passes. Can't use `/healthz`? Pass `health_check_path=/your-path`
-when onboarding to override both liveness and readiness probe paths. If your
-service uses a different entrypoint (`index.js`, `dist/main.js`), update the
-final `CMD`.
+when onboarding to override both liveness and readiness probe paths — but
+note that only changes the Kubernetes probes, not this Dockerfile's own
+`HEALTHCHECK` line. Update the `HEALTHCHECK` (and any later verification
+`curl`) to the same custom path too, or the image will report unhealthy in
+any environment that runs Docker's own check (e.g. local `docker run`) even
+though the platform reports it healthy. If your service uses a different
+entrypoint (`index.js`, `dist/main.js`), update the final `CMD`.
 
 ## Python
 
