@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.29](https://github.com/mctlhq/mctl-docs/compare/0.1.28...0.1.29) (2026-08-07)
+
+
+### Features
+
+* **docs:** add context7.json configuration for AI indexer ([c331e37](https://github.com/mctlhq/mctl-docs/commit/c331e3770327fd043440a965f0ac3788e3750e19))
+* **docs:** add context7.json configuration for AI indexer ([ff5d0b7](https://github.com/mctlhq/mctl-docs/commit/ff5d0b79550f8d0b3c7b199499226ec1d95a421a))
+* **docs:** add llms.txt for AI agent discovery ([dc76bfd](https://github.com/mctlhq/mctl-docs/commit/dc76bfd42c45fca5f3ce0813902818f3d932ff6d))
+* **docs:** add llms.txt standard file ([5feb4f0](https://github.com/mctlhq/mctl-docs/commit/5feb4f062b572398ca67c333cc66611b41325480))
+
 ## [0.1.28](https://github.com/mctlhq/mctl-docs/compare/0.1.27...0.1.28) (2026-08-07)
 
 
