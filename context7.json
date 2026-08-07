@@ -1,0 +1,7 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "MCTL Documentation",
+  "description": "AI-Native Kubernetes & GitOps Platform Documentation and MCP Tools Reference",
+  "folders": ["docs"],
+  "excludeFolders": ["node_modules", "dist", ".vitepress/cache"]
+}
