@@ -1,0 +1,23 @@
+# MCTL — AI-Native Infrastructure Management Platform
+
+> MCTL is a multi-tenant Kubernetes platform for managing GitOps deployments, microservices, databases, and automated workflows via Model Context Protocol (MCP) and REST APIs.
+
+## Key Documentation Links
+
+- [Getting Started](https://docs.mctl.ai/getting-started/): Installation and setup guide for developers and SREs.
+- [MCP Connecting Guide](https://docs.mctl.ai/mcp/connecting): How to connect Claude Code, Cursor, VS Code, or Antigravity to mctl.
+- [MCP Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Catalog of 54 platform tools for environment operations.
+- [Troubleshooting & FAQs](https://docs.mctl.ai/reference/troubleshooting): Resolving common deployment and RBAC issues.
+
+## Primary Core Tools
+
+- **Tenant Management**: `mctl_create_tenant`, `mctl_get_tenant`, `mctl_delete_tenant`
+- **Service Operations**: `mctl_deploy_service`, `mctl_scale_service`, `mctl_rollback_service`, `mctl_retire_service`
+- **Workflows & Observability**: `mctl_get_workflow_logs`, `mctl_get_workflow_status`, `mctl_list_incidents`, `mctl_resolve_incident`
+- **OpenClaw Operator**: `mctl_deploy_openclaw`, `mctl_save_openclaw_skill`, `mctl_save_openclaw_identity`
+- **Platform Skills**: `mctl_list_platform_skills`, `mctl_read_platform_skill`, `mctl_publish_platform_skill`
+
+## Optional / Full Specs
+
+- [Full Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Complete parameter specs for all 54 MCP tools.
+- [Architecture & GitOps](https://docs.mctl.ai/guides/deploy-first-app): Detailed guide on ArgoCD and mctl-api synchronization.
