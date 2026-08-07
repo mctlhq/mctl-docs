@@ -1,12 +1,12 @@
-FROM node:22-alpine AS builder
+FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache git
-COPY package.json package-lock.json .npmrc ./
+COPY package.json bun.lock .npmrc ./
 RUN --mount=type=secret,id=github_token \
     GITHUB_PACKAGES_TOKEN="$(cat /run/secrets/github_token 2>/dev/null || true)" \
-    npm ci --no-audit --no-fund
+    bun install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN bun run build
 
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
