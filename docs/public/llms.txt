@@ -19,5 +19,6 @@
 
 ## Optional / Full Specs
 
+- [Full Consolidated Context (llms-full.txt)](https://docs.mctl.ai/llms-full.txt): Single-file compilation of all 28+ documentation files (~30k tokens).
 - [Full Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Complete parameter specs for all 54 MCP tools.
 - [Architecture & GitOps](https://docs.mctl.ai/guides/deploy-first-app): Detailed guide on ArgoCD and mctl-api synchronization.

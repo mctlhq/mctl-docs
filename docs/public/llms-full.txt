@@ -1,0 +1,3674 @@
+# MCTL — Complete Platform Documentation (llms-full.txt)
+
+> This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
+
+Generated: 2026-08-07T22:59:25.183Z
+Total Files Included: 28
+
+================================================================================
+
+================================================================================
+FILE: /index.md
+================================================================================
+---
+layout: home
+hero:
+  name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
+  text: AI-Native Infrastructure Management
+  tagline: Deploy services, manage tenants, and operate your Kubernetes platform through natural language — no kubectl, no tickets, no waiting.
+  image:
+    src: /logo.svg
+    alt: MCTL
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /getting-started/
+    - theme: alt
+      text: Connect MCP
+      link: /mcp/connecting
+    - theme: alt
+      text: GitHub
+      link: https://github.com/mctlhq
+features:
+  - title: MCP Server
+    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 54 tools for full platform control through natural language.
+  - title: GitOps-First
+    details: Every change flows through Git. ArgoCD ensures your cluster matches your desired state, with full audit trail and zero imperative commands.
+  - title: Tenant Isolation
+    details: Multi-tenant by design. Each team gets isolated namespaces, RBAC policies, network policies, and resource quotas out of the box.
+  - title: Developer Portal
+    details: Backstage-powered service catalog. Browse your services, domains, databases, and workflows in one place at app.mctl.ai.
+  - title: Self-Healing Agent
+    details: Automated incident response. The mctl-agent watches AlertManager and creates PRs to fix issues before you notice them.
+  - title: Full Platform Control
+    details: Services, domains, databases, preview environments, scaling, rollbacks — all manageable through MCP, REST API, portal, or GitOps.
+---
+
+
+================================================================================
+FILE: /api/index.md
+================================================================================
+# REST API
+
+The MCTL REST API is served by `mctl-api` at `api.mctl.ai`. All operations available through MCP tools are also available as REST endpoints.
+
+## Base URL
+
+```
+https://api.mctl.ai
+```
+
+## Authentication
+
+Include an `Authorization` header with every request to `/api/v1/*` endpoints:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.mctl.ai/api/v1/tenants
+```
+
+Two token types are accepted:
+
+| Type | Format | Validation |
+|------|--------|------------|
+| **GitHub PAT** | `ghp_xxxx...` (no dots) | Validated against GitHub API; requires `read:user` scope |
+| **Dex JWT** | `eyJhbG...` (2 dots, external issuer) | Verified via JWKS at `ops.mctl.ai/api/dex/keys` |
+| **OAuth JWT** | `eyJhbG...` (2 dots, self-issued) | HMAC-SHA256 verification; issued via OAuth 2.0 PKCE flow |
+
+See [Authentication](/security/authentication) for details.
+
+## Rate Limits
+
+| Endpoint type | Limit |
+|---------------|-------|
+| Read (`GET`) | 100 requests/minute per user |
+| Write (`POST /execute`) | 20 requests/minute per user |
+
+## Response Format
+
+All responses are JSON. Errors return:
+
+```json
+{ "error": "description of the error" }
+```
+
+## OpenAPI Specification
+
+The full OpenAPI 3.0 spec is available at:
+- **YAML**: [api.mctl.ai/openapi.yaml](https://api.mctl.ai/openapi.yaml)
+- **Swagger UI**: [api.mctl.ai/docs](https://api.mctl.ai/docs)
+
+---
+
+## Health
+
+### `GET /healthz`
+
+Returns 200 if the server is running. No authentication required.
+
+**Response** `200`
+```json
+{ "status": "ok" }
+```
+
+### `GET /readyz`
+
+Returns 200 if the server is ready to handle traffic. No authentication required.
+
+---
+
+## Tenants
+
+### `GET /api/v1/tenants`
+
+List all team workspaces. **Admin access required.**
+
+**Response** `200`
+```json
+{
+  "items": [
+    {
+      "name": "billing",
+      "displayName": "Billing Team",
+      "description": "Handles payment processing",
+      "contactEmail": "billing@example.com",
+      "quotas": { "cpu": "2", "memory": "4Gi", "pods": "10" },
+      "members": [
+        { "userId": "alice", "role": "admin" }
+      ]
+    }
+  ],
+  "count": 1
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `200` | List of tenants |
+| `403` | Admin access required |
+
+### `GET /api/v1/tenants/{name}`
+
+Get a specific tenant with its deployed services.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `name` | path | yes | Tenant name (e.g. `billing`) |
+
+**Response** `200`
+```json
+{
+  "tenant": {
+    "name": "billing",
+    "displayName": "Billing Team",
+    "quotas": { "cpu": "2", "memory": "4Gi", "pods": "10" },
+    "members": [{ "userId": "alice", "role": "admin" }]
+  },
+  "services": [
+    {
+      "team": "billing",
+      "name": "payment-api",
+      "imageTag": "1.2.3",
+      "host": "payment-api.mctl.ai",
+      "port": "8080",
+      "componentType": "base-service",
+      "hasDatabase": true
+    }
+  ]
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `200` | Tenant details with services |
+| `404` | Tenant not found |
+
+---
+
+## Services
+
+### `GET /api/v1/services`
+
+List all deployed services. Optionally filter by team.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `team` | query | no | Filter by team name |
+
+**Response** `200`
+```json
+{
+  "items": [
+    {
+      "team": "billing",
+      "name": "payment-api",
+      "imageTag": "1.2.3",
+      "host": "payment-api.mctl.ai",
+      "port": "8080",
+      "componentType": "base-service",
+      "hasDatabase": true
+    }
+  ],
+  "count": 1
+}
+```
+
+### `GET /api/v1/services/{team}/{app}`
+
+Get full GitOps configuration for a service.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `team` | path | yes | Team name |
+| `app` | path | yes | Service name |
+
+**Response** `200`
+```json
+{
+  "team": "billing",
+  "name": "payment-api",
+  "imageTag": "1.2.3",
+  "host": "payment-api.mctl.ai",
+  "port": "8080",
+  "componentType": "base-service",
+  "hasDatabase": true
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `200` | Service configuration |
+| `404` | Service not found |
+
+### `GET /api/v1/status/{team}/{app}`
+
+Get live ArgoCD sync and health status for a service.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `team` | path | yes | Team name |
+| `app` | path | yes | Service name |
+
+**Response** `200`
+```json
+{
+  "argocd": {
+    "name": "billing-payment-api",
+    "syncStatus": "Synced",
+    "healthStatus": "Healthy",
+    "message": ""
+  },
+  "service": {
+    "team": "billing",
+    "name": "payment-api",
+    "imageTag": "1.2.3",
+    "host": "payment-api.mctl.ai"
+  }
+}
+```
+
+**Possible `syncStatus` values**: `Synced`, `OutOfSync`, `Unknown`
+
+**Possible `healthStatus` values**: `Healthy`, `Progressing`, `Degraded`, `Suspended`, `Missing`, `Unknown`
+
+| Status | Description |
+|--------|-------------|
+| `200` | Service status |
+| `404` | ArgoCD application not found |
+
+### `GET /api/v1/logs/{team}/{app}`
+
+Fetch recent log lines from Loki.
+
+**Parameters**
+
+| Name | In | Required | Default | Description |
+|------|----|----------|---------|-------------|
+| `team` | path | yes | | Team name |
+| `app` | path | yes | | Service name |
+| `lines` | query | no | `100` | Number of log lines (max 1000) |
+| `since` | query | no | `1h` | Time window (e.g. `15m`, `1h`, `6h`, `24h`) |
+
+**Response** `200`
+```json
+{
+  "team": "billing",
+  "app": "payment-api",
+  "lines": [
+    {
+      "timestamp": "2026-03-31T12:00:00Z",
+      "line": "INFO: Request processed in 42ms",
+      "labels": { "pod": "payment-api-7d8f9-abc12" }
+    }
+  ],
+  "count": 1,
+  "note": "Showing 1 lines from last 1h"
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `200` | Log lines |
+| `404` | Service or tenant not found |
+
+---
+
+## Resources
+
+### `GET /api/v1/resources/{tenant}`
+
+Get resource quota allocation and live usage for a tenant namespace.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `tenant` | path | yes | Tenant name |
+
+**Response** `200`
+```json
+{
+  "tenant": "billing",
+  "allocated": { "cpu": "2", "memory": "4Gi", "pods": "10" },
+  "used": { "cpu": "0.5", "memory": "1.2Gi", "pods": "3" },
+  "note": ""
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `200` | Resource usage |
+| `404` | Tenant not found |
+
+---
+
+## Workflows
+
+### `GET /api/v1/workflows/{name}`
+
+Get the status and audit log entry for an Argo Workflow.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `name` | path | yes | Workflow name (e.g. `deploy-service-abc12`) |
+
+**Response** `200`
+```json
+{
+  "workflow": "deploy-service-abc12",
+  "audit": {
+    "id": "a1b2c3d4",
+    "timestamp": "2026-03-31T12:00:00Z",
+    "userId": "alice",
+    "operation": "deploy-service",
+    "parameters": {
+      "team_name": "billing",
+      "component_name": "payment-api",
+      "git_tag": "1.2.3"
+    },
+    "workflowName": "deploy-service-abc12",
+    "status": "succeeded",
+    "riskLevel": "medium",
+    "message": ""
+  },
+  "note": ""
+}
+```
+
+**Possible `status` values**: `submitted`, `succeeded`, `failed`
+
+---
+
+## Audit
+
+### `GET /api/v1/audit`
+
+List the most recent 50 audit log entries.
+
+**Response** `200`
+```json
+{
+  "items": [
+    {
+      "id": "a1b2c3d4",
+      "timestamp": "2026-03-31T12:00:00Z",
+      "userId": "alice",
+      "operation": "deploy-service",
+      "parameters": { "team_name": "billing" },
+      "workflowName": "deploy-service-abc12",
+      "status": "succeeded",
+      "riskLevel": "medium"
+    }
+  ],
+  "count": 1
+}
+```
+
+---
+
+## Repositories
+
+### `GET /api/v1/repos`
+
+List GitHub repositories available to a team.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `team` | query | yes | Team name |
+
+### `POST /api/v1/repos/sync`
+
+Discover and register GitHub repositories from App installations.
+
+**Request Body**
+```json
+{
+  "team": "billing",
+  "user": "alice"
+}
+```
+
+---
+
+## Operations
+
+### `GET /api/v1/operations`
+
+List all registered platform operations with their parameter definitions.
+
+**Response** `200`
+```json
+{
+  "items": [
+    {
+      "name": "deploy-service",
+      "displayName": "Deploy Service",
+      "description": "Build image and deploy or update a service",
+      "workflowTemplate": "deploy-service",
+      "riskLevel": "medium",
+      "requiresConfirm": false,
+      "parameters": [
+        {
+          "name": "team_name",
+          "type": "string",
+          "required": true,
+          "description": "Target tenant name"
+        }
+      ]
+    }
+  ],
+  "count": 8
+}
+```
+
+### `GET /api/v1/operations/{name}`
+
+Get the parameter definitions and metadata for a specific operation.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `name` | path | yes | Operation name (e.g. `deploy-service`) |
+
+| Status | Description |
+|--------|-------------|
+| `200` | Operation definition |
+| `404` | Operation not found |
+
+### `POST /api/v1/operations/{name}/execute`
+
+Execute a platform operation. Submits an Argo Workflow and returns a workflow name for tracking.
+
+**Rate limit**: 20 requests/minute per user.
+
+**Parameters**
+
+| Name | In | Required | Description |
+|------|----|----------|-------------|
+| `name` | path | yes | Operation name |
+
+**Available operations**
+
+| Name | Description | Risk |
+|------|-------------|------|
+| `deploy-service` | Build image and deploy/update service | medium |
+| `create-tenant` | Create new team workspace | medium |
+| `provision-database` | Provision PostgreSQL database | medium |
+| `retire-service` | Permanently remove a service | high |
+| `delete-tenant` | Delete team workspace | high |
+| `rollback-service` | Roll back to a previous image tag | medium |
+| `preview-deploy` | Deploy ephemeral preview environment | low |
+| `preview-delete` | Remove preview environment | low |
+
+**Request examples**
+
+::: code-group
+```json [Deploy a service]
+{
+  "team_name": "billing",
+  "component_name": "payment-api",
+  "action": "deploy",
+  "git_tag": "1.2.3",
+  "dockerfile_repo": "mctlhq/payment-api"
+}
+```
+
+```json [Update config]
+{
+  "team_name": "billing",
+  "component_name": "payment-api",
+  "action": "update-config",
+  "env_vars": "LOG_LEVEL=debug\nTIMEOUT=30"
+}
+```
+
+```json [Rollback]
+{
+  "team_name": "billing",
+  "component_name": "payment-api",
+  "target_tag": "1.1.0"
+}
+```
+
+```json [Preview]
+{
+  "team_name": "billing",
+  "component_name": "payment-api",
+  "image_tag": "1.2.3",
+  "ttl_hours": "4"
+}
+```
+:::
+
+**Response** `200`
+```json
+{
+  "workflowName": "deploy-service-abc12",
+  "operation": "deploy-service",
+  "status": "submitted",
+  "message": "Workflow submitted successfully"
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| `200` | Workflow submitted |
+| `400` | Invalid parameters |
+| `403` | Access denied to this tenant |
+| `404` | Operation not found |
+
+---
+
+## MCP Endpoint
+
+In addition to the REST API, all operations are available as MCP tools:
+
+```
+POST https://api.mctl.ai/mcp
+```
+
+See [MCP Overview](/mcp/overview) and [Tools Reference](/mcp/tools-reference) for details.
+
+
+================================================================================
+FILE: /getting-started/index.md
+================================================================================
+# Getting Started
+
+This guide takes you from zero to a running service on MCTL in under 10 minutes. No Kubernetes experience required.
+
+::: tip Portal alternative
+Prefer a graphical interface? The [MCTL Portal](https://app.mctl.ai) at `app.mctl.ai` provides
+a Backstage-powered service catalog and dashboard for the same operations. The MCP and Portal
+interfaces are complementary — you can switch between them at any time.
+:::
+
+## Prerequisites
+
+- A GitHub account
+- An AI client that supports MCP (Claude.ai, Claude Code, Cursor, or VS Code)
+
+## Step 1: Sign in and create a tenant
+
+Visit [mctl.ai](https://mctl.ai) and click **Sign in with GitHub**. After authenticating, you'll see the tenant creation form.
+
+Enter your team name and description, then submit. MCTL will automatically provision:
+
+- A Kubernetes namespace for your team
+- RBAC policies and network isolation
+- Resource quotas (2 CPU, 4Gi memory, 20 pods by default)
+- Vault secrets scope
+- SSO access via your GitHub identity
+
+You'll receive a welcome email with your tenant details.
+
+::: tip
+Tenant names become Kubernetes namespace names. Use lowercase letters, numbers, and hyphens only (e.g. `backend-team`, `data-squad`).
+:::
+
+## Step 2: Connect your AI client
+
+### Claude.ai (recommended)
+
+The fastest way to connect:
+
+1. Open the [Connecting](/mcp/connecting) page in these docs
+2. Click **Connect with Claude.ai**
+3. Authorize the OAuth connection
+4. Start a new conversation in Claude.ai
+
+### Claude Code
+
+```bash
+claude mcp add mctl --transport streamable-http https://api.mctl.ai/mcp \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Get your token at the [Connecting](/mcp/connecting) page after signing in.
+
+### Cursor / VS Code
+
+See [Connecting](/mcp/connecting) for configuration snippets for all supported AI clients.
+
+## Step 3: Verify your connection
+
+Ask your AI assistant:
+
+```
+Who am I on MCTL?
+```
+
+You should see your GitHub username, organization, and the tenant you just created.
+
+```
+What tenants do I have access to?
+```
+
+This confirms your tenant is provisioned and accessible.
+
+## Step 4: Deploy your first service
+
+Tell your AI assistant to deploy a service. You need a container image — if you don't have one, you can use a public image:
+
+```
+Deploy hello-world from ghcr.io/mctlhq/hello-world:latest to my-team
+```
+
+Replace `my-team` with your actual tenant name.
+
+MCTL will:
+1. Validate your access to the tenant
+2. Create service manifests in the GitOps repository
+3. Submit an Argo Workflow to build and deploy
+4. Return an operation ID
+
+### Track the deployment
+
+```
+What's the status of that deployment?
+```
+
+Or use the operation ID directly:
+
+```
+Show me the status of workflow deploy-service-abc12
+```
+
+### Verify the service is running
+
+```
+Show me the status of hello-world in my-team
+```
+
+You should see:
+- **Sync status**: Synced
+- **Health**: Healthy
+- **Host**: `hello-world.mctl.ai` (or your custom domain)
+
+### Check the logs
+
+```
+Show me logs for hello-world in my-team
+```
+
+## Step 5: Explore more capabilities
+
+Now that your first service is running, try these:
+
+### Scale your service
+
+```
+Scale hello-world to 3 replicas in my-team
+```
+
+### Check resource usage
+
+```
+What's the resource usage for my-team?
+```
+
+### Add a custom domain
+
+```
+Add domain api.example.com to hello-world in my-team
+```
+
+### Create a preview environment
+
+```
+Create a preview of hello-world with tag pr-42 in my-team
+```
+
+### View incidents
+
+```
+Are there any open incidents?
+```
+
+## What's next?
+
+| Topic | Description |
+|-------|-------------|
+| [Platform Overview](/platform/overview) | How MCTL works under the hood |
+| [Architecture](/platform/architecture) | Component diagram and data flow |
+| [Service Deployment](/guides/services) | Advanced deployment options |
+| [Custom Domains](/guides/domains) | Configure DNS and TLS |
+| [Databases](/guides/databases) | Provision PostgreSQL databases |
+| [MCP Tools Reference](/mcp/tools-reference) | All 54 available tools |
+| [REST API](/api/) | Direct API access for scripts and CI/CD |
+| [Troubleshooting](/reference/troubleshooting) | Common issues and solutions |
+
+## Architecture at a glance
+
+```
+You (AI / API / Portal)
+  |
+  v
+mctl-api  ------>  Argo Workflows  ------>  mctl-gitops
+                                                |
+                                                v
+                                             ArgoCD
+                                                |
+                                                v
+                                           Kubernetes
+```
+
+Every change flows through Git. ArgoCD ensures the cluster matches the desired state. See [GitOps Workflows](/guides/gitops-workflows) for details.
+
+
+================================================================================
+FILE: /guides/databases.md
+================================================================================
+# Database Provisioning
+
+MCTL can provision databases for your services within a tenant.
+
+## Provision a Database
+
+```
+"Provision a PostgreSQL database for my-app in the staging tenant"
+```
+
+The `mctl_provision_database` tool:
+1. Creates a database instance in the tenant namespace
+2. Generates credentials and stores them as Kubernetes secrets
+3. Returns connection details for your application
+
+## Configuration
+
+Database credentials are automatically injected into your service as environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_HOST` | Database hostname |
+| `DATABASE_PORT` | Database port |
+| `DATABASE_NAME` | Database name |
+| `DATABASE_USER` | Database username |
+| `DATABASE_PASSWORD` | Database password |
+| `DATABASE_URL` | Full connection string |
+
+## Supported Databases
+
+<!-- TODO: Document supported database types and versions -->
+
+Currently supported database engines will be listed here as they become available.
+
+
+================================================================================
+FILE: /guides/deploy-first-app.md
+================================================================================
+# Deploy your first app
+
+This guide walks you through taking a GitHub-hosted application from source code to a
+running, publicly accessible service on MCTL. It covers both the portal-based path and
+the MCP-based path for each step.
+
+By the end you will have a live service URL in the form
+`https://<team>-<service>.mctl.ai` with a passing health check.
+
+::: info Managing MCTL through MCP
+MCTL can also be managed through MCP-compatible AI tools such as Claude, Cursor, and VS Code.
+You can use MCP to inspect tenants, deploy services, check workflow status, and operate the
+platform conversationally. Each step in this guide includes both a portal path and an MCP path.
+
+To use the MCP path, connect your AI client first: [Connecting to MCTL MCP](/mcp/connecting).
+:::
+
+## Before you begin
+
+- A GitHub account with push access to your application repository.
+- An MCTL tenant. If you do not have one yet, create one at
+  [mctl.ai](https://mctl.ai) or follow the instructions in the
+  [Quick Start](/getting-started/) guide.
+- An AI client connected to MCTL via MCP if you intend to use the MCP path.
+  See [Connecting](/mcp/connecting) for setup instructions.
+
+---
+
+## Step 1: Choose or confirm your tenant
+
+Every service belongs to a tenant (a Kubernetes namespace with its own
+resource quotas and access controls). Confirm which tenant you will deploy
+to before proceeding.
+
+### Via the portal
+
+Sign in at [app.mctl.ai](https://app.mctl.ai). Your tenants are listed on
+the dashboard. Note the team name — you will use it throughout this guide.
+
+### Via MCP
+
+```
+List my tenants
+```
+
+The `mctl_list_tenants` tool returns all tenants you have access to.
+If you need to create one:
+
+```
+Create a new tenant called my-team
+```
+
+This calls `mctl_create_tenant` and provisions a namespace, RBAC policies,
+and resource quotas. See [Tenant Management](/guides/tenants) for details.
+
+---
+
+## Step 2: Prepare a repository
+
+Your application must live in a GitHub repository that MCTL can access.
+Before continuing:
+
+- The repository exists under a GitHub user or organisation account.
+- The default branch (`main`) contains the application source code.
+- No credentials or secrets are committed to the repository.
+
+If you do not have a repository yet, create one on GitHub, push your source
+code, and return to this guide.
+
+---
+
+## Step 3: Add a Dockerfile
+
+By default MCTL builds your container image from a `Dockerfile` at the
+repository root. A minimal Node.js example is shown below. For other
+runtimes (Python, Go, static SPA) see [Scaffolding](/guides/scaffolding).
+
+::: tip Monorepo or non-root Dockerfile
+If your Dockerfile lives somewhere other than the repository root (for
+example a monorepo with the app under `apps/api/Dockerfile`), pass
+`dockerfile_path` when you onboard the service in Step 6 — see the
+parameter table there. Omitting it defaults to `Dockerfile` at the repo
+root, which fails the build with `open Dockerfile: no such file or
+directory` if that is not where your Dockerfile actually is.
+:::
+
+```dockerfile
+FROM node:22.11-alpine3.20
+
+RUN apk add --no-cache tini
+
+ENV NODE_ENV=production \
+    PORT=8787
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY . .
+
+RUN addgroup -S app && adduser -S -G app app && chown -R app:app /app
+
+USER app
+
+EXPOSE 8787
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:8787/healthz', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "server.js"]
+```
+
+Add a `GET /healthz` endpoint to your application that returns `200 {"ok": true}`.
+Can't use `/healthz`? Pass `health_check_path=/your-path` when onboarding in
+Step 6 to override both liveness and readiness probe paths. MCTL uses this
+endpoint for liveness checks.
+
+Commit the Dockerfile to the default branch before proceeding.
+
+---
+
+## Step 4: Grant MCTL access to the repository
+
+MCTL needs read access to your repository to build the container image. If
+your repository is already accessible (for example, you previously granted
+access for another service in the same organisation), you can skip this step
+and proceed directly to Step 5.
+
+### Via MCP
+
+Ask your AI assistant:
+
+```
+Grant access to repo <owner>/<repo> for my-team
+```
+
+This calls `mctl_grant_repo_access(team_name="my-team", repo="<owner>/<repo>")`.
+The tool returns a GitHub App installation URL. Open that URL in your
+browser and install the MCTL GitHub App on the repository or organisation.
+
+::: tip
+The portal path for granting repository access is not yet documented.
+Use the MCP path above, then return to the portal for subsequent steps if
+you prefer the graphical interface. A follow-up will add portal
+instructions once the exact UI path is confirmed.
+:::
+
+---
+
+## Step 5: Sync repositories
+
+After installing the GitHub App, sync the repository list so MCTL registers
+the newly accessible repository.
+
+### Via MCP
+
+```
+Sync repos for my-team
+```
+
+This calls `mctl_sync_repos(team="my-team")`.
+
+::: tip
+Repository sync via the portal is not yet documented. Use the MCP path
+above. A follow-up will add portal instructions once the exact UI path is
+confirmed.
+:::
+
+---
+
+## Step 6: Onboard the service
+
+The onboard step creates the GitOps manifests and submits the first Argo
+Workflow to build and deploy your container image.
+
+### Via MCP
+
+Ask your AI assistant:
+
+```
+Onboard service my-service from repo <owner>/<repo> tag 0.1.0 port 8787 for my-team
+```
+
+This calls:
+
+```
+mctl_deploy_service(
+  action="onboard",
+  team_name="my-team",
+  component_name="my-service",
+  dockerfile_repo="<owner>/<repo>",
+  git_tag="0.1.0",
+  port="8787",
+  service_template="default"
+)
+```
+
+If your Dockerfile is not at the repository root (a monorepo, for
+example), add `dockerfile_path`:
+
+```
+mctl_deploy_service(
+  action="onboard",
+  team_name="my-team",
+  component_name="my-service",
+  dockerfile_repo="<owner>/<repo>",
+  dockerfile_path="apps/api/Dockerfile",
+  git_tag="0.1.0",
+  port="8787",
+  service_template="default"
+)
+```
+
+Parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `action` | Always `"onboard"` for a first-time deploy |
+| `team_name` | Your tenant name from Step 1 |
+| `component_name` | The service name — used in the generated URL |
+| `dockerfile_repo` | GitHub repository in `<owner>/<repo>` format |
+| `git_tag` | The Git tag to build. Tag your repository before onboarding (`git tag 0.1.0 && git push --tags`) |
+| `port` | The container port your application listens on (matches the `EXPOSE` in your Dockerfile) |
+| `service_template` | Use `"default"` unless you have a specific template |
+| `dockerfile_path` | Optional. Path to the Dockerfile relative to the repo root. Defaults to `"Dockerfile"` (repo root). Set this for monorepos, e.g. `"apps/api/Dockerfile"` |
+| `health_check_path` | Optional. Path used for both liveness and readiness probes. Defaults to `"/healthz"`. Set this if your app can't implement that exact path, e.g. `"/api/health"` |
+
+The tool returns an operation ID. MCTL submits an Argo Workflow in the
+background — proceed to Step 7 to track it.
+
+For a complete CI setup that auto-deploys on every push to `main`, see
+[Scaffolding](/guides/scaffolding).
+
+---
+
+## Step 7: Track the workflow status
+
+The onboard operation runs as an Argo Workflow. Check its status to confirm
+the deployment succeeded before accessing the service URL.
+
+### Via MCP
+
+```
+What is the status of the deploy workflow for my-service?
+```
+
+This calls `mctl_get_workflow_status` with the workflow name returned in
+Step 6. A `Succeeded` status means the service is running.
+
+You can also browse all workflows for your team at
+[workflows.mctl.ai](https://workflows.mctl.ai).
+
+::: tip
+If the workflow fails, check the logs at [workflows.mctl.ai](https://workflows.mctl.ai)
+or ask your AI assistant for the workflow logs. Common causes are a missing
+`/healthz` endpoint or a Dockerfile that fails to build.
+:::
+
+---
+
+## Step 8: Open the generated service URL
+
+Every service receives an auto-generated URL in the form:
+
+```
+https://<team>-<service>.mctl.ai
+```
+
+For example, if your team is `my-team` and your service is `my-service`,
+the URL is `https://my-team-my-service.mctl.ai`.
+
+Verify the service is responding:
+
+```bash
+curl https://my-team-my-service.mctl.ai/healthz
+```
+
+(If you passed `health_check_path` in Step 6, curl that path instead — and
+update the Dockerfile's `HEALTHCHECK` line to match too. `health_check_path`
+only changes the Kubernetes liveness/readiness probes; it can't rewrite the
+image's own `HEALTHCHECK`, so an app exposing only the custom path will still
+fail Docker's own health check even though the platform reports it healthy.)
+
+You should receive `200 {"ok": true}`. If the health check fails and the
+workflow reported `Succeeded`, wait 30 seconds for DNS propagation and
+retry.
+
+---
+
+## Optional: Add a custom domain
+
+To serve your application on your own domain (for example, `api.example.com`):
+
+### Via MCP
+
+```
+Add domain api.example.com to my-service in my-team
+```
+
+This calls `mctl_add_custom_domain`. MCTL returns the CNAME target to
+configure in your DNS provider. TLS is provisioned automatically once the
+CNAME record propagates.
+
+See [Custom Domains](/guides/domains) for verification steps and
+troubleshooting.
+
+---
+
+## Optional: Manage the platform through MCP
+
+Once your service is running you can manage it entirely through your AI
+client. Common next steps:
+
+- **Deploy a new version** — push a new Git tag and ask your assistant to
+  deploy it, or set up the CI auto-deploy job from [Scaffolding](/guides/scaffolding).
+- **Scale** — ask your assistant to scale `my-service` to a different
+  replica count.
+- **Roll back** — ask your assistant to roll back `my-service` to a
+  previous tag.
+- **View logs** — ask your assistant to show recent logs for `my-service`.
+
+The full list of available tools is in the [MCP Tools Reference](/mcp/tools-reference).
+For a curated set of example prompts, see [MCP Examples](/mcp/examples).
+
+
+================================================================================
+FILE: /guides/domains.md
+================================================================================
+# Custom Domains
+
+Add custom domains to your services with automatic TLS certificate provisioning.
+
+## Add a Custom Domain
+
+```
+"Add domain api.example.com to my-app in the staging tenant"
+```
+
+The `mctl_add_custom_domain` tool:
+1. Creates an ingress rule for the domain
+2. Configures cert-manager to provision a TLS certificate
+3. Returns DNS configuration instructions
+
+## Verify a Domain
+
+After adding a domain, you need to configure DNS to point to the cluster ingress:
+
+```
+"Verify domain api.example.com for my-app in staging"
+```
+
+The `mctl_verify_domain` tool checks that DNS is correctly configured and the TLS certificate has been issued.
+
+## List Domains
+
+```
+"Show me all domains for the staging tenant"
+```
+
+## Remove a Domain
+
+```
+"Remove domain api.example.com from my-app in staging"
+```
+
+## DNS Configuration
+
+When you add a custom domain, you'll need to create a CNAME record pointing to the cluster ingress. The exact target will be provided in the tool response.
+
+| Record Type | Name | Value |
+|-------------|------|-------|
+| CNAME | `api.example.com` | *(provided by MCTL)* |
+
+
+================================================================================
+FILE: /guides/first-user-checklist.md
+================================================================================
+# First-user checklist
+
+Use this checklist immediately after your MCTL tenant is provisioned. It covers every
+access and setup step required before you run your first workload. Each item links to
+the relevant deep-dive guide or URL for more detail.
+
+---
+
+- [ ] **1. Confirm your tenant**
+  Your tenant is the Kubernetes namespace that owns your services, resource quotas, and
+  access controls. Sign in at [app.mctl.ai](https://app.mctl.ai) and verify that your
+  tenant appears on the dashboard. If you need to create one, follow the
+  [Tenants guide](/guides/tenants).
+
+- [ ] **2. Verify Portal access**
+  Open [app.mctl.ai](https://app.mctl.ai) in a browser and confirm that you can sign in
+  and see your tenant's dashboard. If you encounter a login error or missing tenant,
+  contact your platform operator before proceeding.
+
+- [ ] **3. Verify ArgoCD access**
+  Open [ops.mctl.ai](https://ops.mctl.ai) and confirm that you can sign in and
+  see your tenant's applications. ArgoCD is the GitOps engine that manages continuous
+  deployment for your services.
+
+- [ ] **4. Verify Argo Workflows access**
+  Open [workflows.mctl.ai](https://workflows.mctl.ai) and confirm that you can sign in
+  and view the workflow namespace for your tenant. Argo Workflows runs the build and
+  deployment pipeline submitted by `mctl_deploy_service` in Step 6 below. Auto-deploy
+  on every push to your repository is optional and requires the CI job described in the
+  [Scaffolding guide](/guides/scaffolding) — it is not enabled by default.
+
+- [ ] **5. Prepare a Git repository or Docker image**
+  Your workload must be reachable from MCTL. For source-based deployments, push your
+  application code to a GitHub repository and ensure you have a Dockerfile (or use
+  MCTL scaffolding to generate one). See
+  [Deploy your first app - Step 2](/guides/deploy-first-app#step-2-prepare-a-repository)
+  and the [Scaffolding guide](/guides/scaffolding) for details. If you already have a
+  container image published to a registry, skip straight to
+  [Deploy a Service](/guides/services#deploy-a-service) instead — it deploys from an
+  existing image reference with no repository or Dockerfile required.
+
+- [ ] **6. Deploy your first workload**
+  Follow the [Deploy your first app](/guides/deploy-first-app) guide to connect your
+  repository to MCTL, run the onboarding workflow, and obtain a live service URL. The
+  MCP path is fully documented end to end; the portal path currently covers tenant and
+  dashboard steps only — repository access and sync are MCP-only for now (see the tips
+  in [Deploy your first app](/guides/deploy-first-app#step-4-grant-mctl-access-to-the-repository)).
+
+- [ ] **7. Review logs and deployment status**
+  After deployment completes, confirm the service is healthy by checking the workflow
+  run in [Argo Workflows](https://workflows.mctl.ai) and reviewing application logs.
+  You can also inspect status and retrieve logs through the
+  [MCP Tools Reference](/mcp/tools-reference) if you have an AI client connected.
+
+- [ ] **8. Manage your platform via MCP**
+  MCTL exposes its full management surface through a Model Context Protocol server,
+  allowing you to deploy, scale, and inspect services from any MCP-compatible AI
+  client. Start with the [MCP Overview](/mcp/overview), then follow the
+  [Connecting guide](/mcp/connecting) to wire up your client.
+
+
+================================================================================
+FILE: /guides/gitops-workflows.md
+================================================================================
+# GitOps Workflows
+
+Every infrastructure change in MCTL flows through Git. ArgoCD watches the `mctl-gitops` repository and syncs the cluster to match the desired state.
+
+## How GitOps Works in MCTL
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as Operator
+    participant API as mctl-api
+    participant WF as Argo Workflows
+    participant Git as mctl-gitops
+    participant Argo as ArgoCD
+    participant K8s as Kubernetes
+
+    Note over User,API: Request accepted quickly
+    User->>API: Deploy service
+    API->>WF: Submit async operation
+    API-->>User: Return operation ID
+
+    Note over WF,K8s: Cluster converges asynchronously via GitOps
+    WF->>Git: Commit desired state
+    Git->>Argo: Poll / refresh sees new commit
+    Argo->>K8s: Apply manifests
+    K8s-->>Argo: Resource state updated
+    Note over WF,K8s: Some operations also run provisioning jobs directly
+    Argo-->>API: Deployment sync / health
+    WF-->>API: Workflow execution status
+
+    Note over User,API: Status remains queryable throughout
+    User->>API: Check operation
+    API-->>User: Current status
+```
+
+## Argo Workflows
+
+Long-running operations (deploy, scale, rollback) are executed as Argo Workflows. You can:
+
+### List Workflows
+
+```
+"Show me running workflows in staging"
+```
+
+### Check Workflow Status
+
+```
+"What's the status of workflow deploy-my-app-xyz?"
+```
+
+Workflow UI is available at [workflows.mctl.ai](https://workflows.mctl.ai).
+
+## Repository Structure
+
+The `mctl-gitops` repository is organized by tenant:
+
+```
+platform-gitops/
+  services/
+    admins/           # Platform services (mctl-api, mctl-web, etc.)
+      mctl-api/
+      mctl-web/
+      mctl-docs/
+    tenants/
+      team-alpha/     # Tenant-scoped services
+        my-app/
+        my-api/
+      team-beta/
+        ...
+```
+
+## CI/CD Integration
+
+When you push a tag to a service repository:
+
+1. **CI builds** the Docker image and pushes to `ghcr.io/mctlhq/{repo}:{tag}`
+2. **CI updates** `mctl-gitops` with the new image tag
+3. **ArgoCD syncs** the change to the cluster
+
+This pattern is used by all MCTL platform services and is available for tenant services.
+
+## Grant Repository Access
+
+To connect a GitHub repository to a tenant for automated deployments:
+
+```
+"Grant access to repo myorg/my-app for the staging tenant"
+```
+
+
+================================================================================
+FILE: /guides/previews.md
+================================================================================
+# Preview Environments
+
+Deploy temporary, isolated copies of a service — for a pull request, feature branch, or any arbitrary image tag.
+Previews run in the same namespace as the production service and share its secrets. They are automatically
+cleaned up after a configurable TTL (default: 24 hours).
+
+## Two modes
+
+### 1. Deploy from an existing image tag
+
+Use this when the image is already built (e.g. your CI pushed it to GHCR):
+
+```
+"Create a preview of payments-api at tag 1.4.2 in the checkout team"
+```
+
+```
+mctl_create_preview
+  team_name:      checkout
+  component_name: payments-api
+  image_tag:      1.4.2
+```
+
+The preview is live within ~2 minutes (Helm install + pod start).
+
+### 2. Build from a branch, then deploy
+
+Use this when the image does not exist yet. Provide `git_ref` and `dockerfile_repo` — the platform
+builds the image via `build-image.yaml` in mctl-gitops, waits for it to complete, then deploys:
+
+```
+"Create a preview of payments-api from branch feat/new-checkout in myorg/payments-api"
+```
+
+```
+mctl_create_preview
+  team_name:       checkout
+  component_name:  payments-api
+  git_ref:         feat/new-checkout
+  dockerfile_repo: myorg/payments-api
+```
+
+`image_tag` is auto-generated as `preview-{branch}-{timestamp}` — you do not need to specify it.
+`dockerfile_path` defaults to `Dockerfile`; override if your Dockerfile is elsewhere.
+
+Total time: ~5–10 minutes (build) + ~2 minutes (deploy).
+
+## Preview URL
+
+```
+https://{component}-{preview_id}.{platform_domain}
+```
+
+The `preview_id` is a 6-character suffix derived from the workflow name. It is returned by
+`mctl_create_preview` and used by `mctl_delete_preview`.
+
+## Tracking progress
+
+```
+"What is the status of workflow preview-deploy-abc123?"
+```
+
+```
+mctl_get_workflow_status
+  workflow_name: preview-deploy-abc123
+```
+
+For build-from-branch previews the workflow runs in two sequential stages:
+1. `build-image` — triggers and polls GitHub Actions until the image is pushed
+2. `deploy-preview` — Helm install into the team namespace
+
+## Listing previews
+
+```
+"Show all active previews for the checkout team"
+```
+
+```
+mctl_list_previews
+  team_name: checkout
+```
+
+Returns each preview's URL, image tag, age, and pod health.
+
+## Deleting a preview
+
+Previews are auto-deleted when the TTL expires. To delete immediately:
+
+```
+"Delete preview abc123 of payments-api in checkout"
+```
+
+```
+mctl_delete_preview
+  team_name:      checkout
+  component_name: payments-api
+  preview_id:     abc123
+```
+
+## Parameters reference
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `team_name` | yes | — | Team namespace |
+| `component_name` | yes | — | Service name |
+| `image_tag` | if no `git_ref` | — | Existing image tag to deploy |
+| `git_ref` | no | `""` | Branch/SHA/tag to build from |
+| `dockerfile_repo` | if `git_ref` set | — | Source repo (`org/repo`) |
+| `dockerfile_path` | no | `Dockerfile` | Path to Dockerfile |
+| `ttl_hours` | no | `24` | Preview lifetime in hours |
+
+## What the preview inherits
+
+Previews reuse the production service's `values.yaml` as a base so they automatically inherit:
+
+- `imagePullSecrets` — can pull from private GHCR
+- `service.port` — same port mapping
+- `envFrom` — same ConfigMap/Secret references
+- `resources` — same CPU/memory limits
+
+Only `image.tag` and the ingress host are overridden. A new ExternalSecret is **not** created —
+the preview pod uses the existing secret already provisioned in the namespace.
+
+## GitHub PR previews (mctl-web pattern)
+
+For repositories with `preview-create.yml` in `.github/workflows/`, previews are created
+automatically on every PR open/push — no manual `mctl_create_preview` call needed. The workflow
+builds the image and commits a `values.yaml` to mctl-gitops directly.
+
+Use `mctl_create_preview` with `git_ref` for services that do **not** have their own CI pipeline
+(the common case for tenant services onboarded via the platform).
+
+
+================================================================================
+FILE: /guides/rollbacks.md
+================================================================================
+# Rollbacks
+
+Quickly revert a service to its previous version when something goes wrong.
+
+## Rollback a Service
+
+```
+"Rollback my-app in production to the previous version"
+```
+
+The `mctl_rollback_service` tool:
+1. Identifies the previous image tag from GitOps history
+2. Commits the rollback to `mctl-gitops`
+3. ArgoCD syncs the change
+4. Returns an operation ID for tracking
+
+## How Rollbacks Work
+
+Since every deployment is a Git commit, rollbacks are simply reverting to the previous commit's state. This means:
+
+- Full audit trail of what changed and when
+- The rollback itself is a new commit (not a force-push)
+- ArgoCD handles the actual Kubernetes rollout
+- Most services roll back via a standard rolling update; blue-green is an
+  opt-in strategy for services that need it, not the default
+
+## Check Rollback Status
+
+```
+"What's the status of operation op-rollback-xyz?"
+```
+
+## When to Rollback
+
+Common scenarios:
+- Application crashes after a new deployment
+- Performance degradation detected
+- Configuration error causing failures
+- The mctl-agent may also trigger automatic rollbacks based on alerts
+
+
+================================================================================
+FILE: /guides/scaffolding.md
+================================================================================
+# Scaffolding a service for mctl deploy
+
+When `mctl_deploy_service action=onboard` runs against your repo, mctl
+expects three artifacts to already be in place:
+
+1. **`Dockerfile`** at the repo root (or at the configured `dockerfile_path`)
+2. (For auto-deploy on push to main) **`.github/workflows/ci.yml`** containing a `deploy` job
+3. A **`MCTL_GITHUB_TOKEN`** GitHub Actions secret — a classic GitHub PAT with scope `read:user`, used by the deploy job to authenticate to `api.mctl.ai`
+
+If your repo is missing any of these, copy the canonical templates below.
+They cover the common languages and produce small (~50–150 MB), non-root
+images with sane health-check semantics.
+
+## Pick a template by language
+
+| Repo contains | Template |
+| --- | --- |
+| `package.json`, `server.js` / `index.js` | [Node.js](#nodejs) |
+| `pyproject.toml` or `requirements.txt` | [Python](#python) |
+| `go.mod` | [Go](#go) |
+| Static SPA (Vue / React / SvelteKit `dist/`) | [Static](#static-vue-react-build-nginx) |
+
+## Node.js
+
+```dockerfile
+FROM node:22.11-alpine3.20
+
+RUN apk add --no-cache tini
+
+ENV NODE_ENV=production \
+    PORT=8787
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY . .
+
+RUN addgroup -S app && adduser -S -G app app && chown -R app:app /app
+
+USER app
+
+EXPOSE 8787
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:8787/healthz', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "server.js"]
+```
+
+Implement a `GET /healthz` endpoint returning `200 {"ok": true}` so the
+HEALTHCHECK passes. Can't use `/healthz`? Pass `health_check_path=/your-path`
+when onboarding to override both liveness and readiness probe paths — but
+note that only changes the Kubernetes probes, not this Dockerfile's own
+`HEALTHCHECK` line. Update the `HEALTHCHECK` (and any later verification
+`curl`) to the same custom path too, or the image will report unhealthy in
+any environment that runs Docker's own check (e.g. local `docker run`) even
+though the platform reports it healthy. If your service uses a different
+entrypoint (`index.js`, `dist/main.js`), update the final `CMD`.
+
+## Python
+
+```dockerfile
+FROM python:3.12-slim AS builder
+WORKDIR /build
+COPY pyproject.toml requirements*.txt ./
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends tini && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=builder /root/.local /home/app/.local
+COPY . .
+
+RUN useradd -m app && chown -R app:app /app
+
+USER app
+ENV PATH=/home/app/.local/bin:$PATH \
+    PORT=8000
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8000/healthz || exit 1
+
+ENTRYPOINT ["tini", "--"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Replace `app:app` with your ASGI module path (e.g.,
+`my_service.main:app`). For non-uvicorn workloads, swap the `CMD` for
+your runner.
+
+## Go
+
+```dockerfile
+FROM golang:1.25-alpine AS builder
+WORKDIR /build
+COPY go.* ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags='-s -w' -o /app/server ./cmd/server
+
+FROM alpine:3.20
+RUN apk add --no-cache tini ca-certificates
+COPY --from=builder /app/server /app/server
+RUN addgroup -S app && adduser -S -G app app
+USER app
+ENV PORT=8080
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/app/server"]
+```
+
+Adjust `./cmd/server` to your binary's package path.
+
+## Static (Vue / React build → nginx)
+
+```dockerfile
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:1.27-alpine
+RUN apk add --no-cache tini
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/ || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+Minimal `nginx.conf` next to your Dockerfile:
+
+```nginx
+server {
+  listen 8080;
+  root /usr/share/nginx/html;
+  index index.html;
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
+```
+
+The SPA fallback (`try_files … /index.html`) lets client-side routing
+work without 404s.
+
+## When does the deploy fire?
+
+mctl doesn't watch your repo on its own — your CI workflow is what calls
+`mctl_deploy_service` when you want a deploy. Pick the trigger that
+matches your release model.
+
+| Pattern | Trigger | When it fits |
+| --- | --- | --- |
+| **Continuous deployment** | `on: push` to `main` (recommended for one-environment services) | Single env, tags auto-bumped, fast feedback. Every merge ships. |
+| **Tag-based** | `on: push` of tags matching `*.*.*` (and skip the auto-bump step) | You want to decide what's a release. Push a tag manually with `git tag X.Y.Z && git push --tags`. |
+| **Manual** | `on: workflow_dispatch` | Full human control. No automation. Useful for fragile / regulated services. |
+| **Hybrid** | Push to `main` runs validation only; tag push does the deploy | Multi-environment (e.g. staging vs prod) or when validation should diverge from release cadence. |
+
+The snippet below implements the **continuous deployment** pattern:
+every push to `main` is auto-tagged with the next SemVer patch and
+triggers `mctl_deploy_service`. To switch to **tag-based**, change the
+`if:` to `startsWith(github.ref, 'refs/tags/')`, drop the *Compute next
+SemVer patch* and *Push new tag* steps, and pass <code v-pre>${{ github.ref_name }}</code>
+as `git_tag` in the curl payload.
+
+## Pre-merge docker build (recommended)
+
+Run a `docker build` job on **PRs only** as a pre-merge gate against
+broken Dockerfiles. On push to `main`, mctl rebuilds the same image
+centrally — duplicating that locally just burns CI minutes. Pattern:
+
+```yaml
+docker:
+  name: docker image build (pre-merge gate)
+  if: github.event_name == 'pull_request'
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: docker/setup-buildx-action@v3
+    - uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: false
+        load: false
+        tags: <service>:ci
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+```
+
+**Important:** because this job is skipped on push, it cannot appear in
+the `deploy` job's `needs:` list — a skipped dependency would skip
+`deploy` too. Only list jobs that actually run on the deploy trigger
+(typically `lint`, `type-check`, `test`).
+
+## CI auto-deploy job
+
+Drop this `deploy` job into `.github/workflows/ci.yml`, after your
+existing build / lint / test jobs. The `needs:` list should reference
+jobs that actually run on push to `main` — not the PR-only docker
+build above. Replace `<team>`, `<service>`, `<owner>/<repo>`, and the
+`needs:` job name.
+
+```yaml
+deploy:
+  name: deploy to mctl <team>/<service>
+  needs: [<your-build-job>]
+  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  runs-on: ubuntu-latest
+  permissions:
+    contents: write
+  steps:
+    - name: Skip if MCTL_GITHUB_TOKEN unset
+      id: gate
+      run: |
+        if [ -z "${{ secrets.MCTL_GITHUB_TOKEN }}" ]; then
+          echo "::warning::MCTL_GITHUB_TOKEN secret not set — skipping deploy"
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - uses: actions/checkout@v4
+      if: steps.gate.outputs.skip != 'true'
+      with:
+        fetch-depth: 0
+
+    - name: Compute next SemVer patch
+      id: tag
+      if: steps.gate.outputs.skip != 'true'
+      run: |
+        set -euo pipefail
+        LAST=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+        MAJOR_MINOR=$(echo "$LAST" | cut -d. -f1,2)
+        PATCH=$(echo "$LAST" | cut -d. -f3)
+        echo "tag=${MAJOR_MINOR}.$((PATCH + 1))" >> "$GITHUB_OUTPUT"
+
+    - name: Push new tag
+      if: steps.gate.outputs.skip != 'true'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git tag -a "${{ steps.tag.outputs.tag }}" \
+          -m "Auto-deploy ${{ steps.tag.outputs.tag }} from ${{ github.sha }}"
+        git push origin "${{ steps.tag.outputs.tag }}"
+
+    - name: Trigger mctl deploy-service
+      if: steps.gate.outputs.skip != 'true'
+      run: |
+        set -euo pipefail
+        curl -fsS -X POST https://api.mctl.ai/api/v1/operations/deploy-service/execute \
+          -H "Authorization: Bearer ${{ secrets.MCTL_GITHUB_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "deploy",
+            "team_name": "<team>",
+            "component_name": "<service>",
+            "dockerfile_repo": "<owner>/<repo>",
+            "git_tag": "${{ steps.tag.outputs.tag }}"
+          }'
+```
+
+The gate step makes the job a no-op (with a warning) if the secret
+isn't configured yet, so onboarding doesn't fail CI before the secret
+exists.
+
+## First-time onboard checklist
+
+1. **Add files** — copy the right Dockerfile and the `deploy` job above.
+2. **Create PAT** — `https://github.com/settings/tokens/new` (classic), scope **`read:user`**. Save as repo secret named **`MCTL_GITHUB_TOKEN`**.
+3. **Grant access** if mctl can't see the repo:
+   ```
+   mctl_grant_repo_access(team_name="<team>", repo="<owner>/<repo>")
+   ```
+   Open the URL it returns, install the GitHub App, then run
+   `mctl_sync_repos(team="<team>")`.
+4. **Onboard**:
+   ```
+   mctl_deploy_service(
+     action="onboard",
+     team_name="<team>",
+     component_name="<service>",
+     dockerfile_repo="<owner>/<repo>",
+     git_tag="0.1.0",
+     port="<container port>",
+     service_template="default"
+   )
+   ```
+5. **Verify** — once mctl reports the workflow Succeeded:
+   ```
+   curl https://<team>-<service>.mctl.ai/healthz
+   ```
+   If you passed `health_check_path` to override the platform probe path,
+   curl that path instead — and update the Dockerfile's `HEALTHCHECK` line
+   to match too. `health_check_path` only changes the Kubernetes liveness/
+   readiness probes; it can't rewrite the image's own `HEALTHCHECK`, so an
+   app exposing only the custom path will still fail Docker's own health
+   check even though the platform reports it healthy.
+6. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
+   without human intervention from then on.
+
+## Reference implementation
+
+`mashkoffdmitry/pelican-libertex-social` runs exactly this pattern
+end-to-end: Node.js Dockerfile, the `deploy` job in
+`.github/workflows/ci.yml`, `MCTL_GITHUB_TOKEN` secret, deployed as
+`labs/pelican-proxy` at `https://labs-pelican-proxy.mctl.ai`. Browse
+the repo for a working production example.
+
+
+================================================================================
+FILE: /guides/scaling.md
+================================================================================
+# Scaling
+
+Scale your services up or down based on demand.
+
+## Scale Replicas
+
+```
+"Scale my-app to 5 replicas in the production tenant"
+```
+
+The `mctl_scale_service` tool updates the replica count through GitOps. Changes are tracked as operations.
+
+## Resource Profiles
+
+Use OpenClaw resource profiles to right-size your services:
+
+### Get Sizing Recommendations
+
+```
+"Get resource sizing recommendations for my-app in staging"
+```
+
+The `mctl_get_openclaw_sizing_recommendation` tool analyzes current resource usage and suggests optimal CPU and memory limits.
+
+### Apply a Resource Profile
+
+```
+"Apply the recommended resource profile to my-app in staging"
+```
+
+## Check Resource Usage
+
+```
+"Show me resource usage for my-app in staging"
+```
+
+The `mctl_get_resource_usage` tool returns current CPU and memory utilization compared to requests and limits.
+
+<!-- TODO: Document HPA configuration and auto-scaling policies -->
+
+
+================================================================================
+FILE: /guides/services.md
+================================================================================
+# Service Deployment
+
+Services are containerized applications managed by MCTL. Every service operation flows through GitOps.
+
+## Deploy a Service
+
+### Via MCP
+
+```
+"Deploy my-app from ghcr.io/myorg/my-app:1.0.0 to the staging tenant"
+```
+
+The `mctl_deploy_service` tool:
+1. Validates the image reference and tenant access
+2. Commits the service manifest to `mctl-gitops`
+3. Returns an operation ID for tracking
+4. ArgoCD syncs the change to the cluster
+
+### Track Deployment
+
+```
+"What's the status of operation op-abc123?"
+"Show me recent operations in staging"
+```
+
+## Get Service Status
+
+```
+"Show me the status of my-app in staging"
+"List all services in the production tenant"
+```
+
+The `mctl_get_service_status` tool returns:
+- Current image and version
+- Replica count and health
+- Resource usage (CPU, memory)
+- Recent events and conditions
+
+## Get Service Config
+
+```
+"Show me the config for my-app in staging"
+```
+
+Returns the full service configuration including environment variables, resource limits, and deployment strategy.
+
+## View Service Logs
+
+```
+"Show me logs for my-app in staging"
+"Get the last 100 lines of logs for my-app"
+```
+
+## Scale a Service
+
+```
+"Scale my-app to 3 replicas in staging"
+```
+
+The `mctl_scale_service` tool updates the replica count through GitOps. The change is tracked as an operation.
+
+## Rollback a Service
+
+```
+"Rollback my-app in staging to the previous version"
+```
+
+The `mctl_rollback_service` tool reverts to the previous image tag in the GitOps repo.
+
+## Retire a Service
+
+::: warning
+Retiring a service removes it from the cluster. The GitOps history preserves the configuration for recovery.
+:::
+
+```
+"Retire the old-api service from staging"
+```
+
+## Deployment Strategies
+
+MCTL supports blue-green deployments by default. The platform handles:
+- Creating the new version alongside the old
+- Health checking the new version
+- Switching traffic
+- Cleaning up the old version
+
+
+================================================================================
+FILE: /guides/tenants.md
+================================================================================
+# Tenant Management
+
+Tenants are the primary isolation boundary in MCTL. Each tenant gets its own Kubernetes namespace, RBAC policies, and resource quotas.
+
+## Create a Tenant
+
+### Via MCP (Natural Language)
+
+```
+"Create a new tenant called backend-team"
+```
+
+This calls the `mctl_create_tenant` tool, which:
+1. Creates a namespace in the cluster
+2. Sets up RBAC roles and bindings
+3. Configures resource quotas and limit ranges
+4. Registers the tenant in the service catalog
+
+### Via Self-Service Form
+
+Visit [mctl.ai](https://mctl.ai) and use the tenant creation form. You'll need to authenticate with GitHub first.
+
+## List Tenants
+
+### Via MCP
+
+```
+"Show me all tenants"
+"List tenants I have access to"
+```
+
+### Via API
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" https://api.mctl.ai/api/v1/tenants
+```
+
+## Get Tenant Details
+
+```
+"Show me details of the staging tenant"
+"What services are running in production?"
+```
+
+This returns the tenant's services, resource usage, domains, and recent operations.
+
+## Delete a Tenant
+
+::: danger
+Deleting a tenant removes the namespace and all its resources. This action cannot be undone.
+:::
+
+```
+"Delete the test-env tenant"
+```
+
+The `mctl_delete_tenant` tool will:
+1. Remove all services in the tenant
+2. Delete the namespace and all resources
+3. Clean up RBAC bindings and catalog entries
+
+## Tenant Naming
+
+Tenant namespaces use the team name directly (no prefix). For example, a tenant named `backend-team` creates a namespace called `backend-team`.
+
+## Resource Quotas
+
+Each tenant has default resource quotas that can be adjusted:
+
+| Resource | Default |
+|----------|---------|
+| CPU requests | 2 cores |
+| CPU limits | 4 cores |
+| Memory requests | 4Gi |
+| Memory limits | 8Gi |
+| Pods | 20 |
+| Services | 10 |
+
+
+================================================================================
+FILE: /mcp/connecting.md
+================================================================================
+# Connecting to MCTL MCP Server
+
+Connect your AI assistant to MCTL to manage infrastructure through natural language.
+
+## Prerequisites
+
+1. A GitHub account with access to an MCTL organization
+2. An AI client that supports MCP (Claude, Cursor, VS Code, etc.)
+
+## Setup
+
+Authenticate with GitHub and get a ready-to-use config for your client.
+
+<McpSetup />
+
+## Verifying Connection
+
+After connecting, try a simple command:
+
+```
+"Who am I on MCTL?"
+```
+
+This calls the `mctl_whoami` tool and returns your identity, organization, and tenant access.
+
+## Token Types
+
+MCTL accepts three token types. The API auto-detects the type:
+
+| Token format | Type | How to get |
+|---|---|---|
+| No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
+| 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
+| 2 dots, self-issued | OAuth JWT | OAuth flow on this page (sign in above) |
+
+## Troubleshooting
+
+See the [Troubleshooting](/reference/troubleshooting) page for common connection issues.
+
+
+================================================================================
+FILE: /mcp/examples.md
+================================================================================
+# MCP Examples
+
+Real-world examples of managing infrastructure through natural language.
+
+## Getting Oriented
+
+```
+"Who am I on MCTL?"
+"What tenants do I have access to?"
+"Show me all services in the production tenant"
+```
+
+## Deploying a Service
+
+```
+"Deploy my-api from ghcr.io/myorg/my-api:2.1.0 to the staging tenant"
+"What's the status of that deployment?"
+"Show me logs for my-api in staging"
+```
+
+## Investigating Issues
+
+```
+"Are there any open incidents?"
+"Show me details of incident INC-42"
+"What's the resource usage for my-api in production?"
+"Get the last 200 lines of logs for my-api in production"
+```
+
+## Scaling and Performance
+
+```
+"Scale my-api to 5 replicas in production"
+"Get resource sizing recommendations for my-api in staging"
+"Apply the recommended resource profile to my-api"
+```
+
+## Managing Domains
+
+```
+"Add domain api.example.com to my-api in the production tenant"
+"Verify domain api.example.com for my-api in production"
+"List all domains in the production tenant"
+```
+
+## Preview Environments
+
+```
+"Create a preview of my-frontend from ghcr.io/myorg/my-frontend:pr-123 in staging"
+"List all previews in staging"
+"Delete the preview for PR 123"
+```
+
+## Incident Response
+
+```
+"Show me a summary of all incidents"
+"Acknowledge incident INC-42"
+"Resolve incident INC-42"
+```
+
+## Multi-Step Workflows
+
+You can chain operations naturally:
+
+```
+"Deploy my-api version 3.0.0 to staging, wait for it to be healthy,
+then check the logs to make sure there are no errors"
+```
+
+```
+"Check if there are any incidents in production. If there are,
+show me the details and the logs for the affected services"
+```
+
+```
+"Scale my-api to 3 replicas in staging and add the domain
+api-staging.example.com to it"
+```
+
+
+================================================================================
+FILE: /mcp/overview.md
+================================================================================
+# MCP Server Overview
+
+MCTL exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server that lets AI assistants manage your infrastructure through natural language.
+
+## What is MCP?
+
+MCP is an open protocol that connects AI models to external tools and data sources. Instead of copy-pasting commands, you describe what you want in natural language and your AI assistant calls the appropriate tools.
+
+## Server Details
+
+| | |
+|---|---|
+| **Endpoint** | `https://api.mctl.ai/mcp` |
+| **Transport** | Streamable HTTP (POST/GET) |
+| **Auth** | OAuth 2.0 PKCE or Bearer token |
+| **Tools** | 61 (29 read-only, 24 write, 8 destructive) |
+
+## Capabilities
+
+With the MCTL MCP server you can:
+
+- **Manage tenants** — create, list, inspect, and delete tenants
+- **Deploy services** — deploy, scale, rollback, and retire services
+- **Monitor operations** — track async operations and workflows
+- **Handle incidents** — list, inspect, acknowledge, and resolve incidents
+- **Manage domains** — add, verify, and remove custom domains
+- **Provision databases** — create databases with auto-configured secrets
+- **Preview environments** — create and manage preview deployments
+- **Resource management** — check usage, get sizing recommendations
+- **Platform skill registry** — list, read, publish, deprecate, and enable/disable platform-wide skills per tenant
+
+## What You Get
+
+Once connected, your AI assistant can:
+
+1. **Inspect platform state** — query services, tenants, resource usage, logs, and workflow status in real time
+2. **Deploy and manage apps** — onboard, deploy, rollback, and preview services; create workspaces; provision databases
+3. **Manage domains and scaling** — add custom domains with auto-TLS, configure autoscaling, verify DNS
+4. **Full audit trail** — every write operation creates a git commit in the GitOps repo for complete traceability
+
+## How Access Works
+
+Authentication follows a three-step model:
+
+1. **Token validated per request** — your GitHub token or OAuth credential is checked on every MCP call. The server never stores tokens.
+2. **Team-scoped access** — access is limited to workspaces resolved from your GitHub team memberships in the GitOps repo. Admins can operate on all tenants.
+3. **Full audit trail** — every write operation submits an Argo Workflow that produces a git commit. All changes are traceable and reversible.
+
+For detailed auth information, see [Authentication](/security/authentication).
+
+## Tool Annotations
+
+Every tool is annotated with its behavior:
+
+| Annotation | Meaning |
+|------------|---------|
+| `readOnly` | Only reads data, no side effects |
+| `write` | Creates or modifies resources (deploys, scaling, config changes) |
+| `destructive` | Deletes or retires resources; AI clients ask for confirmation |
+
+See the full [Tools Reference](/mcp/tools-reference) for details on each tool.
+
+
+================================================================================
+FILE: /mcp/tools-reference.md
+================================================================================
+# MCP Tools Reference
+
+The MCTL MCP server exposes 61 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+
+## Identity
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_whoami` | Check authentication status, user ID, team memberships, admin status, and accessible namespaces | Read |
+
+## Tenants
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_tenants` | List all team workspaces with resource quotas and member counts (admin only) | Read |
+| `mctl_get_tenant` | Get workspace details: members, quotas, and deployed services | Read |
+| `mctl_create_tenant` | Create a new workspace with namespace, resource quotas, network policies, Vault scope, ArgoCD RBAC, and SSO access | Write |
+| `mctl_delete_tenant` | Permanently delete a workspace and all its resources. Retires all services first | Destructive |
+
+## Services
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_services` | List deployed services showing name, team, image tag, host, and database status. Optional team filter | Read |
+| `mctl_get_service_status` | Get ArgoCD sync state, health status, and service configuration | Read |
+| `mctl_get_service_config` | Get full configuration from GitOps: image tag, host, port, component type, database status | Read |
+| `mctl_get_service_logs` | Fetch recent log lines from Loki, sorted by timestamp (most recent first) | Read |
+| `mctl_get_resource_usage` | Get resource quota usage: CPU, memory, pods used vs allocated | Read |
+| `mctl_deploy_service` | Deploy a service. Actions: "onboard" (first-time), "deploy" (update version), "update-config" (change env/secrets) — see [details below](#mctl-deploy-service) | Write |
+| `mctl_scale_service` | Update autoscaling: enable/disable HPA, set min/max replicas and CPU threshold | Write |
+| `mctl_rollback_service` | Roll back to a previously deployed image tag via GitOps | Write |
+| `mctl_retire_service` | Permanently remove a service: deletes GitOps manifests, Vault secrets, ArgoCD app, and K8s resources | Destructive |
+
+### `mctl_deploy_service`
+
+Deploys or reconfigures a service. The `action` parameter selects the mode:
+
+| Action | Purpose |
+|---|---|
+| `onboard` | First-time deploy — creates the GitOps manifests and submits the initial build + deploy workflow |
+| `deploy` | Update an already-onboarded service to a new image tag |
+| `update-config` | Change environment variables or secrets without a new image build |
+
+**Parameters** (not all apply to every action; see [Deploy your first app](/guides/deploy-first-app) for the full onboard walkthrough):
+
+| Name | Applies to | Description |
+|---|---|---|
+| `team_name` | all | Tenant name |
+| `component_name` | all | Service name — used in the generated URL |
+| `dockerfile_repo` | onboard, deploy | GitHub repository in `<owner>/<repo>` format |
+| `dockerfile_path` | onboard | Path to the Dockerfile if not at the repo root. Defaults to `"Dockerfile"` |
+| `git_tag` | onboard, deploy | Git tag to build/deploy |
+| `port` | onboard | Container port the app listens on |
+| `service_template` | onboard | Use `"default"` unless a custom template applies |
+| `health_check_path` | onboard | Overrides both liveness and readiness probe paths. Defaults to `"/healthz"` — set this if the app can't implement that exact path. Only applied at onboard time; not currently supported on `update-config` |
+| `secret_env_vars` | update-config | Map of env var name → secret value to inject into the pod (see below) |
+| `env_vars` | update-config | Map of plain, non-secret env vars |
+
+**How `update-config` with `secret_env_vars` actually works:**
+
+This is not instant — it's a three-step chain, and each step has its own propagation delay:
+
+1. The value is written to Vault under the tenant's secret path.
+2. An `ExternalSecret` is created/updated in the tenant namespace. The External
+   Secrets Operator syncs it into a Kubernetes `Secret` — this sync is not
+   immediate; check the `ExternalSecret`'s status if the value hasn't landed
+   yet.
+3. The Kubernetes `Secret` is wired into the pod via `envFrom`. `update-config`
+   triggers a rollout for you, but a running pod will not see the new value
+   until it restarts.
+
+If a secret isn't reaching your app, check in order: the `ExternalSecret`
+synced (the `Secret` exists in-namespace) → the Deployment's `envFrom`
+references that `Secret` → the pod actually restarted after the update.
+
+**Example:**
+
+```
+mctl_deploy_service(
+  action="update-config",
+  team_name="my-team",
+  component_name="my-service",
+  secret_env_vars={"API_KEY": "sk-..."}
+)
+```
+
+---
+
+## Operations & Workflows
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_operations` | List all available platform operations with parameters, risk levels, and descriptions | Read |
+| `mctl_get_operation` | Get detailed schema of an operation: parameters, types, defaults, validation, risk level | Read |
+| `mctl_list_recent_operations` | List most recent platform operations from audit log (up to 50 entries) | Read |
+| `mctl_list_workflows` | List recent Argo Workflow runs for a team. Admins see all namespaces | Read |
+| `mctl_get_workflow_status` | Get status and logs of an Argo Workflow run | Read |
+
+## Incidents
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_incidents` | List incidents (AlertManager alerts, GitHub Actions failures, polling). Filter by team, service, status, severity | Read |
+| `mctl_get_incident` | Get full incident details including evidence, analysis, and PR info. Accepts full ID or 8-char prefix | Read |
+| `mctl_incident_summary` | Get aggregate counts of active incidents by status, severity, and type | Read |
+| `mctl_acknowledge_incident` | Mark an incident as acknowledged. Records current user as acknowledger | Write |
+| `mctl_resolve_incident` | Mark an incident as resolved with optional reason | Write |
+
+## Domains
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_domains` | List custom domains for a team or service. Shows status (pending/verified/active) | Read |
+| `mctl_verify_domain` | Check if a domain's CNAME record points to the expected target | Read |
+| `mctl_add_custom_domain` | Add a custom domain to a deployed service. Triggers DNS verification and TLS provisioning | Write |
+| `mctl_remove_custom_domain` | Remove a custom domain from a service. Auto-generated domain is not affected | Destructive |
+
+## Databases
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_provision_database` | Provision PostgreSQL on shared CNPG cluster. Creates database/role, stores credentials in Vault and K8s Secret | Write |
+
+## Preview Environments
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_previews` | List active previews with health status, sync state, and namespace | Read |
+| `mctl_create_preview` | Deploy ephemeral preview from existing image tag. Auto-deleted after TTL (default: 24h) | Write |
+| `mctl_delete_preview` | Remove a preview environment and all its K8s resources immediately | Destructive |
+
+## Repositories
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_repos` | List GitHub repos available to a team. Admins see org + personal repos | Read |
+| `mctl_grant_repo_access` | Generate GitHub App installation URL to grant platform access to a repo | Write |
+| `mctl_sync_repos` | Discover and register GitHub repos from App installations for a team | Write |
+
+## Platform Skills
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_list_platform_skills` | List the platform-wide skill catalog, filtered to what the caller can see | Read |
+| `mctl_read_platform_skill` | Read a single platform skill's metadata and raw SKILL.md content | Read |
+| `mctl_list_tenant_skill_bindings` | List which platform skills are enabled for which tenants | Read |
+| `mctl_enable_tenant_skill` | Enable a platform skill for a tenant via GitOps (admin only) | Write |
+| `mctl_disable_tenant_skill` | Disable a platform skill for a tenant via GitOps (admin only) | Write |
+| `mctl_publish_platform_skill` | Publish or update a platform skill catalog entry via GitOps (admin only) | Write |
+| `mctl_deprecate_platform_skill` | Mark a platform skill as deprecated via GitOps (admin only) | Write |
+
+## OpenClaw (Resource Optimization)
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_get_openclaw_sizing_recommendation` | Read VictoriaMetrics history and return recommended resource profile | Read |
+| `mctl_deploy_openclaw` | Prepare self-service OpenClaw deployment. Returns Telegram bot-token intake URL | Write |
+| `mctl_resume_openclaw_deploy` | Resume onboarding after bot token saved. Provisions database and submits deploy workflow | Write |
+| `mctl_apply_openclaw_resource_profile` | Apply a named runtime profile (startup, steady-medium, steady-small) via GitOps | Write |
+| `mctl_list_openclaw_skills` | List OpenClaw skills managed in gitops for a team | Read |
+| `mctl_read_openclaw_skill` | Return the raw content of a single skill from gitops | Read |
+| `mctl_save_openclaw_skill` | Save a skill (SKILL.md) to the tenant's OpenClaw agent | Write |
+| `mctl_delete_openclaw_skill` | Remove a skill from the tenant's OpenClaw agent | Destructive |
+| `mctl_list_openclaw_identity` | List identity override files managed in gitops for a team | Read |
+| `mctl_read_openclaw_identity` | Return the raw content of a single identity override file | Read |
+| `mctl_save_openclaw_identity` | Save an identity override (AGENTS.md, SOUL.md, IDENTITY.md, USER.md, TOOLS.md) | Write |
+| `mctl_delete_openclaw_identity` | Remove an identity override from the tenant's OpenClaw agent | Destructive |
+
+## mctl-agents pipeline controls
+
+> **Admin-only.** All tools in this section require membership in the `admins` group.
+> Calls from non-admin users return `403 Forbidden`.
+>
+> _Version note: available as of mctl-api 4.15.0 (commit `016b3c8`) and 4.16.0 (`f41590e`).
+> version-status: unverified — confirm against production before relying on this page._
+
+The mctl platform runs a daily autonomous R&D pipeline (`mctl-agents`) that scans sibling
+repos for changes, identifies documentation gaps, and writes spec proposals — one cycle per
+service (researcher → analyst → spec-writer). A Tier 2 implementer can also convert accepted
+proposals into pull requests automatically.
+
+The seven tools below let platform admins drive this pipeline on demand from any MCP-capable
+client (e.g. Claude Desktop, Claude Code).
+
+### Tool summary
+
+| Tool | Purpose | Returns | Type |
+|---|---|---|---|
+| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` | Write |
+| `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` | Write |
+| `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` | Write |
+| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` | Read |
+| `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` | Destructive |
+| `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` | Destructive |
+| `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` | Write |
+
+---
+
+### `mctl_trigger_agents_run`
+
+Triggers a full mctl-agents run: every service-agent (researcher → analyst → spec-writer
+in parallel) followed by the mentor weekly digest. Equivalent to the daily 06:00 UTC cron,
+but on demand.
+
+**Parameters:** none
+
+**Cost / duration:** ~$10 against Claude subscription quota; ~15 minutes.
+
+**Result:** A `chore(agents)` commit lands in `mctl-gitops` main under
+`platform-gitops/agents-state/` with new inbox files, proposals, and updated `.status.yaml`
+entries.
+
+**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` to track progress.
+
+```
+mctl_trigger_agents_run()
+# → { "workflow_name": "mctl-agents-daily-abc12" }
+```
+
+---
+
+### `mctl_trigger_mentor_only`
+
+Runs only the mentor sub-agent, which reads all service inbox files from the past week and
+produces a cross-service digest. Lighter than the full run.
+
+**Parameters:** none
+
+**Cost / duration:** ~$2, ~5 minutes.
+
+**Returns:** `workflow_name`
+
+---
+
+### `mctl_trigger_single_service`
+
+Runs the researcher → analyst → spec-writer cycle for a single service only.
+Useful for spot-checking one repo after a significant release.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-openclaw`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
+
+**Cost / duration:** ~$2–5, ~5–10 minutes.
+
+**Returns:** `workflow_name`
+
+**Example:**
+
+```
+mctl_trigger_single_service(service="mctl-docs")
+# → { "workflow_name": "mctl-agents-single-xyz99" }
+```
+
+---
+
+### `mctl_list_recent_agent_runs`
+
+Returns up to 10 recent mctl-agents pipeline runs from the audit log, enriched with the
+run mode and target service so you don't need to parse the workflow name.
+
+**Parameters:** none
+
+**Returns:** JSON object `{ "items": [...], "count": N }` where each item has:
+
+| Field | Description |
+|---|---|
+| `workflowName` | Argo workflow name (use for status polling) |
+| `operation` | Operation name (`mctl-agents-run`, `mctl-agents-implement`, …) |
+| `mode` | Run mode (`full`, `mentor-only`, `single-service`) |
+| `service` | Target service (empty for full/mentor runs) |
+| `status` | Last known status (`running`, `succeeded`, `failed`) |
+| `user` | Admin user ID who triggered the run |
+| `timestamp` | ISO8601 start time |
+| `riskLevel` | `high` for all mctl-agents triggers |
+| `message` | Short status message |
+
+---
+
+### `mctl_trigger_implementer`
+
+Triggers Tier 2 implementer agents. The implementer scans
+`platform-gitops/agents-state/<service>/proposals/<slug>/.status.yaml` for entries with
+`status: accepted`. For each accepted proposal it:
+
+1. Clones the matching `mctlhq/<service>` repo.
+2. Runs the per-service implementer sub-agent to make the change.
+3. Pushes a `feat/agents-<slug>` branch and opens a PR.
+4. Updates `.status.yaml` to `status: implemented` with the PR URL.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `service` | string (enum) | no | Filter to one service. Leave empty to process all services. Same enum as `mctl_trigger_single_service`. |
+| `slug` | string | no | Filter to one proposal slug (across services unless `service` is also set). |
+| `force` | `"true"` \| `"false"` | no | Retry proposals stuck in `in-progress` (e.g. from a crashed run). Default `"false"`. |
+
+**Cost / duration:** ~$3 per proposal; 1–10 minutes per proposal.
+
+**Returns:** `workflow_name`
+
+**Example — implement one specific proposal:**
+
+```
+mctl_trigger_implementer(service="mctl-docs", slug="mcp-agents-tools")
+# → { "workflow_name": "mctl-agents-implement-abc34" }
+```
+
+---
+
+### `mctl_trigger_shepherd`
+
+Triggers the Tier 3 PR shepherd. The shepherd scans every open PR opened by the
+implementer (`feat/agents-*` branches in `mctlhq/mctl-*` repos) and advances each one
+toward merge:
+
+1. Reads the latest Codex review state for the PR.
+2. If P1/P2 findings are present, runs the per-service implementer sub-agent to push a
+   fix-up commit addressing the feedback.
+3. If the review is clean and CI is green, merges the PR with `--merge --delete-branch`
+   and flips the proposal's `.status.yaml` to `status: merged`.
+4. If the proposal is unsalvageable (repeated review failures, or Codex flags a hard
+   blocker), it closes the PR and flips the status to `status: rejected`.
+
+The shepherd also runs autonomously on a `30 */2 * * *` UTC cron, so on-demand triggers
+are mainly for "I just merged a fix, advance the queue now" cases.
+
+**Parameters:** none
+
+**Cost / duration:** ~$1–5 per active PR; 2–15 minutes total per run.
+
+**Concurrency:** Contends on the `mctl-gitops-main-writes` Argo mutex with the
+implementer and other gitops-writing workflows, so two runs cannot overlap.
+
+**Returns:** `workflow_name`
+
+```
+mctl_trigger_shepherd()
+# → { "workflow_name": "mctl-agents-shepherd-xyz78" }
+```
+
+---
+
+### `mctl_trigger_issue`
+
+Triggers the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven
+proposal. Given an issue URL under the `mctlhq` org, the investigator reads the issue,
+clones the target repo read-only to ground the design in real code, and writes
+`requirements.md` / `design.md` / `tasks.md` plus a `.status.yaml` (`status: proposed`)
+under `platform-gitops/agents-state/<service>/proposals/<slug>/`. It then comments the
+proposal link back on the issue.
+
+The proposal stops at `status: proposed` and awaits human approval — review the spec and
+flip `.status.yaml` to `accepted` before the Tier 2 implementer
+(`mctl_trigger_implementer`) picks it up. No PR is opened by this step, which is why the
+tool is annotated Write rather than Destructive.
+
+**Parameters:**
+
+| Name | Required | Description |
+|---|---|---|
+| `issue_url` | yes | Full GitHub issue URL under the mctlhq org, e.g. `https://github.com/mctlhq/mctl-telegram/issues/123` |
+
+**Cost / duration:** ~$3 against Claude subscription quota; ~5–10 minutes.
+
+**Result:** a new proposal directory committed to `mctl-gitops` main, plus a comment on
+the issue.
+
+**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` or
+`mctl_list_recent_agent_runs` to track progress.
+
+### Status polling
+
+All trigger tools return a `workflow_name`. Poll for progress with:
+
+```
+mctl_get_workflow_status(workflow_name="mctl-agents-daily-abc12")
+```
+
+Or check the last few runs at any time:
+
+```
+mctl_list_recent_agent_runs()
+```
+
+Results also appear as `chore(agents)` commits in the `mctl-gitops` repository under
+`platform-gitops/agents-state/`.
+
+---
+
+## Tool Annotations
+
+Tools are annotated with behavior hints for AI clients:
+
+- **Read** (`readOnly: true`) — safe to call without side effects
+- **Write** — modifies resources, requires confirmation
+- **Destructive** (`destructive: true`) — deletes resources, requires explicit confirmation
+
+
+================================================================================
+FILE: /platform/architecture.md
+================================================================================
+# Architecture
+
+MCTL follows a GitOps architecture where every infrastructure change flows through Git.
+
+## System Diagram
+
+```mermaid
+graph TB
+    classDef core fill:#102234,stroke:#00f5ff,color:#ffffff,stroke-width:2px
+    classDef delivery fill:#11281f,stroke:#34d399,color:#f8fafc,stroke-width:2px
+    classDef muted fill:#101827,stroke:#475569,color:#e6edf3,stroke-width:1.2px
+
+    subgraph Clients
+        direction LR
+        clientClaude["Claude / Cursor / VS Code"]
+        clientPortal["Developer Portal UI"]
+        clientApi["REST API Clients"]
+    end
+
+    subgraph "Control Plane"
+        direction TB
+        controlMcp["MCP Server\nStreamable HTTP"]
+        controlApi["Developer Portal\napp.mctl.ai\naccepts requests + returns status"]
+        subgraph controlAutomation["Automation"]
+            direction LR
+            controlAgent["mctl-agent\ntickets + skills + dispatch"]
+            controlWorkflows["Argo Workflows\nworkflows.mctl.ai\nasync operations"]
+        end
+        controlExternal["External agents\nclaim + result callbacks"]
+    end
+
+    subgraph "Delivery Plane"
+        direction LR
+        gitopsRepo["mctl-gitops\nSource of Truth\ncommitted desired state"]
+        gitopsArgo["ArgoCD\nops.mctl.ai"]
+    end
+
+    subgraph "Kubernetes Cluster"
+        direction LR
+        clusterAlerts["AlertManager"]
+        clusterPlatform["Platform Services"]
+        clusterTenants["Tenant Namespaces"]
+    end
+
+    class controlMcp,controlApi,controlAgent,controlWorkflows core
+    class gitopsRepo,gitopsArgo delivery
+    class clientClaude,clientPortal,clientApi,clusterPlatform,clusterAlerts,clusterTenants,controlExternal muted
+
+    clientClaude -->|MCP Protocol| controlMcp
+    clientPortal -->|REST| controlApi
+    clientApi -->|REST| controlApi
+    controlMcp --> controlApi
+
+    controlApi -->|Submits ops| controlWorkflows
+    controlWorkflows -->|Commits| gitopsRepo
+    controlAgent -->|PRs| gitopsRepo
+    controlAgent -. incident webhooks .-> controlExternal
+    controlExternal -. claims / results .-> controlAgent
+    gitopsRepo -->|Sync| gitopsArgo
+    gitopsArgo --> clusterPlatform
+    gitopsArgo --> clusterTenants
+    controlWorkflows -. provisioning / platform jobs .-> clusterPlatform
+    gitopsArgo -. deployment sync / health .-> controlApi
+    controlWorkflows -. workflow execution status .-> controlApi
+
+    clusterAlerts -. alerts .-> controlAgent
+
+    click controlApi href "https://app.mctl.ai" "Open app.mctl.ai"
+    click controlWorkflows href "https://workflows.mctl.ai" "Open workflows.mctl.ai"
+    click gitopsArgo href "https://ops.mctl.ai" "Open ops.mctl.ai"
+```
+
+## Request Flow
+
+### MCP Request
+
+1. AI client sends a tool call via Streamable HTTP to `api.mctl.ai/mcp`
+2. `mctl-api` authenticates the request (GitHub token, Dex JWT, or OAuth JWT)
+3. The handler validates input and checks RBAC for the tenant
+4. `mctl-api` submits an Argo Workflow for the requested operation
+5. An operation ID is returned immediately
+6. The workflow commits the desired state to `mctl-gitops`
+7. ArgoCD detects the change and syncs the cluster
+8. The client polls `mctl-api` for workflow execution status and deployment sync/health
+
+### Self-Healing Flow
+
+1. AlertManager fires an alert (e.g., pod crash loop)
+2. `mctl-agent` receives the alert webhook and creates a ticket
+3. Evidence is collected and a skill is selected for diagnosis
+4. The agent either prepares a direct fix PR or dispatches the incident to an external agent such as OpenClaw
+5. A fix lands in `mctl-gitops` as a PR rather than mutating the cluster directly
+6. On merge, ArgoCD syncs the change
+
+## Data Flow
+
+| Path | Protocol | Auth |
+|------|----------|------|
+| Client -> MCP Server | Streamable HTTP (POST/GET) | Bearer token per request |
+| Client -> REST API | HTTPS | GitHub token / Dex JWT / OAuth JWT |
+| Argo Workflows -> GitOps | Git (SSH) | Deploy key |
+| ArgoCD -> Cluster | Kubernetes API | ServiceAccount |
+| AlertManager -> Agent | Webhook (HTTP) | Internal network |
+| Agent -> External agents | Signed webhook callbacks | Shared secret / callback auth |
+
+
+================================================================================
+FILE: /platform/components.md
+================================================================================
+# Components
+
+MCTL consists of five core components, each in its own repository.
+
+## mctl-api
+
+**Go REST API + MCP Server** — the central control plane.
+
+- Handles all client requests (MCP tools, REST API)
+- Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
+- Submits Argo Workflows for write operations
+- Tracks async operations and their status
+- Exposes 54 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
+
+| | |
+|---|---|
+| **URL** | [api.mctl.ai](https://api.mctl.ai) |
+| **Language** | Go |
+| **Image** | `ghcr.io/mctlhq/mctl-api` |
+| **Repo** | [mctlhq/mctl-api](https://github.com/mctlhq/mctl-api) |
+
+## mctl-web
+
+**Landing page + MCP connector + documentation** — the public face of MCTL.
+
+- Landing page at `mctl.ai`
+- MCP OAuth connector at `mctl.ai/mcp`
+- Tenant self-service creation form
+- Cloudflare Worker for OAuth flows
+
+| | |
+|---|---|
+| **URL** | [mctl.ai](https://mctl.ai) |
+| **Language** | TypeScript (Nuxt) |
+| **Image** | `ghcr.io/mctlhq/mctl-web` |
+| **Repo** | [mctlhq/mctl-web](https://github.com/mctlhq/mctl-web) |
+
+## mctl-gitops
+
+**GitOps repository** — the single source of truth for all infrastructure.
+
+- ArgoCD watches this repo and syncs cluster state
+- Contains Helm values, Kustomize overlays, and raw manifests
+- Tenant namespaces, services, and platform config all live here
+- Every change to infrastructure is a Git commit
+
+| | |
+|---|---|
+| **URL** | [ops.mctl.ai](https://ops.mctl.ai) (ArgoCD) |
+| **Repo** | [mctlhq/mctl-gitops](https://github.com/mctlhq/mctl-gitops) |
+
+## mctl-portal
+
+**Backstage developer portal** — the UI for browsing and managing services.
+
+- Service catalog with real-time status
+- Tenant and team management
+- Workflow and operation history
+- Custom Backstage plugins for MCTL-specific functionality
+
+| | |
+|---|---|
+| **URL** | [app.mctl.ai](https://app.mctl.ai) |
+| **Language** | TypeScript (React) |
+| **Image** | `ghcr.io/mctlhq/mctl-portal` |
+| **Repo** | [mctlhq/mctl-portal](https://github.com/mctlhq/mctl-portal) |
+
+## mctl-agent
+
+**Self-healing agent** — automated incident response.
+
+- Subscribes to AlertManager webhooks
+- Creates tickets and stores incident state
+- Analyzes alerts using Claude API plus builtin, YAML, and remote skills
+- Executes skills (rollback, scale, restart, quota, probe, drift, etc.)
+- Can dispatch incidents to external agents such as OpenClaw through signed webhooks
+- Creates PRs to `mctl-gitops` with fixes and tracks PR metadata
+- Notifies operators through Telegram for updates, review, and approvals
+- Full incident lifecycle: detect, analyze, propose fix, review, verify
+
+| | |
+|---|---|
+| **URL** | [agent.mctl.ai](https://agent.mctl.ai) |
+| **Language** | Go |
+| **Image** | `ghcr.io/mctlhq/mctl-agent` |
+| **Repo** | [mctlhq/mctl-agent](https://github.com/mctlhq/mctl-agent) |
+
+
+================================================================================
+FILE: /platform/openclaw.md
+================================================================================
+# OpenClaw Integration
+
+MCTL includes OpenClaw as a managed platform service — a personal AI assistant that connects to messaging channels (Telegram, Discord, Slack, WhatsApp, and others) and can interact with your infrastructure through MCTL.
+
+## What is OpenClaw?
+
+[OpenClaw](https://openclaw.ai) is an open-source personal AI assistant that runs on your own infrastructure. It answers on channels you already use (Telegram, Discord, Slack, WhatsApp, and 20+ others), supports voice, and provides a web-based Canvas UI.
+
+MCTL maintains a fork (`mctl-openclaw`) that integrates OpenClaw with the platform:
+
+- **MCTL OAuth**: seamless sign-in through the platform's authentication system
+- **Incident webhooks**: the mctl-agent can dispatch incidents to OpenClaw for collaborative remediation
+- **Platform-aware sessions**: OpenClaw sessions are scoped to GitHub-authenticated users
+- **Managed deployment**: provisioned and scaled through MCTL MCP tools and GitOps
+
+## Architecture
+
+```
+Messaging Channels (Telegram, Discord, Slack, ...)
+        |
+        v
+   OpenClaw Gateway  <--- mctl-agent (incident webhooks)
+        |
+        v
+   AI Model (OpenAI, Anthropic, etc.)
+        |
+        v
+   Skills & Tools (including MCTL MCP tools)
+```
+
+OpenClaw runs as a gateway service in your tenant namespace. It connects to your messaging channels and routes conversations through an AI model. The platform handles deployment, scaling, database provisioning, and secret management.
+
+## Deploying OpenClaw
+
+### Via MCP
+
+```
+"Deploy OpenClaw for my-team"
+```
+
+This calls `mctl_deploy_openclaw`, which:
+
+1. Prepares the deployment configuration
+2. Returns a Telegram bot-token intake URL
+3. After you provide the bot token, call:
+   ```
+   "Resume the OpenClaw deployment for my-team"
+   ```
+4. MCTL provisions a PostgreSQL database and deploys the gateway
+
+### What gets provisioned
+
+| Resource | Description |
+|----------|-------------|
+| Deployment | OpenClaw gateway container |
+| Database | PostgreSQL on shared CNPG cluster |
+| Secrets | Bot tokens, API keys stored in Vault |
+| Ingress | HTTPS endpoint for the web UI and webhook callbacks |
+
+## Resource Optimization
+
+OpenClaw can consume significant resources depending on usage patterns. MCTL provides tools to right-size your deployment:
+
+### Get sizing recommendations
+
+```
+"Get resource sizing recommendations for openclaw in my-team"
+```
+
+This calls `mctl_get_openclaw_sizing_recommendation`, which analyzes VictoriaMetrics history and suggests an optimal resource profile.
+
+### Apply a resource profile
+
+```
+"Apply the steady-small resource profile to openclaw in my-team"
+```
+
+Available profiles:
+
+| Profile | CPU Request | Memory Request | Use case |
+|---------|-------------|----------------|----------|
+| `startup` | 500m | 512Mi | Initial deployment, testing |
+| `steady-medium` | 250m | 384Mi | Regular usage, multiple channels |
+| `steady-small` | 100m | 256Mi | Low traffic, single channel |
+
+## Incident Integration
+
+The mctl-agent can dispatch incidents to OpenClaw for collaborative remediation:
+
+1. AlertManager fires an alert
+2. mctl-agent creates an incident ticket and selects a skill
+3. If the skill requires external assistance, the agent sends a signed webhook to OpenClaw
+4. OpenClaw creates a scoped session for the incident
+5. The AI model analyzes the incident and proposes a fix
+6. Results are sent back to mctl-agent via callback
+7. mctl-agent creates a PR to `mctl-gitops` with the fix
+
+This integration enables multi-agent remediation where the platform agent and the personal assistant collaborate on incident resolution.
+
+## Fork Maintenance
+
+`mctl-openclaw` tracks upstream `openclaw/openclaw` with a weekly sync workflow:
+
+- A GitHub Actions workflow creates a `sync/upstream-YYYY-MM-DD` branch
+- The sync PR is tested in the `labs-openclaw` tenant before promotion
+- Fork-specific patches are maintained as a thin layer on top of upstream
+
+Fork-specific areas reviewed on each sync:
+- OAuth and gateway behavior
+- Webhook automation and session creation
+- Whisper/runtime packaging
+- Platform-specific deployment assumptions
+
+## Useful Links
+
+- [OpenClaw documentation](https://docs.openclaw.ai)
+- [OpenClaw GitHub](https://github.com/openclaw/openclaw)
+- [MCTL MCP Tools Reference](/mcp/tools-reference) — see the OpenClaw section
+
+
+================================================================================
+FILE: /platform/overview.md
+================================================================================
+# What is MCTL?
+
+MCTL is an AI-native infrastructure management platform that lets you control Kubernetes infrastructure through natural language, REST APIs, or a developer portal.
+
+## The Problem
+
+Managing Kubernetes is complex. Teams need to:
+- Write and maintain Helm charts, Kustomize overlays, and ArgoCD configs
+- Handle networking, TLS, DNS, and ingress rules
+- Set up RBAC, resource quotas, and namespace isolation
+- Monitor deployments, troubleshoot failures, and perform rollbacks
+
+This requires deep platform engineering expertise that most teams don't have.
+
+## The Solution
+
+MCTL abstracts the complexity behind a unified control plane:
+
+- **Natural language** — connect Claude, Cursor, or VS Code via MCP and manage infrastructure conversationally
+- **REST API** — integrate with CI/CD pipelines, scripts, and custom tooling
+- **Developer Portal** — Backstage-powered UI for browsing services, tenants, and operations
+- **GitOps** — every change is a Git commit, synced by ArgoCD with full audit trail
+
+## How It Works
+
+1. **You make a request** — via MCP tool, API call, or portal action
+2. **MCTL API processes it** — validates auth, checks RBAC, generates the desired state
+3. **GitOps repo is updated** — the change is committed to `mctl-gitops`
+4. **ArgoCD syncs** — detects the diff and applies it to the cluster
+5. **Operation completes** — you can track progress via the operation ID
+
+Every action is an async **operation** with a trackable ID. You can check status, view logs, and see the full history of changes.
+
+## Core Principles
+
+**GitOps-first** — the Git repository is the single source of truth. No imperative `kubectl apply` commands.
+
+**Multi-tenant** — each team gets isolated namespaces with RBAC policies and resource quotas. No cross-tenant access.
+
+**AI-native** — built from the ground up for AI interaction. The MCP server exposes 54 tools covering the full platform lifecycle.
+
+**Self-healing** — the mctl-agent watches AlertManager and automatically creates PRs to fix common issues.
+
+
+================================================================================
+FILE: /reference/diagrams.md
+================================================================================
+---
+title: Diagram Types
+description: Mermaid diagram types available in mctl docs, with examples and usage guidance.
+---
+
+# Diagram Types
+
+mctl docs uses [Mermaid](https://mermaid.js.org/) (currently `11.13.x`) for every diagram in the site. Any Markdown file under `docs/` can include a fenced `mermaid` block — the custom fence handler in `docs/.vitepress/config.ts` converts it to a `<div class="mermaid-diagram">` placeholder and the browser renders the source client-side.
+
+````markdown
+```mermaid
+flowchart LR
+    A[Start] --> B[End]
+```
+````
+
+> **Version note:** the examples below are validated against mermaid `11.13.0`. Beta diagram types (Venn, Wardley Maps, Treemap variants) are deliberately **not** included until we bump mermaid and verify rendering. See [ADR 0003](https://github.com/mctlhq/mctl-docs/blob/main/context/decisions/0003-vitepress-2-upgrade-strategy.md) for the upgrade policy.
+
+## When to use a diagram
+
+- For structural relationships, request flows, or state machines that a paragraph cannot convey concisely.
+- Skip the diagram if a sentence does the job.
+- Keep diagrams small — large flowcharts become unreadable on mobile.
+- Label every node and edge clearly. Tenant names (`admins`, `labs`, `ovk`) should be written literally.
+- Never embed secrets, internal IPs, or unredacted hostnames in diagram labels.
+
+## Supported diagram types
+
+| Type | Status | Best for |
+|------|--------|----------|
+| Flowchart (`flowchart` / `graph`) | Stable | Process flows, decision trees |
+| Sequence (`sequenceDiagram`) | Stable | API call sequences, auth flows |
+| State (`stateDiagram-v2`) | Stable | Service lifecycles, state machines |
+| ER (`erDiagram`) | Stable | Data model relationships |
+| Class (`classDiagram`) | Stable | API / object schema relationships |
+| Git graph (`gitGraph`) | Stable | Branching strategies, release flow |
+| Pie (`pie`) | Stable | Proportions, quota usage |
+| Timeline (`timeline`) | Stable | Chronological roadmaps |
+| Mindmap (`mindmap`) | Stable | Concept maps |
+| Architecture (`architecture-beta`) | Beta | High-level system component layouts |
+
+## Examples
+
+### Flowchart
+
+```mermaid
+flowchart LR
+    dev[Developer] -->|git push| gitops[mctl-gitops]
+    gitops -->|ArgoCD sync| cluster[Kubernetes Cluster]
+    cluster --> svc[Your Service]
+```
+
+### Sequence diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant API as mctl-api
+    participant WF as Argo Workflows
+    participant Cluster as ArgoCD + Cluster
+
+    User->>API: POST /services (JWT)
+    API->>WF: submit deploy workflow
+    WF->>Cluster: commit to mctl-gitops
+    Cluster-->>API: sync status
+    API-->>User: 202 Accepted (operation_id)
+```
+
+### State diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Running: workflow accepted
+    Running --> Succeeded: commit synced
+    Running --> Failed: error
+    Failed --> Pending: retry
+    Succeeded --> [*]
+```
+
+### ER diagram
+
+```mermaid
+erDiagram
+    TENANT ||--o{ SERVICE : owns
+    TENANT ||--o{ DOMAIN : registers
+    SERVICE ||--o{ DEPLOYMENT : has
+    DEPLOYMENT }o--|| OPERATION : tracks
+```
+
+### Class diagram
+
+```mermaid
+classDiagram
+    class Service {
+        +string name
+        +string tenant
+        +int replicas
+        +deploy()
+        +rollback()
+    }
+    class Deployment {
+        +string version
+        +string status
+        +datetime created_at
+    }
+    Service "1" --> "many" Deployment
+```
+
+### Git graph
+
+```mermaid
+gitGraph
+    commit id: "init"
+    branch feat/new-tool
+    commit id: "add tool"
+    commit id: "tests"
+    checkout main
+    merge feat/new-tool
+    commit id: "release 1.6.0" tag: "1.6.0"
+```
+
+### Pie chart
+
+```mermaid
+pie title Tenant resource share
+    "admins" : 45
+    "labs" : 30
+    "ovk" : 25
+```
+
+### Timeline
+
+```mermaid
+timeline
+    title mctl platform milestones
+    2026-Q1 : Open-source release
+            : Backstage portal live
+    2026-Q2 : MCP connector directory
+            : Self-service tenants
+```
+
+### Mindmap
+
+```mermaid
+mindmap
+  root((mctl))
+    Platform
+      mctl-api
+      mctl-portal
+      mctl-gitops
+    Tenants
+      admins
+      labs
+      ovk
+    Docs
+      docs.mctl.ai
+```
+
+### Architecture (beta)
+
+::: warning Beta
+The `architecture-beta` diagram type is still marked beta upstream. Rendering may change in future mermaid releases.
+:::
+
+```mermaid
+architecture-beta
+    group platform(cloud)[mctl Platform]
+
+    service api(server)[mctl-api] in platform
+    service portal(server)[mctl-portal] in platform
+    service docs(server)[mctl-docs] in platform
+    service gitops(disk)[mctl-gitops] in platform
+
+    api:R --> L:portal
+    api:B --> T:gitops
+    portal:B --> T:gitops
+```
+
+## Notes for contributors
+
+- The fence handler runs at build time and only embeds the source string — Mermaid renders in the browser, so syntax errors will show up as a broken diagram on the page rather than a build failure. Always verify locally with `npm run dev`.
+- Avoid the deprecated `htmlLabels` option in flowchart configs (deprecated since mermaid 11.13). The default rendering already produces the same result.
+- If you need a diagram type that is not in the table above, open a PR adding both an example here and a reference link to the mermaid documentation, so the next contributor knows it is supported in our stack.
+
+
+================================================================================
+FILE: /reference/faq.md
+================================================================================
+# FAQ
+
+## General
+
+**What is MCTL?**
+MCTL is an AI-native infrastructure management platform that lets you control Kubernetes infrastructure through natural language, REST APIs, or a developer portal.
+
+**Is MCTL open source?**
+Yes. All repositories are licensed under Apache 2.0 and available on [GitHub](https://github.com/mctlhq).
+
+**What AI clients are supported?**
+Any client that supports the Model Context Protocol (MCP): Claude.ai, Claude Code, Cursor, VS Code with Copilot MCP, and others.
+
+## MCP
+
+**What can the AI do?**
+Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 54 tools.
+
+**What can it NOT do?**
+No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`, `mctl_delete_openclaw_skill`, `mctl_delete_openclaw_identity`, `mctl_trigger_implementer`, `mctl_trigger_shepherd`) are explicitly annotated and require AI client confirmation before execution.
+
+**Where do write operations go?**
+Every write operation submits an Argo Workflow that produces a git commit in the GitOps repository. ArgoCD detects the change and syncs it to the cluster. Use `mctl_get_workflow_status` to track progress.
+
+**How does auth work for Claude.ai connector?**
+GitHub OAuth with PKCE flow. Only `read:user` and `user:email` scopes are requested — no access to your code or repositories. The OAuth token is sent per-request and never stored server-side.
+
+**Do I need to install anything?**
+No for Claude.ai — use the native connector. For developer clients (Cursor, VS Code, Claude Desktop, etc.), add a one-time MCP server config with your GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
+
+**What GitHub token scope is needed?**
+For developer clients: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
+
+**How many tools are available?**
+54 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
+
+## Platform
+
+**What happens when I deploy a service?**
+A commit is made to the GitOps repository, ArgoCD detects the change and syncs it to the cluster, and an Argo Workflow executes the deployment. You get an operation ID to track progress.
+
+**Can I rollback a deployment?**
+Yes. Use the `mctl_rollback_service` tool or API endpoint. Since every deployment is a Git commit, rollbacks are safe and auditable.
+
+**How is tenant isolation enforced?**
+Each tenant has its own Kubernetes namespace with RBAC policies, network policies, and resource quotas. Cross-tenant access is not possible.
+
+## Documentation site
+
+**Which version of VitePress does this site use?**
+mctl docs runs on VitePress 1.6. VitePress 2.x is still in alpha (`2.0.0-alpha.17` at time of writing) and will be evaluated for upgrade once it reaches a stable release. See [ADR 0003 — VitePress 2.x upgrade strategy](https://github.com/mctlhq/mctl-docs/blob/main/context/decisions/0003-vitepress-2-upgrade-strategy.md) for the full rationale and migration checklist.
+
+<!-- TODO: Add more FAQ entries based on user questions -->
+
+
+================================================================================
+FILE: /reference/glossary.md
+================================================================================
+# Glossary
+
+| Term | Definition |
+|------|------------|
+| **ArgoCD** | GitOps continuous delivery tool that syncs cluster state from Git |
+| **Argo Workflows** | Workflow engine for executing multi-step operations on Kubernetes |
+| **Backstage** | Developer portal framework by Spotify, used for the MCTL service catalog |
+| **Blue-Green Deployment** | Deployment strategy that runs two versions simultaneously and switches traffic |
+| **Dex** | OpenID Connect identity provider used for SSO |
+| **GitOps** | Operating model where Git is the single source of truth for infrastructure |
+| **MCP** | Model Context Protocol — open standard for connecting AI to external tools |
+| **Namespace** | Kubernetes isolation boundary, one per tenant |
+| **OpenClaw** | Resource optimization system for right-sizing service CPU and memory |
+| **Operation** | An async task (deploy, scale, rollback) tracked by ID |
+| **PKCE** | Proof Key for Code Exchange — OAuth 2.0 extension for public clients |
+| **Preview Environment** | Temporary deployment for testing a branch or pull request |
+| **RBAC** | Role-Based Access Control |
+| **Streamable HTTP** | MCP transport protocol using standard HTTP POST/GET |
+| **Tenant** | Isolated environment for a team with its own namespace and resources |
+
+
+================================================================================
+FILE: /reference/troubleshooting.md
+================================================================================
+# Troubleshooting
+
+Common issues and how to resolve them.
+
+## Authentication
+
+### "Unauthorized" error
+
+Your token may be expired or invalid.
+
+1. Sign in again from the [Connecting](/mcp/connecting) page
+2. Verify your GitHub account has organization membership
+3. Check the `Authorization: Bearer` header format
+
+For OAuth tokens (Claude.ai connector): disconnect and reconnect the MCP server.
+
+### "Forbidden" on tenant operations
+
+Your GitHub identity does not have access to the requested tenant.
+
+- Check your GitHub team membership — tenants are mapped to GitHub teams
+- Destructive operations (`delete_tenant`, `retire_service`) require admin group membership
+- Ask your tenant admin to verify your access
+
+### "Forbidden" on workflows.mctl.ai
+
+If you deploy or check logs via `mctl_deploy_service` / MCP, requests go
+through `mctl-api`'s service account and the tenant-group check described
+above. Browsing or submitting workflows directly at
+[workflows.mctl.ai](https://workflows.mctl.ai) is a separate path: it uses
+Argo Workflows' own SSO, which maps your session to a per-tenant
+ServiceAccount by group membership rather than by the mctl-api RBAC model.
+
+A `forbidden ... cannot get resource "workflows" ... in namespace
+"<tenant>"` error here usually means your SSO session resolved to a
+*different* tenant's ServiceAccount than the one you're trying to act in.
+This happens when you belong to more than one tenant and their SSO
+group-resolution rules tie — most commonly because you were once part of
+a duplicate or since-renamed tenant that was never fully deleted. Ask a
+platform admin to check for stale tenants tied to your account and remove
+them; recreating your session (sign out and back in) after cleanup clears
+the stale group claim.
+
+### Token type confusion
+
+MCTL accepts three token types. The API auto-detects the type:
+
+| Token looks like | Type | How to get |
+|------------------|------|------------|
+| No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
+| 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
+| 2 dots, self-issued | OAuth JWT | OAuth flow on the [Connecting](/mcp/connecting) page |
+
+If your token is rejected, ensure you're using the right type for your client.
+
+## MCP Connection
+
+### Tools not appearing in Claude.ai
+
+1. Disconnect the MCP server from Claude.ai settings
+2. Clear your browser cache
+3. Reconnect from the [Connecting](/mcp/connecting) page
+4. Start a **new** conversation (existing conversations don't pick up tool changes)
+
+### Timeout errors on tool calls
+
+Operations like `deploy-service` and `scale-service` are async. The tool returns an operation ID immediately — the actual work happens in the background.
+
+If the MCP endpoint itself times out:
+- Check if `api.mctl.ai` is reachable
+- The request timeout is 30 seconds; complex queries may need a simpler filter
+- Try again — transient network issues resolve quickly
+
+### "Connection refused" in Claude Code / Cursor
+
+Verify the MCP server URL is exactly `https://api.mctl.ai/mcp` (not `/api/v1/mcp` or other paths).
+
+Check that you haven't set `type: "stdio"` — MCTL uses `streamable-http` transport:
+
+```json
+{
+  "mcpServers": {
+    "mctl": {
+      "type": "streamable-http",
+      "url": "https://api.mctl.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}
+```
+
+## Deployment
+
+### Deployment stuck in "Pending" or "Progressing"
+
+1. Check the operation status:
+   ```
+   "What's the status of workflow deploy-service-xyz?"
+   ```
+2. Common causes:
+   - **Image pull error**: the container image doesn't exist or requires authentication
+   - **Insufficient resources**: the tenant's resource quota is exhausted
+   - **Port conflict**: another service is using the same port in the namespace
+
+3. Check resource usage:
+   ```
+   "What's the resource usage for my-team?"
+   ```
+
+### Service shows "OutOfSync" in ArgoCD
+
+ArgoCD detected a difference between the GitOps repo and the cluster state.
+
+- **Expected after a deploy**: ArgoCD syncs automatically within 3 minutes
+- **Persistent OutOfSync**: someone may have manually modified the cluster. ArgoCD will reconcile on next sync
+- Check the ArgoCD UI at [ops.mctl.ai](https://ops.mctl.ai) for diff details
+
+### Service shows "Degraded" health
+
+The service is running but not healthy. Common causes:
+
+1. **Crash loop**: the container is repeatedly crashing
+   ```
+   "Show me logs for my-app in staging"
+   ```
+2. **Failed readiness probe**: the `/healthz` or `/readyz` endpoint is not responding
+   - Check that your app listens on the configured port
+   - Verify environment variables are set correctly
+3. **OOMKilled**: the container exceeds its memory limit
+   ```
+   "What's the resource usage for staging?"
+   ```
+   Consider scaling up memory limits or optimizing your application.
+
+### "Operation not found" error
+
+The operation name must match a registered operation exactly. Available operations:
+
+| Operation | Description |
+|-----------|-------------|
+| `deploy-service` | Deploy or update a service |
+| `create-tenant` | Create a new tenant |
+| `provision-database` | Provision PostgreSQL |
+| `retire-service` | Remove a service |
+| `delete-tenant` | Delete a tenant |
+| `rollback-service` | Rollback to a previous tag |
+| `preview-deploy` | Create preview environment |
+| `preview-delete` | Delete preview environment |
+
+Use `mctl_list_operations` to see the full list with parameters.
+
+### Image pull errors
+
+If you see `ImagePullBackOff` or `ErrImagePull`:
+
+1. Check the actual build first: your source repo's own Actions job only
+   *triggers* the build — it doesn't run it. MCTL builds and pushes the
+   image centrally via an Argo Workflow, so a green check on your repo's
+   Actions tab just means the trigger request was sent, not that the build
+   itself succeeded. Use `mctl_get_workflow_status` (or `mctl_list_workflows`)
+   to check the actual build/deploy workflow before assuming the image
+   exists — this saves time over guessing at the steps below.
+2. Verify the image exists:
+   ```bash
+   docker pull ghcr.io/your-org/your-image:tag
+   ```
+3. For private images, grant repository access:
+   ```
+   "Grant access to repo myorg/my-app for my-team"
+   ```
+4. Check that the image tag is correct — tags are case-sensitive
+5. If the image builds and pushes successfully but still won't pull, your
+   tenant namespace may be missing the `ghcr-credentials` secret used to
+   authenticate to `ghcr.io`. This is provisioned automatically for new
+   tenants — contact the platform team if you're on an older tenant that
+   predates it. Repository access (step 3) only covers the build; the
+   registry pull is a separate credential.
+
+## Databases
+
+### Database provisioning fails
+
+The `provision-database` operation creates a PostgreSQL database on the shared CNPG cluster.
+
+Common issues:
+- **Database name conflict**: a database with that name already exists in the tenant
+- **Quota exceeded**: the tenant has reached its pod limit
+- **Vault permissions**: the tenant's Vault policy may not include the `teams/{team}/*` path
+
+### Cannot connect to database
+
+Database credentials are stored in Vault and synced to Kubernetes secrets via ExternalSecrets.
+
+1. Verify the secret exists in your namespace:
+   ```
+   "Show me the status of my-app in staging"
+   ```
+2. Check that your application reads the correct environment variables:
+   - `DATABASE_URL` or individual `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
+3. The database uses PgBouncer — connect on port `5432`, not the CNPG internal port
+
+## Domains
+
+### Custom domain shows "pending"
+
+After adding a domain, you need to create a CNAME record pointing to your service's default host.
+
+1. Add the CNAME record at your DNS provider:
+   ```
+   api.example.com  CNAME  my-app.mctl.ai
+   ```
+2. Wait for DNS propagation (usually 1-5 minutes, up to 48 hours)
+3. Verify the domain:
+   ```
+   "Verify domain api.example.com for my-app in staging"
+   ```
+
+### TLS certificate not issued
+
+TLS certificates are provisioned by cert-manager with Let's Encrypt after DNS verification succeeds.
+
+- Check that the CNAME record is correctly configured
+- Let's Encrypt has rate limits — if you've recently issued many certificates, you may need to wait
+- Verify at [ops.mctl.ai](https://ops.mctl.ai) that the Certificate resource exists and check its status
+
+## Preview Environments
+
+### Preview not accessible
+
+Previews get a temporary domain based on the preview name. Check:
+
+1. That the preview was created successfully:
+   ```
+   "List all previews in staging"
+   ```
+2. The preview's health status — it follows the same deployment pipeline as regular services
+3. Preview TTL — previews auto-delete after the configured TTL (default: 24 hours)
+
+## Self-Healing Agent
+
+### Agent not creating PRs for incidents
+
+The mctl-agent processes alerts from AlertManager. If PRs aren't appearing:
+
+1. Check that the alert is firing in AlertManager
+2. The agent may have classified the alert as informational (no action needed)
+3. Some alerts are suppressed to reduce noise (e.g. monitoring meta-alerts)
+4. Check agent logs at [agent.mctl.ai](https://agent.mctl.ai)
+
+### Agent PR was not merged
+
+Agent PRs require manual review and approval. Check:
+- The PR in the `mctl-gitops` repository on GitHub
+- Telegram notifications for operator approval requests
+- The incident status via MCP: `"Show me details of incident INC-xxx"`
+
+## Getting Help
+
+If your issue isn't covered here:
+
+1. Check the [FAQ](/reference/faq)
+2. Search the [MCP Tools Reference](/mcp/tools-reference) for the relevant tool
+3. Open an issue on [GitHub](https://github.com/mctlhq)
+4. Contact support at support@mctl.ai
+
+
+================================================================================
+FILE: /security/authentication.md
+================================================================================
+# Authentication
+
+MCTL supports three authentication methods, all validated by `mctl-api`.
+
+## GitHub Token
+
+Direct GitHub personal access token authentication. The API validates the token against the GitHub API and checks organization membership.
+
+**Used by**: MCP clients, API scripts
+
+```
+Authorization: Bearer ghp_xxxxxxxxxxxx
+```
+
+Personal access tokens need only the `read:user` scope. (The browser OAuth flow used by Claude.ai additionally requests `user:email`.) Organization membership is resolved server-side; no `read:org` scope is required.
+
+## Dex SSO (JWT)
+
+OpenID Connect via Dex, the platform's SSO provider at `ops.mctl.ai`.
+
+**Used by**: Developer portal, internal services
+
+The API validates the JWT signature using JWKS keys from `ops.mctl.ai/api/dex/keys`. Groups are extracted from token claims.
+
+## OAuth JWT
+
+OAuth 2.0 PKCE flow for browser-based clients. Tokens are issued by `mctl-api` itself and signed with HMAC-SHA256.
+
+**Used by**: Claude.ai native connector, mctl.ai web flows
+
+The flow:
+1. Client initiates OAuth PKCE flow via `mctl.ai/api/github/login`
+2. User authenticates with GitHub
+3. MCTL issues a JWT with the user's identity and groups
+4. The token is returned via URL fragment (never hits server logs)
+
+## Auth Bypass (Development)
+
+For local development, set `AUTH_REQUIRED=false` to bypass authentication. This should never be used in production.
+
+## Token Scopes
+
+All authentication methods resolve to the same internal identity with:
+- **User ID** — GitHub username
+- **Organization** — GitHub organization membership
+- **Groups** — tenant access groups (from GitOps config or token claims)
+
+
+================================================================================
+FILE: /security/authorization.md
+================================================================================
+# Authorization
+
+MCTL enforces tenant-scoped access control. Users can only access resources in tenants they belong to.
+
+## RBAC Model
+
+Access is determined by group membership:
+- Each tenant has associated groups in the GitOps configuration
+- Users are mapped to groups via their GitHub organization membership or SSO claims
+- API requests are checked against the user's groups before accessing tenant resources
+
+## Tenant Isolation
+
+Tenants are fully isolated:
+- Each tenant has its own Kubernetes namespace
+- Network policies restrict cross-namespace traffic
+- Resource quotas prevent noisy-neighbor issues
+- RBAC roles are scoped to the tenant namespace
+
+## Permission Levels
+
+| Action | Required Access |
+|--------|----------------|
+| List tenants | Authenticated user |
+| Read tenant resources | Tenant member |
+| Deploy / scale / rollback | Tenant member |
+| Create / delete tenant | Organization admin |
+| Platform operations | Platform admin |
+
+## How Groups Work
+
+Groups are defined in `mctl-gitops` and map GitHub teams or Dex groups to tenants:
+- A user in the `backend-team` GitHub team gets access to the `backend-team` tenant
+- Platform admins have access to all tenants
+- Group membership is resolved at request time (no caching)
+
+<!-- TODO: Document group configuration format and examples -->
+
