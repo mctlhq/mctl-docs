@@ -1,0 +1,28 @@
+name: Context7 Reindex
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  reindex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Context7 Reindex
+        env:
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+        run: |
+          if [ -n "$CONTEXT7_API_KEY" ]; then
+            echo "Notifying Context7 to reindex documentation..."
+            curl -s -X POST "https://context7.com/api/v1/libraries/reindex" \
+              -H "Authorization: Bearer $CONTEXT7_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{"repository": "mctlhq/mctl-docs"}' || true
+          else
+            echo "CONTEXT7_API_KEY secret not set, skipping Context7 notification."
+          fi
