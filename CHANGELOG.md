@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.28](https://github.com/mctlhq/mctl-docs/compare/0.1.27...0.1.28) (2026-08-07)
+
+
+### Bug Fixes
+
+* **docker:** migrate mctl-docs build to oven/bun:1-alpine ([0e4a8ea](https://github.com/mctlhq/mctl-docs/commit/0e4a8eaa67b75e75555ab657065570a12ece95a9))
+* **docker:** migrate mctl-docs build to oven/bun:1-alpine ([5d6b88a](https://github.com/mctlhq/mctl-docs/commit/5d6b88abdaeb7555b200a1d295619cfb69923b76))
+
 ## [0.1.27](https://github.com/mctlhq/mctl-docs/compare/0.1.26...0.1.27) (2026-07-29)
 
 
