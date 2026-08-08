@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.30](https://github.com/mctlhq/mctl-docs/compare/0.1.29...0.1.30) (2026-08-08)
+
+
+### Features
+
+* **docs:** add automated llms-full.txt generator for 1M+ token LLMs ([28ccbd7](https://github.com/mctlhq/mctl-docs/commit/28ccbd79845edc3bf6addd80645d9a6984c7f3c4))
+* **docs:** add automated llms-full.txt generator for 1M+ token LLMs ([d19a9f1](https://github.com/mctlhq/mctl-docs/commit/d19a9f1887b7f97907c293c90d9b6e02a2418f80))
+
 ## [0.1.29](https://github.com/mctlhq/mctl-docs/compare/0.1.28...0.1.29) (2026-08-07)
 
 
