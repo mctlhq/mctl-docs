@@ -1,0 +1,17 @@
+name: Agy PR review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions: {}
+
+jobs:
+  agy-review:
+    uses: mctlhq/.github/.github/workflows/agy-review.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      conventions: |
+        Focus on: VitePress markdown syntax validity, internal/external documentation link integrity, accuracy of technical code snippets/examples, Mermaid diagram syntax validity, LLM context generator script behavior (`scripts/generate-llms-full.ts`), Nginx static server configuration (`nginx.conf`), and documentation clarity.
