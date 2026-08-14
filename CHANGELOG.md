@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.31](https://github.com/mctlhq/mctl-docs/compare/0.1.30...0.1.31) (2026-08-14)
+
+
+### Bug Fixes
+
+* redeem GitHub MCP tokens from a one-time session ([33ed517](https://github.com/mctlhq/mctl-docs/commit/33ed5170fb2cc2a9983d662ed3817c96bdde5fc4))
+* redeem GitHub MCP tokens from a one-time session ([12cfe56](https://github.com/mctlhq/mctl-docs/commit/12cfe562fc32bac437fa71841c9afcd12d9f2167))
+
 ## [0.1.30](https://github.com/mctlhq/mctl-docs/compare/0.1.29...0.1.30) (2026-08-13)
 
 
