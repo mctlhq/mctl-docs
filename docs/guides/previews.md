@@ -66,10 +66,11 @@ mctl_get_workflow_status
   workflow_name: preview-deploy-abc123
 ```
 
-For build-from-branch previews the workflow runs in three stages:
-1. `ensure-preview-eso` — creates the Vault ESO role that can only read `preview/` paths
-2. `build-image` — triggers and polls GitHub Actions until the image is pushed (skipped when `git_ref` is empty)
-3. `deploy-preview` — Helm install into `{team}-preview`
+For build-from-branch previews the workflow runs in two sequential stages:
+1. `build-image` — triggers and polls GitHub Actions until the image is pushed (skipped when `git_ref` is empty)
+2. `deploy-preview` — Helm install into `{team}-preview`
+
+The Vault ESO role `eso-tenant-{team}-preview` is created once by `wft-create-tenant`, not on every preview.
 
 ## Listing previews
 
