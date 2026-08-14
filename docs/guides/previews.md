@@ -1,8 +1,9 @@
 # Preview Environments
 
 Deploy temporary, isolated copies of a service — for a pull request, feature branch, or any arbitrary image tag.
-Previews run in the same namespace as the production service and share its secrets. They are automatically
-cleaned up after a configurable TTL (default: 24 hours).
+Previews run in `{team}-preview`, not the production tenant namespace. Tenant secrets are
+read from `secret/teams/<team>/<service>/preview/*` and cannot fall back to production
+credentials. They are automatically cleaned up after a configurable TTL (default: 24 hours).
 
 ## Two modes
 
@@ -65,9 +66,10 @@ mctl_get_workflow_status
   workflow_name: preview-deploy-abc123
 ```
 
-For build-from-branch previews the workflow runs in two sequential stages:
-1. `build-image` — triggers and polls GitHub Actions until the image is pushed
-2. `deploy-preview` — Helm install into the team namespace
+For build-from-branch previews the workflow runs in three stages:
+1. `ensure-preview-eso` — creates the Vault ESO role that can only read `preview/` paths
+2. `build-image` — triggers and polls GitHub Actions until the image is pushed (skipped when `git_ref` is empty)
+3. `deploy-preview` — Helm install into `{team}-preview`
 
 ## Listing previews
 
@@ -113,13 +115,25 @@ mctl_delete_preview
 
 Previews reuse the production service's `values.yaml` as a base so they automatically inherit:
 
-- `imagePullSecrets` — can pull from private GHCR
+- `imagePullSecrets` — can pull from private GHCR (copied into `{team}-preview`)
 - `service.port` — same port mapping
-- `envFrom` — same ConfigMap/Secret references
+- `envFrom` — same Secret *names*, resolved from ExternalSecrets in `{team}-preview`
 - `resources` — same CPU/memory limits
 
-Only `image.tag` and the ingress host are overridden. A new ExternalSecret is **not** created —
-the preview pod uses the existing secret already provisioned in the namespace.
+`image.tag` and the ingress host are overridden. Tenant Vault paths are rewritten from
+`teams/<team>/<service>/<leaf>` to `teams/<team>/<service>/preview/<leaf>` and synced
+through a namespaced SecretStore whose ESO role cannot read production paths. Missing
+preview secrets fail closed — the pod never receives production credentials.
+
+Seed preview secrets before the first deploy:
+
+```
+vault kv put secret/teams/<team>/<service>/preview/<leaf> key=value
+```
+
+Platform paths (`platform/*`, e.g. GHCR pull creds, shared MinIO) stay on the cluster
+SecretStore. NetworkPolicy in `{team}-preview` allow-lists platform namespaces only;
+preview pods cannot reach the production tenant namespace.
 
 ## GitHub PR previews (mctl-web pattern)
 
