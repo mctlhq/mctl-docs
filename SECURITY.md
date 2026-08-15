@@ -32,3 +32,4 @@ This policy applies to all repositories in the mctlhq organization, including:
 
 - `script-src` uses per-build SHA-256 hashes of VitePress inline boot scripts (no `'unsafe-inline'`). Hashes are generated at image build from the HTML nginx will serve.
 - Residual: `style-src` keeps `'unsafe-inline'` because VitePress/Vue emit inline style attributes. Removing it breaks layout.
+- Theme tokens load from `https://ui.mctl.ai` (allow-listed on `style-src`).

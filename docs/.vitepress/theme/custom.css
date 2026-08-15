@@ -1,6 +1,6 @@
 /* MCTL Theme — structural VitePress overrides.
    Token variables (brand, bg, text, borders, fonts) now come from
-   @mctlhq/css/theme.css + vitepress-bridge.css imported before this file. */
+   ui.mctl.ai/mctl.css + vitepress-bridge.css imported before this file. */
 
 :root {
   /* Hero gradient — uses MCTL accent token */
@@ -69,12 +69,12 @@
   transform: translateX(-50%);
   width: 60vw;
   height: 60vw;
-  background: radial-gradient(circle, rgba(0, 245, 255, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 70%);
   pointer-events: none;
   z-index: -1;
 }
 
-/* Portal header: 800 weight, uppercase, -0.5px spacing */
+/* Hero header: 800 weight, -0.5px spacing */
 .VPHero .name {
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -82,45 +82,45 @@
 
 .VPHero .text {
   font-weight: 800;
-  color: #ffffff;
+  color: var(--surface-fg);
 }
 
 .VPHero .tagline {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--surface-fg-muted);
 }
 
-/* ── Nav — portal nav: #050816, indicator #00f5ff ── */
+/* ── Nav ── */
 
 .VPNavBar {
-  background-color: rgba(5, 8, 22, 0.8) !important;
+  background-color: color-mix(in srgb, var(--surface-bg) 80%, transparent) !important;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 245, 255, 0.2) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important;
 }
 
 .VPNavBar .title {
-  color: #e6edf3 !important;
+  color: var(--surface-fg) !important;
 }
 
-/* Nav links — match mctl.ai: muted gray, cyan on hover */
+/* Nav links — muted, accent on hover */
 .VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink {
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
   font-size: 0.95rem;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink:hover {
-  color: #00f5ff;
+  color: var(--accent);
 }
 
-/* ── Mobile nav screen — match mctl.ai drawer style ── */
+/* ── Mobile nav screen ── */
 
 .VPNavScreen {
-  background-color: #0d111d !important;
+  background-color: var(--surface-card) !important;
 }
 
 .VPNavScreenMenuLink {
-  color: #9ca3af !important;
+  color: var(--surface-fg-muted) !important;
   font-size: 0.95rem !important;
   font-weight: 500 !important;
   border-bottom: none !important;
@@ -129,30 +129,30 @@
 }
 
 .VPNavScreenMenuLink:hover {
-  color: #00f5ff !important;
+  color: var(--accent) !important;
 }
 
 /* Mobile menu group titles & links */
 .VPNavScreenMenuGroup .title {
-  color: #9ca3af !important;
+  color: var(--surface-fg-muted) !important;
   font-size: 0.95rem !important;
   font-weight: 500 !important;
   border-bottom: none !important;
 }
 
 .VPNavScreenMenuGroupLink {
-  color: #9ca3af !important;
+  color: var(--surface-fg-muted) !important;
 }
 
 .VPNavScreenMenuGroupLink:hover {
-  color: #00f5ff !important;
+  color: var(--accent) !important;
 }
 
 /* Brand mark — matches mctl-web LogoDefault */
 .brand-mark {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--surface-fg);
   letter-spacing: 2px;
   display: flex;
   align-items: center;
@@ -160,28 +160,28 @@
 }
 
 .brand-mark__m {
-  color: #00f5ff;
+  color: var(--accent);
   margin-right: 2px;
 }
 
 .brand-mark__ctl {
-  color: #fff;
+  color: var(--surface-fg);
 }
 
-/* ── Sidebar — portal: border-right rgba(0,245,255,0.2) ── */
+/* ── Sidebar ── */
 
 .VPSidebar {
-  background-color: #050816 !important;
-  border-right: 1px solid rgba(0, 245, 255, 0.2) !important;
+  background-color: var(--surface-bg) !important;
+  border-right: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important;
 }
 
 .VPContent {
-  background-color: #050816;
+  background-color: var(--surface-bg);
 }
 
-/* Sidebar active — portal: selectedColor #00f5ff */
+/* Sidebar active */
 .VPSidebar .is-active > .link > .text {
-  color: #00f5ff !important;
+  color: var(--accent) !important;
 }
 
 /* ── Hide default VPFooter (DocsFooter replaces it) ── */
@@ -190,91 +190,91 @@
   display: none !important;
 }
 
-/* ── Feature cards — portal MuiCard: #0d111d, 16px radius, cyan border, lift+glow ── */
+/* ── Feature cards ── */
 
 .VPFeature {
-  background-color: #0d111d !important;
-  border: 1px solid rgba(0, 245, 255, 0.2) !important;
+  background-color: var(--surface-card) !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important;
   border-radius: 16px !important;
   transition: all 0.3s ease;
 }
 
 .VPFeature:hover {
-  border-color: #00f5ff !important;
+  border-color: var(--accent) !important;
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 245, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .VPFeature .title {
-  color: #ffffff !important;
+  color: var(--surface-fg) !important;
   font-weight: 700;
 }
 
 .VPFeature .details {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: var(--surface-fg-muted) !important;
 }
 
 /* ── Links ── */
 
 .vp-doc a {
-  color: #00f5ff;
+  color: var(--accent);
   transition: color 0.3s ease;
 }
 
 .vp-doc a:hover {
-  color: #00d4db;
+  color: var(--accent-highlight);
 }
 
-/* ── Buttons — portal: 6px radius, 600 weight, JetBrains Mono ── */
+/* ── Buttons ── */
 
 .VPButton {
   border-radius: 6px !important;
   font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   transition: all 0.3s ease;
 }
 
 .VPButton.brand:hover {
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .VPButton.alt {
-  border: 1px solid rgba(0, 245, 255, 0.4) !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent) !important;
   background-color: transparent !important;
-  color: #00f5ff !important;
+  color: var(--accent) !important;
 }
 
 .VPButton.alt:hover {
-  border-color: #00f5ff !important;
-  background-color: rgba(0, 245, 255, 0.1) !important;
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+  border-color: var(--accent) !important;
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent) !important;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
-/* ── Tables — portal cyan borders ── */
+/* ── Tables ── */
 
 .vp-doc table {
-  border-color: rgba(0, 245, 255, 0.15);
+  border-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .vp-doc tr {
-  border-color: rgba(0, 245, 255, 0.1);
+  border-color: color-mix(in srgb, var(--accent) 10%, transparent);
   background-color: transparent;
 }
 
 .vp-doc tr:nth-child(2n) {
-  background-color: rgba(0, 245, 255, 0.03);
+  background-color: color-mix(in srgb, var(--accent) 3%, transparent);
 }
 
 .vp-doc th {
-  color: #ffffff;
+  color: var(--surface-fg);
   font-weight: 600;
-  background-color: rgba(0, 245, 255, 0.06);
-  border-color: rgba(0, 245, 255, 0.15);
+  background-color: color-mix(in srgb, var(--accent) 6%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .vp-doc td {
-  color: #e6edf3;
-  border-color: rgba(0, 245, 255, 0.1);
+  color: var(--surface-fg);
+  border-color: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 /* ── Mermaid ── */
@@ -282,11 +282,11 @@
 .vp-doc .mermaid-diagram {
   margin: 1.5rem 0;
   padding: 1.25rem;
-  border: 1px solid rgba(0, 245, 255, 0.2);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 16px;
   background:
-    radial-gradient(circle at top, rgba(0, 245, 255, 0.08), transparent 45%),
-    #0d111d;
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 45%),
+    var(--surface-card);
   overflow-x: auto;
   cursor: zoom-in;
   transition:
@@ -297,8 +297,8 @@
 
 .vp-doc .mermaid-diagram:hover,
 .vp-doc .mermaid-diagram:focus-visible {
-  border-color: rgba(0, 245, 255, 0.45);
-  box-shadow: 0 0 0 1px rgba(0, 245, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.35);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent), 0 20px 40px rgba(0, 0, 0, 0.35);
   outline: none;
   transform: translateY(-2px);
 }
@@ -307,7 +307,7 @@
   content: 'Click to expand';
   display: block;
   margin-top: 0.75rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--surface-fg-subtle);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
   text-align: right;
@@ -343,7 +343,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: rgba(5, 8, 22, 0.84);
+  background: color-mix(in srgb, var(--surface-bg) 84%, transparent);
   backdrop-filter: blur(18px);
 }
 
@@ -351,14 +351,14 @@
   position: relative;
   width: min(1400px, calc(100vw - 4rem));
   max-height: calc(100vh - 4rem);
-  border: 1px solid rgba(0, 245, 255, 0.28);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
   border-radius: 20px;
   background:
-    radial-gradient(circle at top, rgba(0, 245, 255, 0.08), transparent 42%),
-    #0d111d;
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 42%),
+    var(--surface-card);
   box-shadow:
     0 40px 120px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(0, 245, 255, 0.08);
+    0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .mermaid-overlay__close {
@@ -367,17 +367,17 @@
   right: 1rem;
   z-index: 1;
   padding: 0.55rem 0.85rem;
-  border: 1px solid rgba(0, 245, 255, 0.3);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 999px;
-  background: rgba(5, 8, 22, 0.78);
-  color: #e6edf3;
+  background: color-mix(in srgb, var(--surface-bg) 78%, transparent);
+  color: var(--surface-fg);
   font: inherit;
   cursor: pointer;
 }
 
 .mermaid-overlay__close:hover {
-  border-color: #00f5ff;
-  color: #00f5ff;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .mermaid-overlay__content {
@@ -406,26 +406,26 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(5, 8, 22, 0.84);
+  background: color-mix(in srgb, var(--surface-bg) 84%, transparent);
   backdrop-filter: blur(16px);
 }
 
 .mermaid-link-confirm__panel {
   width: min(560px, calc(100vw - 3rem));
-  border: 1px solid rgba(0, 245, 255, 0.24);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
   border-radius: 20px;
   background:
-    radial-gradient(circle at top, rgba(0, 245, 255, 0.08), transparent 50%),
-    #0d111d;
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 50%),
+    var(--surface-card);
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.52),
-    0 0 0 1px rgba(0, 245, 255, 0.08);
+    0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
   padding: 1.5rem;
 }
 
 .mermaid-link-confirm__eyebrow {
   margin: 0 0 0.5rem;
-  color: #00f5ff;
+  color: var(--accent);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -433,24 +433,24 @@
 
 .mermaid-link-confirm__title {
   margin: 0 0 0.85rem;
-  color: #fff;
+  color: var(--surface-fg);
   font-size: 1.5rem;
   line-height: 1.1;
 }
 
 .mermaid-link-confirm__text {
   margin: 0;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--surface-fg-muted);
   line-height: 1.65;
 }
 
 .mermaid-link-confirm__target {
   margin: 1rem 0 0;
   padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(0, 245, 255, 0.18);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
   border-radius: 12px;
-  background: rgba(0, 245, 255, 0.04);
-  color: #e6edf3;
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+  color: var(--surface-fg);
   word-break: break-all;
 }
 
@@ -479,26 +479,26 @@
 }
 
 .mermaid-link-confirm__button--secondary {
-  border: 1px solid rgba(0, 245, 255, 0.28);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
   background: transparent;
-  color: #e6edf3;
+  color: var(--surface-fg);
 }
 
 .mermaid-link-confirm__button--secondary:hover {
-  border-color: #00f5ff;
-  color: #00f5ff;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .mermaid-link-confirm__button--primary {
-  border: 1px solid #00f5ff;
-  background: #00f5ff;
-  color: #050816;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 
 .mermaid-link-confirm__button--primary:hover {
-  background: #00d4db;
-  border-color: #00d4db;
-  box-shadow: 0 0 24px rgba(0, 245, 255, 0.22);
+  background: var(--accent-highlight);
+  border-color: var(--accent-highlight);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 @media (max-width: 768px) {
@@ -539,59 +539,59 @@
   }
 }
 
-/* ── Code blocks — portal terminal aesthetic ── */
+/* ── Code blocks ── */
 
 .vp-code-group .tabs label {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--surface-fg-muted);
 }
 
 .vp-code-group .tabs label.active {
-  color: #00f5ff;
+  color: var(--accent);
 }
 
 div[class*='language-'] {
-  border: 1px solid rgba(0, 245, 255, 0.12);
+  border: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
   border-radius: 6px;
 }
 
-/* ── Search — portal input: 6px radius, cyan focus ── */
+/* ── Search ── */
 
 .VPLocalSearchBox input {
   border-radius: 6px;
-  border-color: rgba(0, 245, 255, 0.3);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .VPLocalSearchBox input:focus {
-  border-color: #00f5ff;
-  box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
-/* ── Headings — portal header: 800/700/600 weights ── */
+/* ── Headings ── */
 
 .vp-doc h1 {
-  color: #ffffff;
+  color: var(--surface-fg);
   font-weight: 800;
 }
 
 .vp-doc h2 {
-  color: #ffffff;
+  color: var(--surface-fg);
   font-weight: 700;
-  border-color: rgba(0, 245, 255, 0.15);
+  border-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .vp-doc h3 {
-  color: #e6edf3;
+  color: var(--surface-fg);
   font-weight: 600;
 }
 
-/* ── Nav logo text — portal LogoFull: "M" in #00f5ff, rest white, 800 weight ── */
+/* ── Nav logo text ── */
 
 .VPNavBarTitle .title {
   font-weight: 800 !important;
   letter-spacing: 2px;
 }
 
-/* ── Hero brand — "M" cyan, "CTL" white ── */
+/* ── Hero brand ── */
 
 .hero-brand {
   font-weight: 800;
@@ -599,19 +599,19 @@ div[class*='language-'] {
 }
 
 .hero-brand__m {
-  color: #00f5ff;
+  color: var(--accent);
 }
 
 .hero-brand__ctl {
-  color: #fff;
+  color: var(--surface-fg);
 }
 
-/* ── Footer — matches mctl-web AppFooter ── */
+/* ── Footer ── */
 
 .docs-footer {
   padding: 3rem 0;
-  background: rgba(13, 17, 23, 0.85);
-  border-top: 1px solid rgba(0, 245, 255, 0.2);
+  background: color-mix(in srgb, var(--surface-elevated) 85%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .docs-footer__content {
@@ -637,17 +637,17 @@ div[class*='language-'] {
 }
 
 .docs-footer__links a {
-  color: #00f5ff;
+  color: var(--accent);
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 .docs-footer__links a:hover {
-  color: #ffffff;
+  color: var(--surface-fg);
   transform: translateY(-2px);
 }
 
 .docs-footer__copy {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
 }
