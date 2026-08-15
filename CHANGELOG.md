@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.33](https://github.com/mctlhq/mctl-docs/compare/0.1.32...0.1.33) (2026-08-15)
+
+
+### Features
+
+* load editorial-warm tokens from ui.mctl.ai CDN ([d3b3da3](https://github.com/mctlhq/mctl-docs/commit/d3b3da37f5452cd904d75d969f54713d571b62ce))
+* load editorial-warm tokens from ui.mctl.ai CDN ([4e2a07d](https://github.com/mctlhq/mctl-docs/commit/4e2a07d03d4d85ac2a87fc5bbddb18fd2bfd7432))
+
+
+### Bug Fixes
+
+* keep VitePress font fallbacks inside var() ([991174b](https://github.com/mctlhq/mctl-docs/commit/991174b625d6f9a8848e6d8d6e44f9db068c0a04))
+
 ## [0.1.32](https://github.com/mctlhq/mctl-docs/compare/0.1.31...0.1.32) (2026-08-15)
 
 
