@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.34](https://github.com/mctlhq/mctl-docs/compare/0.1.33...0.1.34) (2026-08-15)
+
+
+### Bug Fixes
+
+* paint the hero hex with the accent token ([7286e12](https://github.com/mctlhq/mctl-docs/commit/7286e1299b480080beb1f512c9e1c1a993704f16))
+* paint the hero hex with the accent token ([0cee19c](https://github.com/mctlhq/mctl-docs/commit/0cee19cfeac1b14fcddfb5dc89273f7750dbcbb6))
+
 ## [0.1.33](https://github.com/mctlhq/mctl-docs/compare/0.1.32...0.1.33) (2026-08-15)
 
 
