@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.35](https://github.com/mctlhq/mctl-docs/compare/0.1.34...0.1.35) (2026-08-15)
+
+
+### Features
+
+* load the docs favicon from the design CDN ([5d48862](https://github.com/mctlhq/mctl-docs/commit/5d4886254dbc09efd9616f0043451ef961f00bf0))
+* load the docs favicon from the design CDN ([53e115c](https://github.com/mctlhq/mctl-docs/commit/53e115c52e975c991f3b5ac05a517e01e49c566b))
+
+
+### Bug Fixes
+
+* cache-bust the CDN favicon and drop SVG apple-touch ([3f737cf](https://github.com/mctlhq/mctl-docs/commit/3f737cf19a9e290b4862f5804acfe7d9a85ad094))
+
 ## [0.1.34](https://github.com/mctlhq/mctl-docs/compare/0.1.33...0.1.34) (2026-08-15)
 
 
