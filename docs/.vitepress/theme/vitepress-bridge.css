@@ -34,9 +34,11 @@
   --vp-c-border: var(--surface-line-strong);
   --vp-c-gutter: var(--surface-line);
 
-  /* Fonts — Onest for UI, JetBrains Mono for code */
-  --vp-font-family-base: var(--font-display);
-  --vp-font-family-mono: var(--font-mono);
+  /* Fonts — Onest for UI, JetBrains Mono for code.
+   * Fallbacks stay inside var() so a blocked/slow CDN cannot invalidate
+   * the whole font-family declaration (IACVT). */
+  --vp-font-family-base: var(--font-display, 'Onest', ui-sans-serif, system-ui, sans-serif);
+  --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
 
   /* Status */
   --vp-c-warning-1: var(--status-warn);
