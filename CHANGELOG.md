@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.32](https://github.com/mctlhq/mctl-docs/compare/0.1.31...0.1.32) (2026-08-15)
+
+
+### Bug Fixes
+
+* add SECURITY.md and hash VitePress CSP scripts ([63ea261](https://github.com/mctlhq/mctl-docs/commit/63ea26169db7eb0ef8b340a5627c4ba7487f6bae))
+* add SECURITY.md and hash VitePress CSP scripts ([1631183](https://github.com/mctlhq/mctl-docs/commit/16311830e4a87ed4e30c16ddd52967f492d4fe4a))
+
 ## [0.1.31](https://github.com/mctlhq/mctl-docs/compare/0.1.30...0.1.31) (2026-08-14)
 
 
