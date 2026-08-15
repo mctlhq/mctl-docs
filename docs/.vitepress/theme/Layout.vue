@@ -3,6 +3,9 @@
     <template #nav-bar-title-before>
       <BrandMark />
     </template>
+    <template #home-hero-image>
+      <HexLogo />
+    </template>
     <template v-if="isHome" #layout-bottom>
       <DocsFooter />
     </template>
@@ -16,6 +19,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import BrandMark from './components/BrandMark.vue'
+import HexLogo from './components/HexLogo.vue'
 import DocsFooter from './components/DocsFooter.vue'
 import MermaidLinkConfirm from './components/MermaidLinkConfirm.vue'
 import MermaidOverlay from './components/MermaidOverlay.vue'

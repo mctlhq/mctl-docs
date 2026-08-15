@@ -53,8 +53,15 @@
 
 /* ── Hero ── */
 
-.VPHero .VPImage {
+.VPHero .VPImage,
+.VPHero .hex-logo {
   max-width: 180px;
+  max-height: 180px;
+}
+
+.VPHero .hex-logo {
+  color: var(--accent);
+  filter: drop-shadow(0 0 28px color-mix(in srgb, var(--accent) 45%, transparent));
 }
 
 .VPHero {
