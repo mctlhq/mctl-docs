@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-08-07T22:59:25.183Z
+Generated: 2026-08-16T15:03:41.142Z
 Total Files Included: 28
 
 ================================================================================
@@ -31,7 +31,7 @@ hero:
       link: https://github.com/mctlhq
 features:
   - title: MCP Server
-    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 54 tools for full platform control through natural language.
+    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 70 tools for full platform control through natural language.
   - title: GitOps-First
     details: Every change flows through Git. ArgoCD ensures your cluster matches your desired state, with full audit trail and zero imperative commands.
   - title: Tenant Isolation
@@ -746,7 +746,7 @@ Are there any open incidents?
 | [Service Deployment](/guides/services) | Advanced deployment options |
 | [Custom Domains](/guides/domains) | Configure DNS and TLS |
 | [Databases](/guides/databases) | Provision PostgreSQL databases |
-| [MCP Tools Reference](/mcp/tools-reference) | All 54 available tools |
+| [MCP Tools Reference](/mcp/tools-reference) | All 70 available tools |
 | [REST API](/api/) | Direct API access for scripts and CI/CD |
 | [Troubleshooting](/reference/troubleshooting) | Common issues and solutions |
 
@@ -1349,8 +1349,9 @@ FILE: /guides/previews.md
 # Preview Environments
 
 Deploy temporary, isolated copies of a service — for a pull request, feature branch, or any arbitrary image tag.
-Previews run in the same namespace as the production service and share its secrets. They are automatically
-cleaned up after a configurable TTL (default: 24 hours).
+Previews run in `{team}-preview`, not the production tenant namespace. Tenant secrets are
+read from `secret/teams/<team>/<service>/preview/*` and cannot fall back to production
+credentials. They are automatically cleaned up after a configurable TTL (default: 24 hours).
 
 ## Two modes
 
@@ -1414,8 +1415,10 @@ mctl_get_workflow_status
 ```
 
 For build-from-branch previews the workflow runs in two sequential stages:
-1. `build-image` — triggers and polls GitHub Actions until the image is pushed
-2. `deploy-preview` — Helm install into the team namespace
+1. `build-image` — triggers and polls GitHub Actions until the image is pushed (skipped when `git_ref` is empty)
+2. `deploy-preview` — Helm install into `{team}-preview`
+
+The Vault ESO role `eso-tenant-{team}-preview` is created once by `wft-create-tenant`, not on every preview.
 
 ## Listing previews
 
@@ -1461,13 +1464,25 @@ mctl_delete_preview
 
 Previews reuse the production service's `values.yaml` as a base so they automatically inherit:
 
-- `imagePullSecrets` — can pull from private GHCR
+- `imagePullSecrets` — can pull from private GHCR (copied into `{team}-preview`)
 - `service.port` — same port mapping
-- `envFrom` — same ConfigMap/Secret references
+- `envFrom` — same Secret *names*, resolved from ExternalSecrets in `{team}-preview`
 - `resources` — same CPU/memory limits
 
-Only `image.tag` and the ingress host are overridden. A new ExternalSecret is **not** created —
-the preview pod uses the existing secret already provisioned in the namespace.
+`image.tag` and the ingress host are overridden. Tenant Vault paths are rewritten from
+`teams/<team>/<service>/<leaf>` to `teams/<team>/<service>/preview/<leaf>` and synced
+through a namespaced SecretStore whose ESO role cannot read production paths. Missing
+preview secrets fail closed — the pod never receives production credentials.
+
+Seed preview secrets before the first deploy:
+
+```
+vault kv put secret/teams/<team>/<service>/preview/<leaf> key=value
+```
+
+Platform paths (`platform/*`, e.g. GHCR pull creds, shared MinIO) stay on the cluster
+SecretStore. NetworkPolicy in `{team}-preview` allow-lists platform namespaces only;
+preview pods cannot reach the production tenant namespace.
 
 ## GitHub PR previews (mctl-web pattern)
 
@@ -2215,7 +2230,7 @@ MCP is an open protocol that connects AI models to external tools and data sourc
 | **Endpoint** | `https://api.mctl.ai/mcp` |
 | **Transport** | Streamable HTTP (POST/GET) |
 | **Auth** | OAuth 2.0 PKCE or Bearer token |
-| **Tools** | 61 (29 read-only, 24 write, 8 destructive) |
+| **Tools** | 70 (32 read-only, 26 write, 12 destructive) |
 
 ## Capabilities
 
@@ -2268,7 +2283,7 @@ FILE: /mcp/tools-reference.md
 ================================================================================
 # MCP Tools Reference
 
-The MCTL MCP server exposes 61 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The MCTL MCP server exposes 70 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -2363,6 +2378,7 @@ mctl_deploy_service(
 | `mctl_list_recent_operations` | List most recent platform operations from audit log (up to 50 entries) | Read |
 | `mctl_list_workflows` | List recent Argo Workflow runs for a team. Admins see all namespaces | Read |
 | `mctl_get_workflow_status` | Get status and logs of an Argo Workflow run | Read |
+| `mctl_get_workflow_logs` | Fetch Argo Workflow step logs from the workflow log archive, including runs whose Argo object has already been garbage-collected | Read |
 
 ## Incidents
 
@@ -2373,6 +2389,7 @@ mctl_deploy_service(
 | `mctl_incident_summary` | Get aggregate counts of active incidents by status, severity, and type | Read |
 | `mctl_acknowledge_incident` | Mark an incident as acknowledged. Records current user as acknowledger | Write |
 | `mctl_resolve_incident` | Mark an incident as resolved with optional reason | Write |
+| `mctl_trigger_incident_responder` | Run the incident responder on demand: diagnose generic incidents left in `analyzing` for over 30 minutes, write auto-accepted proposals for the Tier 2 implementer, then resolve. Same work as the scheduled run | Write |
 
 ## Domains
 
@@ -2404,6 +2421,27 @@ mctl_deploy_service(
 | `mctl_list_repos` | List GitHub repos available to a team. Admins see org + personal repos | Read |
 | `mctl_grant_repo_access` | Generate GitHub App installation URL to grant platform access to a repo | Write |
 | `mctl_sync_repos` | Discover and register GitHub repos from App installations for a team | Write |
+
+## Agent Registry
+
+Version control for the mctl-agents fleet: an agent definition is registered
+once, versions are published against it, and a version is released to an
+environment (`production` or `shadow`). All admin-only.
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_create_agent` | Register a new agent definition (e.g. `issue-investigator`, `implementer`, `shepherd`). Required once per agent before any version can be published | Write |
+| `mctl_publish_agent_version` | Publish an immutable version of an agent. The agent definition must already exist | Write |
+| `mctl_promote_agent` | Release a published version to an environment (`production` or `shadow`) | Write |
+| `mctl_rollback_agent` | Roll an environment's release back to the version it had immediately before the current one | Write |
+| `mctl_resolve_agent` | Resolve which version is currently released to an environment | Read |
+| `mctl_list_agent_versions` | List every published version of an agent, newest first | Read |
+| `mctl_list_agent_executions` | List durable execution records from DevLoopWorkflow runs: which agent version ran, on which Argo workflow, with what result | Read |
+
+`mctl_list_agent_executions` and `mctl_list_recent_agent_runs` answer different
+questions. The former reads persisted records that outlive the Argo workflow
+object; the latter reflects live and recently-completed Argo state and expires
+with that object's TTL.
 
 ## Platform Skills
 
@@ -2792,7 +2830,7 @@ MCTL consists of five core components, each in its own repository.
 - Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
-- Exposes 54 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
+- Exposes 70 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
 
 | | |
 |---|---|
@@ -3033,7 +3071,7 @@ Every action is an async **operation** with a trackable ID. You can check status
 
 **Multi-tenant** — each team gets isolated namespaces with RBAC policies and resource quotas. No cross-tenant access.
 
-**AI-native** — built from the ground up for AI interaction. The MCP server exposes 54 tools covering the full platform lifecycle.
+**AI-native** — built from the ground up for AI interaction. The MCP server exposes 70 tools covering the full platform lifecycle.
 
 **Self-healing** — the mctl-agent watches AlertManager and automatically creates PRs to fix common issues.
 
@@ -3246,7 +3284,7 @@ Any client that supports the Model Context Protocol (MCP): Claude.ai, Claude Cod
 ## MCP
 
 **What can the AI do?**
-Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 54 tools.
+Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 70 tools.
 
 **What can it NOT do?**
 No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`, `mctl_delete_openclaw_skill`, `mctl_delete_openclaw_identity`, `mctl_trigger_implementer`, `mctl_trigger_shepherd`) are explicitly annotated and require AI client confirmation before execution.
@@ -3264,7 +3302,7 @@ No for Claude.ai — use the native connector. For developer clients (Cursor, VS
 For developer clients: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
 
 **How many tools are available?**
-54 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
+70 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
 
 ## Platform
 
@@ -3617,7 +3655,7 @@ The flow:
 1. Client initiates OAuth PKCE flow via `mctl.ai/api/github/login`
 2. User authenticates with GitHub
 3. MCTL issues a JWT with the user's identity and groups
-4. The token is returned via URL fragment (never hits server logs)
+4. The token is redeemed via `POST /api/github/session` (never placed in a URL)
 
 ## Auth Bypass (Development)
 
