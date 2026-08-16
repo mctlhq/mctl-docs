@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.36](https://github.com/mctlhq/mctl-docs/compare/0.1.35...0.1.36) (2026-08-16)
+
+
+### Documentation
+
+* **mcp:** document all 70 tools and reconcile the count ([6a04578](https://github.com/mctlhq/mctl-docs/commit/6a04578c532aea3ba740a9455ecab5f2d918d399))
+* **mcp:** document all 70 tools and reconcile the count ([3e4718e](https://github.com/mctlhq/mctl-docs/commit/3e4718efc1aabbaffd2dce85a382c908e704d37f))
+
+
+### Miscellaneous
+
+* **release-please:** surface docs commits and ship the pending 70-tools page ([edde2af](https://github.com/mctlhq/mctl-docs/commit/edde2af9029a35c6d0183819ebefb5394d2b2835))
+
 ## [0.1.35](https://github.com/mctlhq/mctl-docs/compare/0.1.34...0.1.35) (2026-08-15)
 
 
