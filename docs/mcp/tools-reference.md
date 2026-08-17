@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 61 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The MCTL MCP server exposes 70 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -95,6 +95,7 @@ mctl_deploy_service(
 | `mctl_list_recent_operations` | List most recent platform operations from audit log (up to 50 entries) | Read |
 | `mctl_list_workflows` | List recent Argo Workflow runs for a team. Admins see all namespaces | Read |
 | `mctl_get_workflow_status` | Get status and logs of an Argo Workflow run | Read |
+| `mctl_get_workflow_logs` | Fetch Argo Workflow step logs from the workflow log archive, including runs whose Argo object has already been garbage-collected | Read |
 
 ## Incidents
 
@@ -105,6 +106,7 @@ mctl_deploy_service(
 | `mctl_incident_summary` | Get aggregate counts of active incidents by status, severity, and type | Read |
 | `mctl_acknowledge_incident` | Mark an incident as acknowledged. Records current user as acknowledger | Write |
 | `mctl_resolve_incident` | Mark an incident as resolved with optional reason | Write |
+| `mctl_trigger_incident_responder` | Run the incident responder on demand: diagnose generic incidents left in `analyzing` for over 30 minutes, write auto-accepted proposals for the Tier 2 implementer, then resolve. Same work as the scheduled run | Write |
 
 ## Domains
 
@@ -136,6 +138,27 @@ mctl_deploy_service(
 | `mctl_list_repos` | List GitHub repos available to a team. Admins see org + personal repos | Read |
 | `mctl_grant_repo_access` | Generate GitHub App installation URL to grant platform access to a repo | Write |
 | `mctl_sync_repos` | Discover and register GitHub repos from App installations for a team | Write |
+
+## Agent Registry
+
+Version control for the mctl-agents fleet: an agent definition is registered
+once, versions are published against it, and a version is released to an
+environment (`production` or `shadow`). All admin-only.
+
+| Tool | Description | Type |
+|------|-------------|------|
+| `mctl_create_agent` | Register a new agent definition (e.g. `issue-investigator`, `implementer`, `shepherd`). Required once per agent before any version can be published | Write |
+| `mctl_publish_agent_version` | Publish an immutable version of an agent. The agent definition must already exist | Write |
+| `mctl_promote_agent` | Release a published version to an environment (`production` or `shadow`) | Write |
+| `mctl_rollback_agent` | Roll an environment's release back to the version it had immediately before the current one | Write |
+| `mctl_resolve_agent` | Resolve which version is currently released to an environment | Read |
+| `mctl_list_agent_versions` | List every published version of an agent, newest first | Read |
+| `mctl_list_agent_executions` | List durable execution records from DevLoopWorkflow runs: which agent version ran, on which Argo workflow, with what result | Read |
+
+`mctl_list_agent_executions` and `mctl_list_recent_agent_runs` answer different
+questions. The former reads persisted records that outlive the Argo workflow
+object; the latter reflects live and recently-completed Argo state and expires
+with that object's TTL.
 
 ## Platform Skills
 
