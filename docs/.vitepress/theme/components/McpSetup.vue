@@ -6,6 +6,7 @@ const TOKEN_PLACEHOLDER = 'YOUR_GITHUB_TOKEN'
 const AUTH_KEY = 'mctl_auth'
 const AUTH_TTL = 8 * 60 * 60 * 1000
 const LOGIN_URL = 'https://mctl.ai/api/github/login?for=docs'
+const SESSION_URL = 'https://mctl.ai/api/github/session'
 
 interface StoredAuth {
   token?: string
@@ -143,7 +144,7 @@ const AUTH_ERROR_MSGS: Record<string, string> = {
   PROFILE_FETCH: 'Failed to fetch GitHub profile. Please try again.',
 }
 
-onMounted(() => {
+onMounted(async () => {
   const hash = window.location.hash
 
   if (hash.startsWith('#auth_error=')) {
@@ -153,11 +154,37 @@ onMounted(() => {
     return
   }
 
+  if (hash.startsWith('#session=')) {
+    const sessionCode = hash.slice(9)
+    history.replaceState(null, '', location.pathname)
+    try {
+      const res = await fetch(SESSION_URL, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: sessionCode }),
+      })
+      if (res.ok) {
+        const data = await res.json() as { token?: string; login?: string; name?: string; avatar_url?: string }
+        if (data.token) {
+          setAuth(data.token, data.login || '', data.name || '', data.avatar_url || '')
+          return
+        }
+      }
+      authError.value = 'GitHub session expired. Please try again.'
+    } catch {
+      authError.value = 'Failed to redeem GitHub session. Please try again.'
+    }
+    return
+  }
+
+  // Legacy worker redirects put identity+token in #auth=. Kept so a docs
+  // deploy can land before the mctl-web worker that switched to #session=.
   if (hash.startsWith('#auth=')) {
     const encoded = hash.slice(6)
     try {
       const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/')
-      const data = JSON.parse(atob(base64))
+      const data = JSON.parse(atob(base64)) as { token?: string; login?: string; name?: string; avatar_url?: string }
       if (data.token) {
         setAuth(data.token, data.login || '', data.name || '', data.avatar_url || '')
       }
@@ -165,11 +192,12 @@ onMounted(() => {
       authError.value = 'Failed to parse auth response. Please try again.'
     }
     history.replaceState(null, '', location.pathname)
-  } else {
-    const saved = loadStorage()
-    if (saved?.token) {
-      setAuth(saved.token, saved.login || '', saved.name || '', saved.avatar_url || '')
-    }
+    return
+  }
+
+  const saved = loadStorage()
+  if (saved?.token) {
+    setAuth(saved.token, saved.login || '', saved.name || '', saved.avatar_url || '')
   }
 })
 

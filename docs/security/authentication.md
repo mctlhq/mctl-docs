@@ -32,7 +32,7 @@ The flow:
 1. Client initiates OAuth PKCE flow via `mctl.ai/api/github/login`
 2. User authenticates with GitHub
 3. MCTL issues a JWT with the user's identity and groups
-4. The token is returned via URL fragment (never hits server logs)
+4. The token is redeemed via `POST /api/github/session` (never placed in a URL)
 
 ## Auth Bypass (Development)
 
