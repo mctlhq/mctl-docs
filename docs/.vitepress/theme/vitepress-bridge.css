@@ -1,15 +1,14 @@
 /*
  * Maps VitePress CSS variables to MCTL design token variables (--surface-*,
- * --accent, --font-*) provided by @mctlhq/css/theme.css, which is imported
- * before this file in theme/index.ts.
+ * --accent, --font-*) provided by https://ui.mctl.ai/mctl.css, which is
+ * loaded in docs/.vitepress/config.ts before this file.
  *
  * This file replaces the duplicate :root color block that was previously in
  * custom.css. VitePress component overrides (layout, mermaid, etc.) remain
  * in custom.css.
  *
- * Color shift note: this converges docs onto the canonical MCTL palette —
- *   brand cyan  #00e5ff (was #00f5ff — portal palette)
- *   bg          #0a0b0d (was #050816 — portal palette)
+ * Color shift note: this converges docs onto the canonical MCTL palette
+ * (cool ink × warm paper, terracotta default accent).
  */
 
 :root {
@@ -35,9 +34,11 @@
   --vp-c-border: var(--surface-line-strong);
   --vp-c-gutter: var(--surface-line);
 
-  /* Fonts */
-  --vp-font-family-base: var(--font-mono);
-  --vp-font-family-mono: var(--font-mono);
+  /* Fonts — Onest for UI, JetBrains Mono for code.
+   * Fallbacks stay inside var() so a blocked/slow CDN cannot invalidate
+   * the whole font-family declaration (IACVT). */
+  --vp-font-family-base: var(--font-display, 'Onest', ui-sans-serif, system-ui, sans-serif);
+  --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
 
   /* Status */
   --vp-c-warning-1: var(--status-warn);
