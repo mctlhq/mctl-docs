@@ -6,7 +6,7 @@
 
 - [Getting Started](https://docs.mctl.ai/getting-started/): Installation and setup guide for developers and SREs.
 - [MCP Connecting Guide](https://docs.mctl.ai/mcp/connecting): How to connect Claude Code, Cursor, VS Code, or Antigravity to mctl.
-- [MCP Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Catalog of 54 platform tools for environment operations.
+- [MCP Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Catalog of 70 platform tools for environment operations.
 - [Troubleshooting & FAQs](https://docs.mctl.ai/reference/troubleshooting): Resolving common deployment and RBAC issues.
 
 ## Primary Core Tools
@@ -20,5 +20,5 @@
 ## Optional / Full Specs
 
 - [Full Consolidated Context (llms-full.txt)](https://docs.mctl.ai/llms-full.txt): Single-file compilation of all 28+ documentation files (~30k tokens).
-- [Full Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Complete parameter specs for all 54 MCP tools.
+- [Full Tools Reference](https://docs.mctl.ai/mcp/tools-reference): Complete parameter specs for all 70 MCP tools.
 - [Architecture & GitOps](https://docs.mctl.ai/guides/deploy-first-app): Detailed guide on ArgoCD and mctl-api synchronization.

@@ -1,6 +1,6 @@
 {
   "name": "mctl-docs",
-  "version": "0.1.30",
+  "version": "0.1.36",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,6 @@
     "preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "@mctlhq/css": "^0.3.0",
     "mermaid": "^11.13.0",
     "vitepress": "^1.6.0"
   }
