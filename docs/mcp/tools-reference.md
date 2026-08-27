@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 70 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The MCTL MCP server exposes 71 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -202,15 +202,16 @@ repos for changes, identifies documentation gaps, and writes spec proposals — 
 service (researcher → analyst → spec-writer). A Tier 2 implementer can also convert accepted
 proposals into pull requests automatically.
 
-The seven tools below let platform admins drive this pipeline on demand from any MCP-capable
+The tools below let platform admins drive this pipeline on demand from any MCP-capable
 client (e.g. Claude Desktop, Claude Code).
 
 ### Tool summary
 
 | Tool | Purpose | Returns | Type |
 |---|---|---|---|
-| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` | Write |
+| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest + platform health report | `workflow_name` | Write |
 | `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` | Write |
+| `mctl_trigger_platform_report` | Weekly operational health report from live MCP state | `workflow_name` | Write |
 | `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` | Write |
 | `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` | Read |
 | `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` | Destructive |
@@ -222,8 +223,8 @@ client (e.g. Claude Desktop, Claude Code).
 ### `mctl_trigger_agents_run`
 
 Triggers a full mctl-agents run: every service-agent (researcher → analyst → spec-writer
-in parallel) followed by the mentor weekly digest. Equivalent to the daily 06:00 UTC cron,
-but on demand.
+in parallel) followed by the mentor weekly digest and the platform-health report.
+Equivalent to the weekly Saturday 00:00 UTC cron, but on demand.
 
 **Parameters:** none
 
@@ -250,6 +251,23 @@ produces a cross-service digest. Lighter than the full run.
 **Parameters:** none
 
 **Cost / duration:** ~$2, ~5 minutes.
+
+**Returns:** `workflow_name`
+
+---
+
+### `mctl_trigger_platform_report`
+
+Runs only the platform reporter: reads live mctl MCP state (identity, tenants,
+services, resource usage, incidents, recent operations, agent runs) and writes
+`platform-gitops/agents-state/_platform-reporter/health/<YYYY-WNN>.md`.
+
+Skips the service-agent rotation and the mentor proposal digest. Same writer as
+the Saturday full pipeline's last step, on demand.
+
+**Parameters:** none
+
+**Cost / duration:** ~$1, ~2 minutes.
 
 **Returns:** `workflow_name`
 
