@@ -55,7 +55,6 @@ export default defineConfig({
           { text: 'Overview', link: '/platform/overview' },
           { text: 'Architecture', link: '/platform/architecture' },
           { text: 'Components', link: '/platform/components' },
-          { text: 'OpenClaw', link: '/platform/openclaw' },
         ],
       },
       {

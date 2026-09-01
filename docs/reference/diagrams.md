@@ -172,9 +172,9 @@ architecture-beta
     service docs(server)[mctl-docs] in platform
     service gitops(disk)[mctl-gitops] in platform
 
-    api:R --> L:portal
-    api:B --> T:gitops
-    portal:B --> T:gitops
+    api:R -- L:portal
+    api:B -- T:gitops
+    portal:B -- T:gitops
 ```
 
 ## Notes for contributors
