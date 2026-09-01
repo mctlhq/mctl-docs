@@ -427,8 +427,8 @@ const tabs = [
 
 /* ── Auth card ── */
 .auth-card {
-  background: #0c1222;
-  border: 1.5px solid #1a2740;
+  background: var(--surface-card);
+  border: 1.5px solid var(--surface-line);
   border-radius: 12px;
   padding: 1.5rem;
 }
@@ -436,41 +436,41 @@ const tabs = [
 .auth-card h3 {
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
-  color: #fff;
+  color: var(--surface-fg);
   font-family: 'JetBrains Mono', monospace;
 }
 
 .auth-desc {
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
   line-height: 1.5;
   margin: 0 0 0.75rem;
 }
 
 .auth-hint {
   font-size: 0.78rem;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   line-height: 1.5;
   margin: 0 0 1rem;
 }
 
 .auth-hint a {
-  color: #00f5ff;
+  color: var(--accent);
 }
 
 .auth-perms {
   font-size: 0.72rem;
   line-height: 1.5;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   margin: 0.75rem 0 0;
 }
 
 .auth-perms strong {
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
 }
 
 .auth-perms a {
-  color: #00f5ff;
+  color: var(--accent);
 }
 
 .btn-github {
@@ -481,9 +481,9 @@ const tabs = [
   width: 100%;
   padding: 0.75rem 1rem;
   background: transparent;
-  border: 1.5px solid #00f5ff;
+  border: 1.5px solid var(--accent);
   border-radius: 8px;
-  color: #00f5ff;
+  color: var(--accent);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9rem;
   font-weight: 600;
@@ -493,8 +493,8 @@ const tabs = [
 }
 
 .btn-github:hover {
-  background: rgba(0, 245, 255, 0.08);
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.15);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .auth-divider {
@@ -502,7 +502,7 @@ const tabs = [
   align-items: center;
   gap: 1rem;
   margin: 1rem 0;
-  color: #475569;
+  color: var(--surface-fg-muted);
   font-size: 0.78rem;
 }
 
@@ -511,7 +511,7 @@ const tabs = [
   content: '';
   flex: 1;
   height: 1px;
-  background: #1a2740;
+  background: var(--surface-line);
 }
 
 .token-input-row {
@@ -522,31 +522,31 @@ const tabs = [
 .token-input {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  background: #050816;
-  border: 1px solid #1a2740;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-line);
   border-radius: 6px;
-  color: #fff;
+  color: var(--surface-fg);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
 }
 
 .token-input::placeholder {
-  color: #475569;
+  color: var(--surface-fg-muted);
 }
 
 .btn-apply {
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid #00f5ff;
+  border: 1px solid var(--accent);
   border-radius: 6px;
-  color: #00f5ff;
+  color: var(--accent);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   cursor: pointer;
 }
 
 .btn-apply:hover {
-  background: rgba(0, 245, 255, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 /* ── User profile ── */
@@ -556,8 +556,8 @@ const tabs = [
   gap: 0.75rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: rgba(0, 245, 255, 0.04);
-  border: 1px solid rgba(0, 245, 255, 0.15);
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
   border-radius: 8px;
 }
 
@@ -575,26 +575,26 @@ const tabs = [
 .user-login {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--surface-fg);
   font-family: 'JetBrains Mono', monospace;
 }
 
 .user-name {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
 }
 
 .btn-signout {
   background: none;
   border: none;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0.25rem 0.5rem;
 }
 
 .btn-signout:hover {
-  color: #f85149;
+  color: var(--status-bad);
 }
 
 /* ── Token row ── */
@@ -603,8 +603,8 @@ const tabs = [
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: #050816;
-  border: 1px solid #1a2740;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-line);
   border-radius: 6px;
   margin-bottom: 0.75rem;
   font-family: 'JetBrains Mono', monospace;
@@ -612,13 +612,13 @@ const tabs = [
 }
 
 .token-label {
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   flex-shrink: 0;
 }
 
 .token-value {
   flex: 1;
-  color: #fff;
+  color: var(--surface-fg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -628,17 +628,17 @@ const tabs = [
 .auth-error {
   margin-top: 0.75rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(248, 81, 73, 0.1);
-  border: 1px solid rgba(248, 81, 73, 0.3);
+  background: color-mix(in srgb, var(--status-bad) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--status-bad) 30%, transparent);
   border-radius: 6px;
-  color: #f85149;
+  color: var(--status-bad);
   font-size: 0.8rem;
 }
 
 /* ── Config panel ── */
 .config-panel {
-  background: #0c1222;
-  border: 1.5px solid #1a2740;
+  background: var(--surface-card);
+  border: 1.5px solid var(--surface-line);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -647,7 +647,7 @@ const tabs = [
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  border-bottom: 1px solid #1a2740;
+  border-bottom: 1px solid var(--surface-line);
   padding: 0;
 }
 
@@ -656,7 +656,7 @@ const tabs = [
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   cursor: pointer;
@@ -665,12 +665,12 @@ const tabs = [
 }
 
 .tab-btn:hover {
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
 }
 
 .tab-btn.active {
-  color: #00f5ff;
-  border-bottom-color: #00f5ff;
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 .tab-content {
@@ -679,36 +679,36 @@ const tabs = [
 
 .config-path {
   font-size: 0.82rem;
-  color: #9ca3af;
+  color: var(--surface-fg-muted);
   margin: 0 0 0.75rem;
   line-height: 1.4;
 }
 
 .config-path code {
-  background: rgba(0, 245, 255, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-size: 0.78rem;
-  color: #00f5ff;
+  color: var(--accent);
 }
 
 .config-note {
   font-size: 0.78rem;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   margin: 0.75rem 0 0;
   line-height: 1.5;
 }
 
 .config-note strong {
-  color: #fff;
+  color: var(--surface-fg);
 }
 
 .config-note code {
-  background: rgba(0, 245, 255, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
   padding: 0.1rem 0.3rem;
   border-radius: 3px;
   font-size: 0.75rem;
-  color: #00f5ff;
+  color: var(--accent);
 }
 
 /* ── Connector values (Claude.ai) ── */
@@ -721,15 +721,15 @@ const tabs = [
 
 .val-block {
   padding: 0.5rem 0.75rem;
-  background: #050816;
-  border: 1px solid #1a2740;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-line);
   border-radius: 6px;
   font-size: 0.8rem;
 }
 
 .val-label {
   display: block;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   font-size: 0.7rem;
   margin-bottom: 0.3rem;
 }
@@ -742,7 +742,7 @@ const tabs = [
 
 .val-value-row code {
   flex: 1;
-  color: #fff;
+  color: var(--surface-fg);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   background: none;
@@ -754,15 +754,15 @@ const tabs = [
 
 .val-value-row .muted {
   flex: 1;
-  color: #475569;
+  color: var(--surface-fg-muted);
   font-size: 0.78rem;
 }
 
 /* ── Code blocks ── */
 .code-block-wrap {
   position: relative;
-  background: #050816;
-  border: 1px solid #1a2740;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-line);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -774,7 +774,7 @@ const tabs = [
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   line-height: 1.6;
-  color: #e6edf3;
+  color: var(--surface-fg);
   white-space: pre;
 }
 
@@ -782,9 +782,9 @@ const tabs = [
 .btn-copy {
   padding: 0.25rem 0.6rem;
   background: transparent;
-  border: 1px solid #1a2740;
+  border: 1px solid var(--surface-line);
   border-radius: 4px;
-  color: #6b7280;
+  color: var(--surface-fg-subtle);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
   cursor: pointer;
@@ -793,13 +793,13 @@ const tabs = [
 }
 
 .btn-copy:hover {
-  color: #00f5ff;
-  border-color: #00f5ff;
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .btn-copy.copied {
-  color: #3fb950;
-  border-color: #3fb950;
+  color: var(--status-ok);
+  border-color: var(--status-ok);
 }
 
 .code-block-wrap .btn-copy {
