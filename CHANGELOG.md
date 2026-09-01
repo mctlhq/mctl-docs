@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.38](https://github.com/mctlhq/mctl-docs/compare/0.1.37...0.1.38) (2026-09-01)
+
+
+### Bug Fixes
+
+* remove OpenClaw from docs and fix Mermaid syntax error ([#97](https://github.com/mctlhq/mctl-docs/issues/97)) ([9681d62](https://github.com/mctlhq/mctl-docs/commit/9681d6292b63a4a5c68d4a25d8732220eb14d040))
+
 ## [0.1.37](https://github.com/mctlhq/mctl-docs/compare/0.1.36...0.1.37) (2026-09-01)
 
 
