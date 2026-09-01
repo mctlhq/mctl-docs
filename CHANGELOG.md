@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.37](https://github.com/mctlhq/mctl-docs/compare/0.1.36...0.1.37) (2026-09-01)
+
+
+### Bug Fixes
+
+* force release for style modernization ([e33a360](https://github.com/mctlhq/mctl-docs/commit/e33a3608073b7acc3052600ae45b105584d01d3e))
+
 ## [0.1.36](https://github.com/mctlhq/mctl-docs/compare/0.1.35...0.1.36) (2026-08-16)
 
 
