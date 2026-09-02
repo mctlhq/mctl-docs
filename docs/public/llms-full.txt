@@ -80,8 +80,9 @@ See [Authentication](/security/authentication) for details.
 
 | Endpoint type | Limit |
 |---------------|-------|
-| Read (`GET`) | 100 requests/minute per user |
-| Write (`POST /execute`) | 20 requests/minute per user |
+| Authenticated routes (including `POST /mcp`) | 300 requests/minute per user |
+| Loopback MCP-internal REST (`127.0.0.1`, `::1`) | Excluded from the 300/min cap (does not consume the bucket) |
+| Write (`POST /operations/*/execute` and related) | 20 requests/minute per user (loopback is **not** excluded) |
 
 ## Response Format
 
