@@ -12,9 +12,27 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      # The org disables "Allow GitHub Actions to create and approve pull
+      # requests", so the default GITHUB_TOKEN can update an existing
+      # release-please PR but cannot create the next one. That exact failure
+      # left mctl-telegram merged-but-unreleased until mctl-telegram#498.
+      # Mint from the internal mctl-agents App instead; the token is narrowed
+      # to this repository and only the permissions release-please needs.
+      - name: Generate release token
+        id: release-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.AGENTS_APP_ID }}
+          private-key: ${{ secrets.AGENTS_APP_PRIVATE_KEY }}
+          owner: mctlhq
+          repositories: mctl-docs
+          permission-contents: write
+          permission-pull-requests: write
+
       - uses: googleapis/release-please-action@v5
         id: release
         with:
+          token: ${{ steps.release-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
