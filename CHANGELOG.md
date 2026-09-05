@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.39](https://github.com/mctlhq/mctl-docs/compare/0.1.38...0.1.39) (2026-09-05)
+
+
+### Bug Fixes
+
+* **release:** open release PRs with an App token ([#99](https://github.com/mctlhq/mctl-docs/issues/99)) ([10b14e5](https://github.com/mctlhq/mctl-docs/commit/10b14e5acc5fe889f59881d1d568620d1515e9fa))
+
 ## [0.1.38](https://github.com/mctlhq/mctl-docs/compare/0.1.37...0.1.38) (2026-09-01)
 
 
