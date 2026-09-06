@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.40](https://github.com/mctlhq/mctl-docs/compare/0.1.39...0.1.40) (2026-09-06)
+
+
+### Documentation
+
+* warn about bypassing auth for health checks during onboarding ([73e13c6](https://github.com/mctlhq/mctl-docs/commit/73e13c6a6e7a1a9316033054c76d9b2a3c946ff3))
+
 ## [0.1.39](https://github.com/mctlhq/mctl-docs/compare/0.1.38...0.1.39) (2026-09-05)
 
 
