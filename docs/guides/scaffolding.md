@@ -313,6 +313,8 @@ exists.
    readiness probes; it can't rewrite the image's own `HEALTHCHECK`, so an
    app exposing only the custom path will still fail Docker's own health
    check even though the platform reports it healthy.
+   
+   **Important note on Authentication:** Kubernetes liveness and readiness probes do not send authorization headers. If your service uses authentication middleware or hooks, you **must explicitly bypass auth for your health check endpoints** (e.g. `/healthz`, `/readyz`). Failure to do so will result in 401 Unauthorized responses for K8s probes, causing Kubernetes to endlessly restart and kill your pod (SIGTERM) during deployment.
 6. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
    without human intervention from then on.
 
