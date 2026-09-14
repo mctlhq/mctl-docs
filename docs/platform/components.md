@@ -1,6 +1,8 @@
 # Components
 
-MCTL consists of five core components, each in its own repository.
+The core MCTL platform consists of six components, each in its own repository.
+This page covers the core platform only, not every repository in the `mctlhq`
+organization.
 
 ## mctl-api
 
@@ -84,3 +86,17 @@ MCTL consists of five core components, each in its own repository.
 | **Language** | Go |
 | **Image** | `ghcr.io/mctlhq/mctl-agent` |
 | **Repo** | [mctlhq/mctl-agent](https://github.com/mctlhq/mctl-agent) |
+
+## mctl-agents
+
+**Proposal agents pipeline** — autonomous platform R&D and delivery loop.
+
+- Runs service-agent cycles (researcher → analyst → spec-writer) across core repos
+- Identifies documentation and implementation gaps and drafts spec proposals
+- Can turn accepted proposals into pull requests through the implementer stage
+- Can shepherd open PRs through review and merge
+
+| | |
+|---|---|
+| **Language** | Python |
+| **Repo** | [mctlhq/mctl-agents](https://github.com/mctlhq/mctl-agents) |
