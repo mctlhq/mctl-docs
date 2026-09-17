@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.41](https://github.com/mctlhq/mctl-docs/compare/0.1.40...0.1.41) (2026-09-17)
+
+
+### Bug Fixes
+
+* **seo:** enable sitemap generation and add robots.txt ([27e3c2c](https://github.com/mctlhq/mctl-docs/commit/27e3c2cacdd5d5827444fa9fea93baabb157a883))
+* **seo:** enable sitemap generation and add robots.txt ([999db58](https://github.com/mctlhq/mctl-docs/commit/999db58bbe131eeefa9b42c7c36ba26839d49ac7))
+
 ## [0.1.40](https://github.com/mctlhq/mctl-docs/compare/0.1.39...0.1.40) (2026-09-06)
 
 
