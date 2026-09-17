@@ -6,6 +6,9 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   appearance: 'force-dark',
+  sitemap: {
+    hostname: 'https://docs.mctl.ai',
+  },
 
   head: [
     ['link', { rel: 'icon', href: 'https://ui.mctl.ai/brand/favicon-docs.svg?v=9dc770313d10', type: 'image/svg+xml' }],
