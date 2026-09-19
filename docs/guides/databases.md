@@ -9,9 +9,12 @@ MCTL can provision databases for your services within a tenant.
 ```
 
 The `mctl_provision_database` tool:
-1. Creates a database instance in the tenant namespace
-2. Generates credentials and stores them as Kubernetes secrets
-3. Returns connection details for your application
+1. Creates a database and role on the shared CNPG PostgreSQL cluster
+2. Stores credentials in Vault and syncs them to a Secret in the tenant namespace
+3. Wires the Secret into the service configuration through GitOps
+
+The tool returns a workflow name. Track it with `mctl_get_workflow_status`,
+then verify that the service can connect after ArgoCD and External Secrets sync.
 
 ## Configuration
 
@@ -19,15 +22,13 @@ Database credentials are automatically injected into your service as environment
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_HOST` | Database hostname |
-| `DATABASE_PORT` | Database port |
-| `DATABASE_NAME` | Database name |
-| `DATABASE_USER` | Database username |
-| `DATABASE_PASSWORD` | Database password |
+| `DB_HOST` | Database hostname |
+| `DB_PORT` | Database port |
+| `DB_NAME` | Database name |
+| `DB_USER` | Database username |
+| `DB_PASSWORD` | Database password |
 | `DATABASE_URL` | Full connection string |
 
 ## Supported Databases
 
-<!-- TODO: Document supported database types and versions -->
-
-Currently supported database engines will be listed here as they become available.
+The provisioning operation supports PostgreSQL on the platform's shared CNPG cluster.

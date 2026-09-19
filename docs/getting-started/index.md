@@ -45,7 +45,7 @@ The fastest way to connect:
 ### Claude Code
 
 ```bash
-claude mcp add mctl --transport streamable-http https://api.mctl.ai/mcp \
+claude mcp add mctl --transport http https://api.mctl.ai/mcp \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -66,10 +66,11 @@ Who am I on MCTL?
 You should see your GitHub username, organization, and the tenant you just created.
 
 ```
-What tenants do I have access to?
+Show me details of my-team
 ```
 
-This confirms your tenant is provisioned and accessible.
+Replace `my-team` with the namespace reported by `mctl_whoami`. This uses
+`mctl_get_tenant` to confirm access; listing all tenants requires platform admin access.
 
 ## Step 4: Deploy your first service
 
