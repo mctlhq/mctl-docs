@@ -40,10 +40,12 @@ the dashboard. Note the team name — you will use it throughout this guide.
 ### Via MCP
 
 ```
-List my tenants
+Who am I on MCTL?
 ```
 
-The `mctl_list_tenants` tool returns all tenants you have access to.
+The `mctl_whoami` tool returns your identity and accessible namespaces. Use
+`mctl_get_tenant(name="my-team")` to inspect a specific tenant you can access.
+`mctl_list_tenants` lists all platform tenants and requires platform admin access.
 If you need to create one:
 
 ```
@@ -112,7 +114,10 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "server.js"]
 ```
 
-Add a `GET /healthz` endpoint to your application that returns `200 {"ok": true}`.
+Add unauthenticated `GET /healthz` and `GET /readyz` endpoints that return HTTP 200
+when the application is alive and ready to serve traffic, respectively. The default
+chart uses both endpoints. If your app only exposes `/healthz`, explicitly pass
+`health_check_path="/healthz"` at onboarding to use it for both probes.
 Can't use `/healthz`? Pass `health_check_path=/your-path` when onboarding in
 Step 6 to override both liveness and readiness probe paths. MCTL uses this
 endpoint for liveness checks.
@@ -136,7 +141,7 @@ Ask your AI assistant:
 Grant access to repo <owner>/<repo> for my-team
 ```
 
-This calls `mctl_grant_repo_access(team_name="my-team", repo="<owner>/<repo>")`.
+This calls `mctl_grant_repo_access(team="my-team", repo="<owner>/<repo>")`.
 The tool returns a GitHub App installation URL. Open that URL in your
 browser and install the MCTL GitHub App on the repository or organisation.
 
@@ -225,7 +230,7 @@ Parameters:
 | `port` | The container port your application listens on (matches the `EXPOSE` in your Dockerfile) |
 | `service_template` | Use `"default"` unless you have a specific template |
 | `dockerfile_path` | Optional. Path to the Dockerfile relative to the repo root. Defaults to `"Dockerfile"` (repo root). Set this for monorepos, e.g. `"apps/api/Dockerfile"` |
-| `health_check_path` | Optional. Path used for both liveness and readiness probes. Defaults to `"/healthz"`. Set this if your app can't implement that exact path, e.g. `"/api/health"` |
+| `health_check_path` | Optional. Path used for both liveness and readiness probes. When omitted, liveness uses `/healthz` and readiness uses `/readyz`. Set this to use one endpoint for both, e.g. `"/healthz"` or `"/api/health"` |
 
 The tool returns an operation ID. MCTL submits an Argo Workflow in the
 background — proceed to Step 7 to track it.
@@ -255,7 +260,7 @@ You can also browse all workflows for your team at
 ::: tip
 If the workflow fails, check the logs at [workflows.mctl.ai](https://workflows.mctl.ai)
 or ask your AI assistant for the workflow logs. Common causes are a missing
-`/healthz` endpoint or a Dockerfile that fails to build.
+`/healthz` or `/readyz` endpoint, or a Dockerfile that fails to build.
 :::
 
 ---

@@ -52,9 +52,13 @@ Deploys or reconfigures a service. The `action` parameter selects the mode:
 | `git_tag` | onboard, deploy | Git tag to build/deploy |
 | `port` | onboard | Container port the app listens on |
 | `service_template` | onboard | Use `"default"` unless a custom template applies |
-| `health_check_path` | onboard | Overrides both liveness and readiness probe paths. Defaults to `"/healthz"` — set this if the app can't implement that exact path. Only applied at onboard time; not currently supported on `update-config` |
-| `secret_env_vars` | update-config | Map of env var name → secret value to inject into the pod (see below) |
-| `env_vars` | update-config | Map of plain, non-secret env vars |
+| `health_check_path` | onboard | Overrides both liveness and readiness probe paths. When omitted, the chart uses `/healthz` for liveness and `/readyz` for readiness. Only applied at onboard time; not currently supported on `update-config` |
+| `secret_env_vars` | update-config | String of newline-separated `KEY=value` entries to store in Vault (see below) |
+| `env_vars` | update-config | String of newline-separated `KEY=value` entries for plain, non-secret env vars |
+
+Pass `env_vars` and `secret_env_vars` as strings, not JSON objects. Omit a parameter
+to leave it unchanged. An explicitly empty string clears the corresponding
+configuration; do not use it as a placeholder.
 
 **How `update-config` with `secret_env_vars` actually works:**
 
@@ -80,7 +84,7 @@ mctl_deploy_service(
   action="update-config",
   team_name="my-team",
   component_name="my-service",
-  secret_env_vars={"API_KEY": "sk-..."}
+  secret_env_vars="API_KEY=example-secret"
 )
 ```
 

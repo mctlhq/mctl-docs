@@ -21,7 +21,8 @@ Tenants are fully isolated:
 
 | Action | Required Access |
 |--------|----------------|
-| List tenants | Authenticated user |
+| List all tenants | Platform admin |
+| Inspect own identity and accessible namespaces | Authenticated user |
 | Read tenant resources | Tenant member |
 | Deploy / scale / rollback | Tenant member |
 | Create / delete tenant | Organization admin |

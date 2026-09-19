@@ -25,11 +25,15 @@ Visit [mctl.ai](https://mctl.ai) and use the tenant creation form. You'll need t
 ### Via MCP
 
 ```
-"Show me all tenants"
-"List tenants I have access to"
+"Who am I on MCTL?"
+"Show me details of my-team"
 ```
 
-### Via API
+`mctl_whoami` reports your accessible namespaces; `mctl_get_tenant` reads a
+specific tenant. Listing all tenants with `mctl_list_tenants` requires platform
+admin access.
+
+### Via API (platform admins only)
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" https://api.mctl.ai/api/v1/tenants

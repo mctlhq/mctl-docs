@@ -80,7 +80,7 @@ The Vault ESO role `eso-tenant-{team}-preview` is created once by `wft-create-te
 
 ```
 mctl_list_previews
-  team_name: checkout
+  team: checkout
 ```
 
 Returns each preview's URL, image tag, age, and pod health.

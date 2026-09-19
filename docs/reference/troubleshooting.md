@@ -81,7 +81,7 @@ Check that you haven't set `type: "stdio"` — MCTL uses `streamable-http` trans
 {
   "mcpServers": {
     "mctl": {
-      "type": "streamable-http",
+      "type": "http",
       "url": "https://api.mctl.ai/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_TOKEN"

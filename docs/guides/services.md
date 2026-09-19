@@ -62,10 +62,12 @@ The `mctl_scale_service` tool updates the replica count through GitOps. The chan
 ## Rollback a Service
 
 ```
-"Rollback my-app in staging to the previous version"
+"Rollback my-app in staging to image tag 1.2.3"
 ```
 
-The `mctl_rollback_service` tool reverts to the previous image tag in the GitOps repo.
+The `mctl_rollback_service` tool requires an explicit `target_tag` and updates
+`image.tag` in GitOps. It does not restore old configuration or secrets. See
+[Rollbacks](/guides/rollbacks) for details.
 
 ## Retire a Service
 
@@ -79,7 +81,9 @@ Retiring a service removes it from the cluster. The GitOps history preserves the
 
 ## Deployment Strategies
 
-MCTL supports blue-green deployments by default. The platform handles:
+The default chart uses a Kubernetes Deployment with rolling updates. Blue-green
+is opt-in: set `blueGreen.enabled: true` in the service Helm values through GitOps
+to use an Argo Rollout. With blue-green enabled, the platform handles:
 - Creating the new version alongside the old
 - Health checking the new version
 - Switching traffic

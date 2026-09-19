@@ -11,6 +11,13 @@ If your repo is missing any of these, copy the canonical templates below.
 They cover the common languages and produce small (~50–150 MB), non-root
 images with sane health-check semantics.
 
+## Platform health checks
+
+The default chart checks `/healthz` for liveness and `/readyz` for readiness.
+Implement both without authentication, or pass `health_check_path="/healthz"`
+at onboarding if your app exposes only `/healthz`. A Dockerfile `HEALTHCHECK`
+does not configure Kubernetes probes.
+
 ## Pick a template by language
 
 | Repo contains | Template |
@@ -51,7 +58,8 @@ CMD ["node", "server.js"]
 ```
 
 Implement a `GET /healthz` endpoint returning `200 {"ok": true}` so the
-HEALTHCHECK passes. Can't use `/healthz`? Pass `health_check_path=/your-path`
+HEALTHCHECK passes. Also implement `/readyz`, or set the shared probe path as
+described above. Can't use `/healthz`? Pass `health_check_path=/your-path`
 when onboarding to override both liveness and readiness probe paths — but
 note that only changes the Kubernetes probes, not this Dockerfile's own
 `HEALTHCHECK` line. Update the `HEALTHCHECK` (and any later verification
@@ -287,7 +295,7 @@ exists.
 2. **Create PAT** — `https://github.com/settings/tokens/new` (classic), scope **`read:user`**. Save as repo secret named **`MCTL_GITHUB_TOKEN`**.
 3. **Grant access** if mctl can't see the repo:
    ```
-   mctl_grant_repo_access(team_name="<team>", repo="<owner>/<repo>")
+   mctl_grant_repo_access(team="<team>", repo="<owner>/<repo>")
    ```
    Open the URL it returns, install the GitHub App, then run
    `mctl_sync_repos(team="<team>")`.

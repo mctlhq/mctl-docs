@@ -5,18 +5,21 @@ Quickly revert a service to its previous version when something goes wrong.
 ## Rollback a Service
 
 ```
-"Rollback my-app in production to the previous version"
+"Rollback my-app in production to image tag 1.2.3"
 ```
 
 The `mctl_rollback_service` tool:
-1. Identifies the previous image tag from GitOps history
+1. Uses the explicit `target_tag` you supply; it does not discover the previous tag
 2. Commits the rollback to `mctl-gitops`
 3. ArgoCD syncs the change
-4. Returns an operation ID for tracking
+4. Returns a workflow name for tracking
 
 ## How Rollbacks Work
 
-Since every deployment is a Git commit, rollbacks are simply reverting to the previous commit's state. This means:
+A rollback updates `image.tag` in the service values and creates a new Git commit.
+Choose a known-good image tag from your release history. This does not restore
+previous environment variables, secrets, other configuration, or database state;
+configuration and schema recovery need separate changes. This provides:
 
 - Full audit trail of what changed and when
 - The rollback itself is a new commit (not a force-push)
@@ -27,7 +30,7 @@ Since every deployment is a Git commit, rollbacks are simply reverting to the pr
 ## Check Rollback Status
 
 ```
-"What's the status of operation op-rollback-xyz?"
+"What is the status of workflow rollback-service-abc12?"
 ```
 
 ## When to Rollback
@@ -35,5 +38,5 @@ Since every deployment is a Git commit, rollbacks are simply reverting to the pr
 Common scenarios:
 - Application crashes after a new deployment
 - Performance degradation detected
-- Configuration error causing failures
+- A faulty image release (configuration-only failures require a configuration fix)
 - The mctl-agent may also trigger automatic rollbacks based on alerts
