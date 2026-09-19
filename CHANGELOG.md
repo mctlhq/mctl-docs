@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.42](https://github.com/mctlhq/mctl-docs/compare/0.1.41...0.1.42) (2026-09-19)
+
+
+### Bug Fixes
+
+* **docs:** align platform guides with API and deployment contracts ([ec0a628](https://github.com/mctlhq/mctl-docs/commit/ec0a62881cb34ada6e21657d95e3b00d9f1c0906))
+* **docs:** align platform guides with API and deployment contracts ([5679b9d](https://github.com/mctlhq/mctl-docs/commit/5679b9d640a46231fbdaa67599ac77fa3d821332))
+
+
+### Documentation
+
+* clarify HTTP transport configuration in troubleshooting ([a8dabb1](https://github.com/mctlhq/mctl-docs/commit/a8dabb144160a59da42de76837f6ff90c9308a1a))
+
 ## [0.1.41](https://github.com/mctlhq/mctl-docs/compare/0.1.40...0.1.41) (2026-09-17)
 
 
