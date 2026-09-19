@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-09-19T21:39:05.323Z
+Generated: 2026-09-19T21:43:09.402Z
 Total Files Included: 27
 
 ================================================================================
@@ -3353,7 +3353,8 @@ If the MCP endpoint itself times out:
 
 Verify the MCP server URL is exactly `https://api.mctl.ai/mcp` (not `/api/v1/mcp` or other paths).
 
-Check that you haven't set `type: "stdio"` — MCTL uses `streamable-http` transport:
+MCTL uses the Streamable HTTP transport. Configure it as `type: "http"`
+in Claude Code; the CLI option is `--transport http`:
 
 ```json
 {

@@ -75,7 +75,8 @@ If the MCP endpoint itself times out:
 
 Verify the MCP server URL is exactly `https://api.mctl.ai/mcp` (not `/api/v1/mcp` or other paths).
 
-Check that you haven't set `type: "stdio"` — MCTL uses `streamable-http` transport:
+MCTL uses the Streamable HTTP transport. Configure it as `type: "http"`
+in Claude Code; the CLI option is `--transport http`:
 
 ```json
 {
