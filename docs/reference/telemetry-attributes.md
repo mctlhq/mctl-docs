@@ -9,9 +9,16 @@ can be joined on the same keys, and that only happens if the keys are agreed
 before the producers are written.
 
 **Status of each attribute is stated explicitly.** An attribute is either
-`shipped` — something in production emits it today, with the source named — or
-`reserved` — this catalog fixes the name, but no producer emits it yet. Nothing
+`shipped` — the emitting code is in production, with the source named — or
+`reserved` — this catalog fixes the name, but no code sets it anywhere. Nothing
 here is aspirational without being labelled as such.
+
+One caveat that `shipped` does not cover: no MCTL service has a tracer, exporter
+or propagator installed yet — that is the epic's own remaining work. The shipped
+attributes are written onto a span only when one already exists in the context,
+so today they are code that would emit rather than data in a backend. `shipped`
+means the name is settled and renaming it costs a migration; it does not mean
+anything is queryable yet.
 
 ## Ownership
 
@@ -64,7 +71,7 @@ a counter-example to the rule:
 | MCTL attribute | Nearest upstream | Why MCTL keeps its own |
 |---|---|---|
 | `mctl.repository.name` | `vcs.repository.name` (release candidate) | Not the same value. Upstream's is the bare repository name and its own note warns it "can clash with forks of the same repository if collecting telemetry across multiple orgs". MCTL carries the qualified `owner/repo`, which is a different field. |
-| `mctl.pr.number` | `vcs.change.id` (release candidate) | Same concept, different type — upstream is a string, MCTL an integer. Aligning is cheap while this stays `reserved`; revisit when `vcs.*` reaches stable. |
+| `mctl.pr.number` | `vcs.change.id` (release candidate) | The same concept, and the one real candidate for adoption. MCTL keeps its own for now because an integer is the natural type for a PR number and upstream's is a string, and because `vcs.*` is not stable — adopting a release-candidate name into a catalog whose whole purpose is to stop renames would be self-defeating. This is the row most likely to change at the re-review below. |
 | `mctl.user.id` | `user.id` | MCTL distinguishes two people that `user.id` collapses: `mctl.user.id` is the upstream principal a call *ran as*, `mctl.actor.id` is the human who *triggered* the execution. One upstream key cannot carry both. |
 
 Re-review this table when `vcs.*` reaches stable — that is the trigger, and
@@ -153,7 +160,9 @@ the same values already written to the audit row.
 
 An attribute that was not captured is **omitted rather than written empty**.
 An absent attribute is itself information; an empty one is a value that reads
-as a measurement and is not one.
+as a measurement and is not one. Note this is a producer-side rule about what
+the code sets — the Collector's redaction never removes an attribute, so an
+absence in a backend is always the producer's decision, never redaction's.
 
 ## OpenTelemetry mapping
 
@@ -194,9 +203,13 @@ computed from the token counts downstream, not emitted as an attribute.
 
 ::: warning Token counts do not currently survive the Collector
 The redaction pattern reproduced below matches any key containing `token`, so
-`gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are **dropped
+`gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are **masked
 before export** today — as are both deprecated spellings. There is no spelling
 of a token counter that survives.
+
+Masked, not dropped, and for an integer counter that is worse: the attribute
+arrives with its value replaced by the string `****`, so a consumer gets a
+present key of the wrong type rather than a missing one.
 
 The intent of that pattern is credential shapes, not usage counters, so this is
 a configuration defect rather than a policy: tracked as
@@ -205,16 +218,15 @@ producer has a tracer wired.
 
 Emit the attributes under these names anyway — they are the correct names, and
 the Collector is what has to change. But **do not build cost attribution on
-them until `mctl-gitops#1332` is closed**, because until then the counts do not
-reach the backend and nothing reports an error.
+them until `mctl-gitops#1332` is closed**, because until then no usable count
+reaches the backend and nothing reports an error.
 :::
 
 ## Privacy
 
 **These rules are enforced, not advisory.** The Collector's `redaction`
-processor runs on every trace before export and drops matching attributes
-unconditionally. The patterns below are reproduced from the deployed
-configuration:
+processor runs on every trace before export. The patterns below are reproduced
+from the deployed configuration:
 
 ```
 (?i).*(authorization|cookie|api[-_]?key|token|secret|password|credential).*
@@ -226,20 +238,42 @@ configuration:
 ^http\.(request|response)\.header\..*
 ```
 
-Credential *shapes* are additionally removed by value, regardless of the key
+Credential *shapes* are additionally masked by value, regardless of the key
 they appear under: GitHub tokens, `sk-` keys, Vault `hvs.` tokens and JWTs.
+Only the matching part of the value is replaced, so the rest of a longer string
+survives.
+
+### What "redacted" actually does here
+
+Worth being exact, because the processor has two different mechanisms and the
+deployed configuration only uses one of them:
+
+- **Nothing is deleted.** Deletion happens only to attributes missing from
+  `allowed_keys`, and the deployed config sets `allow_all_keys: true`, which
+  disables that path entirely.
+- **A key matching `blocked_key_patterns` survives with its value replaced** by
+  `****`. The attribute is still on the span.
+- **A non-string value is destroyed, not preserved.** `redact_all_types` is not
+  set, so the processor reads a non-string value as the empty string and then
+  writes `****` back as a *string*. An integer attribute that matches a blocked
+  pattern reaches the backend as the string `****` — the value and the type are
+  both gone.
+- **There is no diagnostic trail.** `summary` is unset, which is neither `info`
+  nor `debug`, so the processor adds no count and no list of what it touched.
 
 The consequences for a producer:
 
-- **Never place meaningful data under a blocked name.** It will be deleted, and
-  the producer will have no signal that it was.
+- **Never place meaningful data under a blocked name.** It will arrive as
+  `****`, and nothing will report that it was replaced. A consumer sees a
+  present attribute with a plausible-looking masked value, which is harder to
+  notice than an absent one.
 - **Prompts, completions and message bodies are out of traces by default.**
   `gen_ai.input.messages` and `gen_ai.output.messages` both match
-  `.*\.messages$` and are dropped. This is the epic's success criterion
+  `.*\.messages$` and are masked. This is the epic's success criterion
   "private prompts, completions and Telegram message bodies remain out of
   traces by default", implemented rather than promised.
 - **Tool arguments and results are out.** `mcp.tool.arguments` and
-  `mcp.tool.result` are dropped. If a tool's *shape* is worth measuring, emit a
+  `mcp.tool.result` are masked. If a tool's *shape* is worth measuring, emit a
   bounded derived attribute — an argument count, a result status — not the
   payload.
 - **Redaction is a backstop, not a design.** It catches names nobody has
@@ -269,7 +303,9 @@ store it. Three classes:
 version-identity attributes (`mctl.agent.definition_version`,
 `mctl.agent.profile_version`, `mctl.agent.release_revision` — a release tuple
 is bounded and changes only on promotion, so grouping by it is exactly the
-intended use), `mcp.method.name` and `mcp.protocol.version`, and every resource
+intended use), the MCP method and protocol version under **both** spellings —
+`mcp.method` and `mcp.protocol_version` as shipped today, `mcp.method.name` and
+`mcp.protocol.version` after `mctlhq/mctl-telegram#658` — and every resource
 attribute. Each has a small, slowly-changing domain.
 
 **Unbounded but necessary — join keys, not grouping keys.**
