@@ -152,7 +152,7 @@ look standard but are not.
 | *(not emitted)* | `mcp.resource.uri` | Reserved. Subject to the privacy rules — a resource URI can carry a document path. |
 
 Renaming shipped attributes is a code change in `mctl-telegram` and is **not**
-part of this catalog. It is tracked separately.
+part of this catalog. It is tracked as `mctlhq/mctl-telegram#658`.
 
 Two caveats a reader should have before treating upstream as settled:
 
