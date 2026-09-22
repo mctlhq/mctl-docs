@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-09-22T11:38:31.288Z
+Generated: 2026-09-22T11:43:56.664Z
 Total Files Included: 28
 
 ================================================================================
@@ -3549,7 +3549,8 @@ its value, and the deployed configuration only ever masks.
   alike — but it cannot affect the outcome: the mask regex is `.*` and
   `hash_function` is unset, so the replacement is the fixed string `****`
   whatever was read, and `SetStr` coerces the type either way. Turning it on
-  changes what the processor sees, not what it writes.
+  changes what this branch sees, not what it writes. (It does change what the
+  value-matching branch writes — that is why the flag exists — just not here.)
 - **There is no diagnostic trail.** `summary` is unset, which is neither `info`
   nor `debug`, so the processor adds no count and no list of what it touched.
 
@@ -3586,7 +3587,8 @@ or a Telegram handle, and never a customer's end-user identifier.
 ## Cardinality
 
 Attribute cardinality decides whether a backend can index a field or merely
-store it. Three classes:
+store it. Three classes of *dimension*, plus one kind of attribute that is not a
+dimension at all:
 
 **Bounded — safe to group and aggregate by.**
 `mctl.workflow.type`, `mctl.agent.name`, `mctl.actor.type`,
@@ -3652,6 +3654,7 @@ in its own pull request, referencing the epic. Specifically:
 - Execution identity and trust model: `mctlhq/mctl-agents#196`
 - Release tuple: `mctl-agents/docs/adr/007-agent-definition-execution-profile-contract.md`
 - Edge correlation contract: `mctlhq/mctl-telegram#617`
+- Cost attribution, which consumes the token counters: `mctlhq/.github#48`
 - Backend selection: `mctlhq/mctl-gitops#1280`
 - Collector redaction and `deployment.environment` defects: `mctlhq/mctl-gitops#1332`
 - `mcp.*` rename: `mctlhq/mctl-telegram#658`
