@@ -42,13 +42,33 @@ agreed now; the trust model is a design question that is still open.
 4. **Dots separate levels, underscores separate words within a level.**
    `mctl.work_item.id`, not `mctl.workItem.id` or `mctl.work-item.id`.
 5. **Singular subject.** `mctl.repository.name`, never `mctl.repositories.name`.
-6. **Identifiers end in `.id`; human-readable names end in `.name`.** If both
-   exist, emit both rather than overloading one.
+6. **Identifiers end in `id`; human-readable names end in `name`.** If both
+   exist, emit both rather than overloading one. A leaf may be `_id` when the
+   identifier qualifies a sub-entity of the level above it — `mctl.workflow.run_id`
+   is the id of a *run* of that workflow, not of a separate `run` entity, and
+   `mctl.edge.request_id` likewise. Upstream has the same shape (`k8s.pod.uid`).
+   Promote it to its own level only when the sub-entity gains attributes of its
+   own.
 7. **Units in the key for anything measured**, following upstream practice
    (`.duration` in seconds as a float, `.count` as an integer). Do not encode a
    unit in the value.
 8. **Booleans read as an assertion**, e.g. `mctl.approval.required`, so that
    `true` needs no further explanation.
+
+### Upstream namespaces deliberately not adopted
+
+Rule 1 says reuse an upstream convention when one exists. Three near-misses are
+worth naming explicitly, so the next producer does not read the tables below as
+a counter-example to the rule:
+
+| MCTL attribute | Nearest upstream | Why MCTL keeps its own |
+|---|---|---|
+| `mctl.repository.name` | `vcs.repository.name` (release candidate) | Not the same value. Upstream's is the bare repository name and its own note warns it "can clash with forks of the same repository if collecting telemetry across multiple orgs". MCTL carries the qualified `owner/repo`, which is a different field. |
+| `mctl.pr.number` | `vcs.change.id` (release candidate) | Same concept, different type — upstream is a string, MCTL an integer. Aligning is cheap while this stays `reserved`; revisit when `vcs.*` reaches stable. |
+| `mctl.user.id` | `user.id` | MCTL distinguishes two people that `user.id` collapses: `mctl.user.id` is the upstream principal a call *ran as*, `mctl.actor.id` is the human who *triggered* the execution. One upstream key cannot carry both. |
+
+Re-review this table when `vcs.*` reaches stable — that is the trigger, and
+nothing checks it automatically.
 
 ## Resource attributes
 
@@ -66,7 +86,7 @@ them still gets them.
 | `mctl.team` | Collector, from pod label `mctl.ai/team` | shipped | The same pair promtail relabels for logs, so a trace and a log line for one pod carry matching tenant identity with no mapping table. |
 | `mctl.component` | Collector, from pod label `mctl.ai/component` | shipped | As above, from `mctl.ai/component`. |
 | `k8s.cluster.name` | Collector, `resource` processor | shipped | `action: insert`, so a producer that sets it wins. |
-| `deployment.environment` | Collector, `resource` processor | shipped | `action: insert`, same rule. |
+| `deployment.environment` | Collector, `resource` processor | shipped, **deprecated spelling** | `action: insert`, same rule. Upstream replaced this key with `deployment.environment.name`, which is `stable`. A producer setting it itself — which `insert` explicitly invites — should be aware it is writing the deprecated name. Moving the Collector is `mctlhq/mctl-gitops#1332`. |
 
 The `insert` semantics matter: the Collector never overwrites a producer's
 value for these two. A producer that knows better — a workload running for one
@@ -147,7 +167,7 @@ look standard but are not.
 |---|---|---|
 | `mcp.method` | `mcp.method.name` | Rename to the upstream name. |
 | `mcp.protocol_version` | `mcp.protocol.version` | Rename to the upstream name. |
-| `mcp.name` | *(no counterpart)* | Rename to `mctl.tool.name`, which already exists and already carries this value. The `mcp.*` namespace is upstream's; MCTL should not extend it. |
+| `mcp.name` | *(no counterpart)* | **Drop** — `mctl.tool.name` is already shipped by the same helper and already carries this value, so nothing is lost and the dual-emit rule below does not apply. The `mcp.*` namespace is upstream's; MCTL should not extend it. |
 | *(not emitted)* | `mcp.session.id` | Reserved. Only meaningful on the legacy `2025-06-18` path, which mints a session; the modern `2026-07-28` path mints none. |
 | *(not emitted)* | `mcp.resource.uri` | Reserved. Subject to the privacy rules — a resource URI can carry a document path. |
 
@@ -171,6 +191,23 @@ For model calls, use `gen_ai.*` as upstream defines it — in particular
 deprecated spellings; use the `input`/`output` pair. Upstream defines **no**
 cost or price attribute, so cost attribution — `.github#48` Phase 1 — is
 computed from the token counts downstream, not emitted as an attribute.
+
+::: warning Token counts do not currently survive the Collector
+The redaction pattern reproduced below matches any key containing `token`, so
+`gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are **dropped
+before export** today — as are both deprecated spellings. There is no spelling
+of a token counter that survives.
+
+The intent of that pattern is credential shapes, not usage counters, so this is
+a configuration defect rather than a policy: tracked as
+`mctlhq/mctl-gitops#1332`. Nothing is broken in production yet because no
+producer has a tracer wired.
+
+Emit the attributes under these names anyway — they are the correct names, and
+the Collector is what has to change. But **do not build cost attribution on
+them until `mctl-gitops#1332` is closed**, because until then the counts do not
+reach the backend and nothing reports an error.
+:::
 
 ## Privacy
 
@@ -208,6 +245,11 @@ The consequences for a producer:
 - **Redaction is a backstop, not a design.** It catches names nobody has
   invented yet, which is why it uses patterns rather than an exact key list.
   A producer must still not collect what it does not need.
+- **The first pattern is currently broader than its intent.** `.*token.*`
+  catches `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` along
+  with the credentials it is aimed at. See the warning above and
+  `mctlhq/mctl-gitops#1332`. This is the one place where what is enforced and
+  what is intended differ, and it is recorded rather than glossed.
 
 Personal data deserves its own line. `mctl.actor.id` and `mctl.user.id`
 identify a person. They are permitted because an audit trail that cannot name
@@ -223,14 +265,19 @@ store it. Three classes:
 **Bounded — safe to group and aggregate by.**
 `mctl.workflow.type`, `mctl.agent.name`, `mctl.actor.type`,
 `mctl.trigger.type`, `mctl.edge.route`, `mctl.tool.name`, `mctl.tool.status`,
-`mctl.repository.name`, `mctl.epic.name`, `mctl.work_item.id`, and every
-resource attribute. Each has a small, slowly-changing domain.
+`mctl.repository.name`, `mctl.epic.name`, `mctl.work_item.id`, the three
+version-identity attributes (`mctl.agent.definition_version`,
+`mctl.agent.profile_version`, `mctl.agent.release_revision` — a release tuple
+is bounded and changes only on promotion, so grouping by it is exactly the
+intended use), `mcp.method.name` and `mcp.protocol.version`, and every resource
+attribute. Each has a small, slowly-changing domain.
 
 **Unbounded but necessary — join keys, not grouping keys.**
 `mctl.execution.id`, `mctl.workflow.id`, `mctl.workflow.run_id`,
 `mctl.argo.workflow.name`, `mctl.edge.request_id`, `mctl.issue.number`,
-`mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`. These are one-per-execution
-by design. Use them to retrieve a trace, never as a dashboard dimension.
+`mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`, `mcp.session.id`. These are
+one-per-execution by design. Use them to retrieve a trace, never as a dashboard
+dimension.
 
 **Must not become attributes.** Anything unbounded that is not a join key:
 timestamps already carried by the span, free-form messages, commit diffs, file
@@ -264,5 +311,8 @@ in its own pull request, referencing the epic. Specifically:
 - Execution identity and trust model: `mctlhq/mctl-agents#196`
 - Release tuple: `mctl-agents/docs/adr/007-agent-definition-execution-profile-contract.md`
 - Edge correlation contract: `mctlhq/mctl-telegram#617`
+- Backend selection: `mctlhq/mctl-gitops#1280`
+- Collector redaction and `deployment.environment` defects: `mctlhq/mctl-gitops#1332`
+- `mcp.*` rename: `mctlhq/mctl-telegram#658`
 - Collector configuration: `mctl-gitops`, `platform-gitops/bootstrap/templates/observability/otel-collector.yaml`
 - Upstream: <https://github.com/open-telemetry/semantic-conventions-genai>
