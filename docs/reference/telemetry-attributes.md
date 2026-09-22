@@ -266,10 +266,12 @@ its value, and the deployed configuration only ever masks.
 - **A non-string value is destroyed, not preserved.** The mask is written back
   with `SetStr`, unconditionally, so an integer attribute that matches a blocked
   pattern reaches the backend as the string `****` — value and type both gone.
-  This is **not** governed by `redact_all_types`: that flag only changes how the
-  value is *read* for the value-matching path, and since `hash_function` is
-  unset the mask is the fixed string `****` whatever the value was. Turning
-  `redact_all_types` on would change nothing here.
+  `redact_all_types` does **not** rescue this. The flag does affect the read
+  this branch uses — `value.Str()` becomes `value.AsString()` for both branches
+  alike — but it cannot affect the outcome: the mask regex is `.*` and
+  `hash_function` is unset, so the replacement is the fixed string `****`
+  whatever was read, and `SetStr` coerces the type either way. Turning it on
+  changes what the processor sees, not what it writes.
 - **There is no diagnostic trail.** `summary` is unset, which is neither `info`
   nor `debug`, so the processor adds no count and no list of what it touched.
 
@@ -327,8 +329,14 @@ slowly-changing domain.
 `mctl.execution.id`, `mctl.workflow.id`, `mctl.workflow.run_id`,
 `mctl.argo.workflow.name`, `mctl.edge.request_id`, `mctl.issue.number`,
 `mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`, `mcp.session.id`,
-`mcp.resource.uri`. These are one-per-execution by design. Use them to
-retrieve a trace, never as a dashboard dimension.
+`mcp.resource.uri`. What these share is an unbounded domain, not a single
+cause — some are one per execution (`mctl.execution.id`, `mctl.workflow.id`,
+`mctl.workflow.run_id`, `mctl.argo.workflow.name`), one is one per request
+(`mctl.edge.request_id`), one per session (`mcp.session.id`), and the rest are
+bounded only by how many issues, pull requests, people or resources exist
+(`mctl.issue.number`, `mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`,
+`mcp.resource.uri`). Use any of them to retrieve a trace, never as a dashboard
+dimension.
 
 `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are neither: they
 are *measurements*, not dimensions and not join keys. Aggregate them, never
