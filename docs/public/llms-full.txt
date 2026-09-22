@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-09-22T11:22:21.651Z
+Generated: 2026-09-22T11:28:52.731Z
 Total Files Included: 28
 
 ================================================================================
@@ -3479,6 +3479,16 @@ deprecated spellings; use the `input`/`output` pair. Upstream defines **no**
 cost or price attribute, so cost attribution — `.github#48` Phase 1 — is
 computed from the token counts downstream, not emitted as an attribute.
 
+| Attribute | Type | Status | Meaning |
+|---|---|---|---|
+| `gen_ai.operation.name` | string | reserved | Upstream convention, e.g. `chat`, `invoke_agent`. Bounded. |
+| `gen_ai.provider.name` | string | reserved | Upstream convention. Bounded. |
+| `gen_ai.request.model` | string | reserved | The concrete model. Bounded, and the dimension cost is grouped by. |
+| `gen_ai.usage.input_tokens` | int | reserved | Token count in. Currently masked — see the warning below. |
+| `gen_ai.usage.output_tokens` | int | reserved | Token count out. Currently masked — see the warning below. |
+
+All five are `reserved`: no MCTL service emits `gen_ai.*` today.
+
 ::: warning Token counts do not currently survive the Collector
 The redaction pattern reproduced below matches any key containing `token`, so
 `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are **masked
@@ -3523,19 +3533,21 @@ survives.
 
 ### What "redacted" actually does here
 
-Worth being exact, because the processor has two different mechanisms and the
-deployed configuration only uses one of them:
+Worth being exact: the processor can either **delete** an attribute or **mask**
+its value, and the deployed configuration only ever masks.
 
 - **Nothing is deleted.** Deletion happens only to attributes missing from
   `allowed_keys`, and the deployed config sets `allow_all_keys: true`, which
   disables that path entirely.
 - **A key matching `blocked_key_patterns` survives with its value replaced** by
   `****`. The attribute is still on the span.
-- **A non-string value is destroyed, not preserved.** `redact_all_types` is not
-  set, so the processor reads a non-string value as the empty string and then
-  writes `****` back as a *string*. An integer attribute that matches a blocked
-  pattern reaches the backend as the string `****` — the value and the type are
-  both gone.
+- **A non-string value is destroyed, not preserved.** The mask is written back
+  with `SetStr`, unconditionally, so an integer attribute that matches a blocked
+  pattern reaches the backend as the string `****` — value and type both gone.
+  This is **not** governed by `redact_all_types`: that flag only changes how the
+  value is *read* for the value-matching path, and since `hash_function` is
+  unset the mask is the fixed string `****` whatever the value was. Turning
+  `redact_all_types` on would change nothing here.
 - **There is no diagnostic trail.** `summary` is unset, which is neither `info`
   nor `debug`, so the processor adds no count and no list of what it touched.
 
@@ -3583,8 +3595,11 @@ version-identity attributes (`mctl.agent.definition_version`,
 is bounded and changes only on promotion, so grouping by it is exactly the
 intended use), the MCP method and protocol version under **both** spellings —
 `mcp.method` and `mcp.protocol_version` as shipped today, `mcp.method.name` and
-`mcp.protocol.version` after `mctlhq/mctl-telegram#658` — and every resource
-attribute. Each has a small, slowly-changing domain.
+`mcp.protocol.version` after `mctlhq/mctl-telegram#658` — `mcp.name`, which is
+bounded because it duplicates `mctl.tool.name`, though group by
+`mctl.tool.name` instead since `#658` removes this one — the four bounded
+`gen_ai.*` attributes above, and every resource attribute. Each has a small,
+slowly-changing domain.
 
 **Unbounded but necessary — join keys, not grouping keys.**
 `mctl.execution.id`, `mctl.workflow.id`, `mctl.workflow.run_id`,
@@ -3592,6 +3607,10 @@ attribute. Each has a small, slowly-changing domain.
 `mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`, `mcp.session.id`. These are
 one-per-execution by design. Use them to retrieve a trace, never as a dashboard
 dimension.
+
+`gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are neither: they
+are *measurements*, not dimensions and not join keys. Aggregate them, never
+group by them.
 
 **Must not become attributes.** Anything unbounded that is not a join key:
 timestamps already carried by the span, free-form messages, commit diffs, file
