@@ -109,6 +109,7 @@ export default defineConfig({
           { text: 'FAQ', link: '/reference/faq' },
           { text: 'Diagram Types', link: '/reference/diagrams' },
           { text: 'Troubleshooting', link: '/reference/troubleshooting' },
+          { text: 'Telemetry Attributes', link: '/reference/telemetry-attributes' },
           { text: 'Glossary', link: '/reference/glossary' },
         ],
       },
