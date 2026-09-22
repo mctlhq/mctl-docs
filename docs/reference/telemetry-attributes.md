@@ -319,16 +319,16 @@ intended use), the MCP method and protocol version under **both** spellings —
 `mcp.method` and `mcp.protocol_version` as shipped today, `mcp.method.name` and
 `mcp.protocol.version` after `mctlhq/mctl-telegram#658` — `mcp.name`, which is
 bounded because it duplicates `mctl.tool.name`, though group by
-`mctl.tool.name` instead since `#658` removes this one — the four bounded
+`mctl.tool.name` instead since `#658` removes this one — the three bounded
 `gen_ai.*` attributes above, and every resource attribute. Each has a small,
 slowly-changing domain.
 
 **Unbounded but necessary — join keys, not grouping keys.**
 `mctl.execution.id`, `mctl.workflow.id`, `mctl.workflow.run_id`,
 `mctl.argo.workflow.name`, `mctl.edge.request_id`, `mctl.issue.number`,
-`mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`, `mcp.session.id`. These are
-one-per-execution by design. Use them to retrieve a trace, never as a dashboard
-dimension.
+`mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`, `mcp.session.id`,
+`mcp.resource.uri`. These are one-per-execution by design. Use them to
+retrieve a trace, never as a dashboard dimension.
 
 `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are neither: they
 are *measurements*, not dimensions and not join keys. Aggregate them, never
