@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-09-23T11:36:52.067Z
+Generated: 2026-09-23T11:43:09.792Z
 Total Files Included: 33
 
 ================================================================================
@@ -2746,7 +2746,7 @@ On a relay route, the surface principal sends `X-MCTL-Surface-Actor: <surface-na
 | Expired link | `403 link_expired` |
 | Malformed id for the surface | `400` |
 | The header sent by anyone but a surface principal | `400 actor_not_accepted` |
-| A login or actor field in the body | `400 actor_not_accepted` (never accepted) |
+| A login or actor field in the body | `400` (identity comes only from the link) |
 
 Every `403` is audited as `surface_identity.relay_refused`. A relayed request is audited with **both** identities: the human as actor or respondent, and `acting_principal: surface:<name>`. Work-item events carry the same column.
 
