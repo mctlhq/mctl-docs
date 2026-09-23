@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-09-23T05:28:02.658Z
+Generated: 2026-09-23T05:35:53.827Z
 Total Files Included: 32
 
 ================================================================================
@@ -571,6 +571,22 @@ Execute a platform operation. Submits an Argo Workflow and returns a workflow na
 | `404` | Operation not found |
 
 ---
+
+## Human Input
+
+The read model and response endpoint for durable agent clarification (mctl-api#261). They are available once mctl-api 4.51.0 (release PR mctl-api#340) is deployed. Semantics, the full outcome table and who may answer are in the [surface adapter guide](/human-input/surface-adapters).
+
+### `GET /api/v1/human-input`
+
+List human-input requests visible to the caller. `state=pending` (default) or `all`; optional `work_item_id`.
+
+### `GET /api/v1/human-input/{request_id}`
+
+One request, as the read model reports it.
+
+### `POST /api/v1/human-input/{request_id}/response`
+
+Submit an answer bound to `request_id` and `request_hash`. Only a GitHub-verified caller named in the request's `actor_refs` can answer; the service principal cannot.
 
 ## MCP Endpoint
 
@@ -2298,7 +2314,7 @@ sequenceDiagram
     api-->>srf: redacted request, state pending
     srf->>hum: show question
     hum->>srf: answer
-    srf->>api: POST /api/v1/human-input/{id}/response (human's own token)
+    srf->>api: POST /api/v1/human-input/{request_id}/response (human's own token)
     api->>api: record in human_input_deliveries
     api->>wf: signal human_input_response
     wf->>wf: validate_response, resume_count + 1
@@ -2310,7 +2326,7 @@ sequenceDiagram
 1. The investigator decides it cannot proceed without a human decision and writes one sealed `HumanInputRequest` to its proposal's `human-input/` directory. **Not built yet** (see Status).
 2. After the investigate step succeeds, `DevLoopWorkflow` looks up the proposal slug and calls `find_human_input_request`. A 404 means no request; anything else non-200 is retried.
 3. The workflow parses the document with `HumanInputRequest.from_dict`, which recomputes `question_hash`, `request_hash` and `request_id` and rejects a mismatch. A malformed document fails the execution with the non-retryable error type `human_input_malformed`.
-4. Leftovers are skipped (a question already answered in this execution, a request sealed by another workflow or run, one created before this run started, or one already expired). Otherwise the workflow enters `WAITING_FOR_INPUT`.
+4. Leftovers are skipped (a question already answered in this execution, a request sealed by another workflow or run, one whose `created_at` is more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before this run started, or one already expired). Otherwise the workflow enters `WAITING_FOR_INPUT`.
 5. A surface reads the request from mctl-api, shows it, and submits the human's answer to mctl-api, authenticated as that human.
 6. mctl-api checks eligibility, `request_hash`, expiry and the value type, records the answer in its ledger, and sends the `human_input_response` signal.
 7. The workflow re-validates the answer with `validate_response`. On success it increments its resume count, returns to `RUNNING`, and resubmits `mctl-agents-investigate` with every answer accepted so far. It then checks again for a new request, bounded by `MAX_CLARIFICATION_ROUNDS`.
@@ -2492,7 +2508,7 @@ Constants from `orchestrator/human_input.py`, `DevLoopWorkflow` and mctl-api on 
 
 ### Retirement by read
 
-The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created before the current run started. A durable answered-marker written by the producer is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before the current run started. A durable answered-marker written by the producer is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
 
 ## Related
 
@@ -2536,7 +2552,7 @@ mctl-api decides who may see and who may answer from how the caller authenticate
 | GitHub token whose `github:<login>` is in `actor_refs` | Yes | Yes |
 | mctl-api OAuth JWT (minted after GitHub login) whose `github:<login>` is in `actor_refs` | Yes | Yes |
 | Dex JWT | Only if also an admin | No. A non-admin gets `404` (the request is not visible); an admin gets `403 not_eligible`. This holds even if the Dex username equals a GitHub login in `actor_refs` |
-| Platform admin | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
+| Platform admin (GitHub-verified) | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
 | Service principal (relaying for a surface) | Yes, including `eligible_actors` and `invalid_documents` | No: `403`. A human answer relayed by a machine credential cannot be told apart from the machine answering |
 | Anyone else | No: the request is reported as `404` | No |
 

@@ -30,7 +30,7 @@ mctl-api decides who may see and who may answer from how the caller authenticate
 | GitHub token whose `github:<login>` is in `actor_refs` | Yes | Yes |
 | mctl-api OAuth JWT (minted after GitHub login) whose `github:<login>` is in `actor_refs` | Yes | Yes |
 | Dex JWT | Only if also an admin | No. A non-admin gets `404` (the request is not visible); an admin gets `403 not_eligible`. This holds even if the Dex username equals a GitHub login in `actor_refs` |
-| Platform admin | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
+| Platform admin (GitHub-verified) | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
 | Service principal (relaying for a surface) | Yes, including `eligible_actors` and `invalid_documents` | No: `403`. A human answer relayed by a machine credential cannot be told apart from the machine answering |
 | Anyone else | No: the request is reported as `404` | No |
 

@@ -58,7 +58,7 @@ sequenceDiagram
     api-->>srf: redacted request, state pending
     srf->>hum: show question
     hum->>srf: answer
-    srf->>api: POST /api/v1/human-input/{id}/response (human's own token)
+    srf->>api: POST /api/v1/human-input/{request_id}/response (human's own token)
     api->>api: record in human_input_deliveries
     api->>wf: signal human_input_response
     wf->>wf: validate_response, resume_count + 1
@@ -70,7 +70,7 @@ sequenceDiagram
 1. The investigator decides it cannot proceed without a human decision and writes one sealed `HumanInputRequest` to its proposal's `human-input/` directory. **Not built yet** (see Status).
 2. After the investigate step succeeds, `DevLoopWorkflow` looks up the proposal slug and calls `find_human_input_request`. A 404 means no request; anything else non-200 is retried.
 3. The workflow parses the document with `HumanInputRequest.from_dict`, which recomputes `question_hash`, `request_hash` and `request_id` and rejects a mismatch. A malformed document fails the execution with the non-retryable error type `human_input_malformed`.
-4. Leftovers are skipped (a question already answered in this execution, a request sealed by another workflow or run, one created before this run started, or one already expired). Otherwise the workflow enters `WAITING_FOR_INPUT`.
+4. Leftovers are skipped (a question already answered in this execution, a request sealed by another workflow or run, one whose `created_at` is more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before this run started, or one already expired). Otherwise the workflow enters `WAITING_FOR_INPUT`.
 5. A surface reads the request from mctl-api, shows it, and submits the human's answer to mctl-api, authenticated as that human.
 6. mctl-api checks eligibility, `request_hash`, expiry and the value type, records the answer in its ledger, and sends the `human_input_response` signal.
 7. The workflow re-validates the answer with `validate_response`. On success it increments its resume count, returns to `RUNNING`, and resubmits `mctl-agents-investigate` with every answer accepted so far. It then checks again for a new request, bounded by `MAX_CLARIFICATION_ROUNDS`.

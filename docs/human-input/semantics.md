@@ -66,7 +66,7 @@ Constants from `orchestrator/human_input.py`, `DevLoopWorkflow` and mctl-api on 
 
 ### Retirement by read
 
-The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created before the current run started. A durable answered-marker written by the producer is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before the current run started. A durable answered-marker written by the producer is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
 
 ## Related
 
