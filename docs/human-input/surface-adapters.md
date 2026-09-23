@@ -31,10 +31,11 @@ mctl-api decides who may see and who may answer from how the caller authenticate
 | mctl-api OAuth JWT (minted after GitHub login) whose `github:<login>` is in `actor_refs` | Yes | Yes |
 | Dex JWT | Only if also an admin | No. A non-admin gets `404` (the request is not visible); an admin gets `403 not_eligible`. This holds even if the Dex username equals a GitHub login in `actor_refs` |
 | Platform admin (GitHub-verified) | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
-| Service principal (relaying for a surface) | Yes, including `eligible_actors` and `invalid_documents` | No: `403`. A human answer relayed by a machine credential cannot be told apart from the machine answering |
+| Service principal (`mctl-agent`) | Yes, including `eligible_actors` and `invalid_documents` | No: `403`. A human answer relayed by a machine credential cannot be told apart from the machine answering |
+| Surface principal (`surface:telegram`, `surface:portal`) relaying through a verified link | As the linked human | As the linked human, if their `github:<login>` is in `actor_refs`. See [Surface Identity and Relay](/human-input/surface-identity) |
 | Anyone else | No: the request is reported as `404` | No |
 
-The consequence for adapter design: a surface may list requests with a service credential, but must submit each answer with the answering human's own GitHub-verified credential. The respondent is recorded as `github:<login>`, taken from authentication. The request body has no respondent field and unknown fields are rejected.
+The consequence for adapter design: a surface submits each answer either with the answering human's own GitHub-verified credential, or through its own surface principal relaying for a human who has linked their surface identity ([Surface Identity and Relay](/human-input/surface-identity), merged in [mctl-api#350](https://github.com/mctlhq/mctl-api/issues/350), not yet released). The respondent is recorded as `github:<login>`, taken from authentication. The request body has no respondent field and unknown fields are rejected.
 
 ## Endpoints
 
@@ -157,7 +158,7 @@ There is no `410 Gone`; expiry is reported as `409` with state `expired`.
 
 1. List with `GET /api/v1/human-input?state=pending`; treat 503 as unknown.
 2. Render `question`, `reason`, `response_type`, `options` and `expires_at`. Offer answer controls only when `can_respond` is `true` for the human in front of the surface.
-3. Map the surface user to a GitHub-verified mctl-api credential. If you cannot, the surface can display requests but cannot collect answers.
+3. Map the surface user to a GitHub-verified human. Either submit with that human's own credential, or relay with the surface principal and `X-MCTL-Surface-Actor` once the human has linked their surface identity ([Surface Identity and Relay](/human-input/surface-identity)). Without either, the surface can display requests but cannot collect answers.
 4. Submit with the human's credential, echoing `request_hash` and setting `surface`.
 5. On 202 or `503 pending_delivery`, resubmit the same answer; do not change it.
 6. On `superseded`, re-read and re-render. On `expired`, `timed_out`, `not_pending`, `answered` or 404, stop presenting the request.
@@ -167,5 +168,6 @@ There is no `410 Gone`; expiry is reported as `409` with state `expired`.
 
 - [Architecture](/human-input/architecture)
 - [Semantics](/human-input/semantics)
+- [Surface Identity and Relay](/human-input/surface-identity)
 - [REST API](/api/)
 - OpenAPI: [api.mctl.ai/openapi.yaml](https://api.mctl.ai/openapi.yaml) (includes these endpoints once mctl-api#340 is released)

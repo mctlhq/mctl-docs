@@ -94,6 +94,7 @@ export default defineConfig({
           { text: 'Architecture', link: '/human-input/architecture' },
           { text: 'Semantics', link: '/human-input/semantics' },
           { text: 'Surface Adapters', link: '/human-input/surface-adapters' },
+          { text: 'Surface Identity', link: '/human-input/surface-identity' },
           { text: 'Agent Authors', link: '/human-input/agent-authors' },
         ],
       },
