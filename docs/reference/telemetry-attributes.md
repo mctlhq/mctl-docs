@@ -164,6 +164,30 @@ as a measurement and is not one. Note this is a producer-side rule about what
 the code sets — the Collector's redaction never removes an attribute, so an
 absence in a backend is always the producer's decision, never redaction's.
 
+## Span attributes — incident agent
+
+`mctl-agent` turns an alert into a ticket, collects evidence, ranks its skills,
+runs a diagnosis and may open a fix pull request (`mctlhq/mctl-agent#38`).
+Upstream has no model for any of these concepts, so they are `mctl.*`.
+
+| Attribute | Type | Status | Meaning |
+|---|---|---|---|
+| `mctl.ticket.id` | string | reserved | The mctl-agent ticket being processed. One per incident, so a join key. |
+| `mctl.ticket.type` | string | reserved | The ticket's classification, e.g. `pod_crashloop`, `resource_limit`, `argocd_app_degraded`. Bounded by the agent's classifier (`internal/ticket`). |
+| `mctl.skill.name` | string | reserved | The skill a span ran or evaluated, e.g. `oomkilled`, `llm_diagnosis`. Bounded by the skill registry (`internal/skill/builtin`). |
+| `mctl.diagnosis.confidence` | string | reserved | `HIGH`, `MEDIUM` or `LOW`, as the skill reported it. |
+| `mctl.diagnosis.fixable` | boolean | reserved | The skill asserted that a fix can be proposed. |
+| `mctl.ticket.outcome` | string | reserved | How processing ended: `pr_created`, `fix_proposed`, `escalated`, `failed`. Bounded. |
+
+A ticket's target service is deliberately **not** in this table. The tenant and
+service an alert is *about* are not the producer's `mctl.team`/`mctl.component`;
+conflating the two would make every mctl-agent span look like it belongs to the
+service it was diagnosing. If that dimension becomes necessary, it gets its own
+reviewed names.
+
+The fix pull request uses the existing `mctl.repository.name` and
+`mctl.pr.number`; model calls use `gen_ai.*` below.
+
 ## OpenTelemetry mapping
 
 Upstream defines MCP attributes in the `mcp.*` namespace. Three shipped MCTL
@@ -315,7 +339,9 @@ dimension at all:
 **Bounded — safe to group and aggregate by.**
 `mctl.workflow.type`, `mctl.agent.name`, `mctl.actor.type`,
 `mctl.trigger.type`, `mctl.edge.route`, `mctl.tool.name`, `mctl.tool.status`,
-`mctl.repository.name`, `mctl.epic.name`, `mctl.work_item.id`, the three
+`mctl.repository.name`, `mctl.epic.name`, `mctl.work_item.id`,
+`mctl.ticket.type`, `mctl.skill.name`, `mctl.diagnosis.confidence`,
+`mctl.diagnosis.fixable`, `mctl.ticket.outcome`, the three
 version-identity attributes (`mctl.agent.definition_version`,
 `mctl.agent.profile_version`, `mctl.agent.release_revision` — a release tuple
 is bounded and changes only on promotion, so grouping by it is exactly the
@@ -329,11 +355,12 @@ slowly-changing domain.
 
 **Unbounded but necessary — join keys, not grouping keys.**
 `mctl.execution.id`, `mctl.workflow.id`, `mctl.workflow.run_id`,
-`mctl.argo.workflow.name`, `mctl.edge.request_id`, `mctl.issue.number`,
+`mctl.argo.workflow.name`, `mctl.edge.request_id`, `mctl.ticket.id`, `mctl.issue.number`,
 `mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`, `mcp.session.id`,
 `mcp.resource.uri`. What these share is an unbounded domain, not a single
 cause — some are one per execution (`mctl.execution.id`, `mctl.workflow.id`,
-`mctl.workflow.run_id`, `mctl.argo.workflow.name`), one is one per request
+`mctl.workflow.run_id`, `mctl.argo.workflow.name`) or per incident
+(`mctl.ticket.id`), one is one per request
 (`mctl.edge.request_id`), one per session (`mcp.session.id`), and the rest are
 bounded only by how many issues, pull requests, people or resources exist
 (`mctl.issue.number`, `mctl.pr.number`, `mctl.actor.id`, `mctl.user.id`,
