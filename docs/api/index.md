@@ -522,6 +522,22 @@ Execute a platform operation. Submits an Argo Workflow and returns a workflow na
 
 ---
 
+## Human Input
+
+The read model and response endpoint for durable agent clarification (mctl-api#261). They are available once mctl-api 4.51.0 (release PR mctl-api#340) is deployed. Semantics, the full outcome table and who may answer are in the [surface adapter guide](/human-input/surface-adapters).
+
+### `GET /api/v1/human-input`
+
+List human-input requests visible to the caller. `state=pending` (default) or `all`; optional `work_item_id`.
+
+### `GET /api/v1/human-input/{request_id}`
+
+One request, as the read model reports it.
+
+### `POST /api/v1/human-input/{request_id}/response`
+
+Submit an answer bound to `request_id` and `request_hash`. Only a GitHub-verified caller named in the request's `actor_refs` can answer; the service principal cannot.
+
 ## MCP Endpoint
 
 In addition to the REST API, all operations are available as MCP tools:

@@ -88,6 +88,16 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Human Input',
+        collapsed: true,
+        items: [
+          { text: 'Architecture', link: '/human-input/architecture' },
+          { text: 'Semantics', link: '/human-input/semantics' },
+          { text: 'Surface Adapters', link: '/human-input/surface-adapters' },
+          { text: 'Agent Authors', link: '/human-input/agent-authors' },
+        ],
+      },
+      {
         text: 'Security',
         collapsed: true,
         items: [

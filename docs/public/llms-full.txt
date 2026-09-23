@@ -2,8 +2,8 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-09-23T04:25:23.356Z
-Total Files Included: 28
+Generated: 2026-09-23T05:35:53.827Z
+Total Files Included: 32
 
 ================================================================================
 
@@ -571,6 +571,22 @@ Execute a platform operation. Submits an Argo Workflow and returns a workflow na
 | `404` | Operation not found |
 
 ---
+
+## Human Input
+
+The read model and response endpoint for durable agent clarification (mctl-api#261). They are available once mctl-api 4.51.0 (release PR mctl-api#340) is deployed. Semantics, the full outcome table and who may answer are in the [surface adapter guide](/human-input/surface-adapters).
+
+### `GET /api/v1/human-input`
+
+List human-input requests visible to the caller. `state=pending` (default) or `all`; optional `work_item_id`.
+
+### `GET /api/v1/human-input/{request_id}`
+
+One request, as the read model reports it.
+
+### `POST /api/v1/human-input/{request_id}/response`
+
+Submit an answer bound to `request_id` and `request_hash`. Only a GitHub-verified caller named in the request's `actor_refs` can answer; the service principal cannot.
 
 ## MCP Endpoint
 
@@ -2112,6 +2128,569 @@ Each tenant has default resource quotas that can be adjusted:
 | Memory limits | 8Gi |
 | Pods | 20 |
 | Services | 10 |
+
+
+================================================================================
+FILE: /human-input/agent-authors.md
+================================================================================
+# Human Input: Agent Author Guide
+
+This guide is for authors of DevLoop agents and execution profiles: how an agent becomes eligible to ask a human, what it must produce, and what the continuation run receives. The contract is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the code of record is [`orchestrator/human_input.py`](https://github.com/mctlhq/mctl-agents/blob/main/orchestrator/human_input.py).
+
+::: warning Status
+The consumer side is built; the producer side is not. On `main`, no agent can raise a request yet:
+
+- the investigator has no code that writes `request.json`;
+- the capability grant is not consulted at runtime (see [Eligibility](#eligibility));
+- the continuation parameter is not declared by the investigate CWFT and not read by the investigator.
+
+The remaining work is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451). This page describes the contract the producer must meet and the current state of each piece.
+:::
+
+## The `human.request_input` capability
+
+`human.request_input` is a **capability entry**, not an SDK tool. The model never sees it as a callable tool.
+
+- It is declared in an ExecutionProfile's `spec.tools`, next to real tool names.
+- mctl-gitops `platform-gitops/agent-platform/policy.yaml` lists it under `knownTools` with `category: capability`, so the catalog's reference check accepts it. Listing it there grants nothing.
+- mctl-agents (`orchestrator/options.py`, constant `HUMAN_INPUT_CAPABILITY`) strips it from the SDK `allowed_tools` when building the investigator's options.
+- `orchestrator/validate_manifest.py` subtracts it (`_CAPABILITY_TOOLS`) before comparing declared tools with the options builder's real output, so a profile that grants it still validates.
+
+The `issue-investigator-default` profile in mctl-gitops lists it ([mctl-gitops#1277](https://github.com/mctlhq/mctl-gitops/issues/1277)).
+
+### Kill switch
+
+Removing the capability is one reviewed mctl-gitops PR, with no image build, CWFT change or ArgoCD sync. The procedure is in the catalog README, section "Kill switch: `human.request_input`": delete the entry from `spec.tools`, bump `spec.version`, and re-pin the shadow binding's `profile.version`.
+
+## Eligibility
+
+A plan grants the capability when `human.request_input` is literally present in the resolved `ExecutionPlan.tools` (`plan_grants_human_input` in `orchestrator/options.py`). In `legacy` resolver mode there is no plan, so the capability is never granted.
+
+What this means on `main` today:
+
+- The investigate CWFT does not set `ISSUE_INVESTIGATOR_RESOLVER_MODE`, so the investigator runs in `legacy` mode and has no plan.
+- Nothing calls `plan_grants_human_input` in production. The workflow's clarification branch is gated only on `workflow.patched("human-input")`: an ungranted execution still reads `request.json` and would wait on any valid request it finds. Gating the branch on the grant is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+
+## Raising a request
+
+An agent signals "I need input" by writing one sealed `HumanInputRequest` to:
+
+```
+platform-gitops/agents-state/<service>/proposals/<slug>/human-input/request.json
+```
+
+There is no typed `needs_input` outcome or return value. The presence of a valid `request.json` after a successful investigate step is the only signal the workflow reads. A typed outcome is **not yet implemented**; no issue tracks it at the time of writing.
+
+### Building the document
+
+Use `seal_request()` from `orchestrator/human_input.py`. It is the only constructor that produces a sealed request; it computes `question_hash`, `request_hash` and `request_id` and refuses an inconsistent document.
+
+| Field | Rules |
+|-------|-------|
+| `api_version` / `kind` | `humaninput.mctl.ai/v1alpha1` / `HumanInputRequest`. Set by `seal_request` |
+| `work_item_id` | The WorkItem this execution belongs to |
+| `execution` | `ExecutionCorrelation`. `temporal_workflow_id` must be the owning DevLoop workflow id; `temporal_run_id`, when set, must be this run's id |
+| `question`, `reason` | Non-empty strings. Shown to the human; never logged |
+| `response` | `type` is one of `free_text`, `single_choice`, `multi_choice`, `structured`. The two choice types need a non-empty `options` list. `schema_ref` is optional |
+| `requested_from` | `audience` is one of `work_item_owner`, `repo_operators`, `tenant_operators`. `actor_refs` must name at least one actor, in the form `github:<login>` for the response endpoint to match it |
+| `context_refs` | Optional locators, each starting with `github:`, `gitops-file:`, `context_snapshot:` or `evidence:` |
+| `created_at`, `expires_at` | ISO 8601. `expires_at` must be after `created_at` and at most `MAX_REQUEST_TTL_SECONDS` (604800 s, 7 days) later |
+| `round` | Integer ≥ 1. Advisory; the workflow enforces its own round count |
+| `request_version` | Integer, default `1` |
+
+`created_at` is not covered by `request_hash`, so sealing identical content twice yields the same `request_id`, and a retried step is idempotent.
+
+### Rules for the producer
+
+- Ask only what a human must decide. Data the agent can read with its own tools is retrieval, not clarification.
+- Do not ask for authorization. An answer never satisfies an approval gate (see [Semantics](/human-input/semantics)).
+- Do not put payloads in `context_refs`; reference them.
+- Do not re-ask an answered question. A request whose `question_hash` was already answered in this execution is ignored, and the run proceeds without waiting.
+- Stay within three rounds. After `MAX_CLARIFICATION_ROUNDS` (3) accepted answers, a further request fails the execution with `clarification_rounds_exhausted`.
+- A new request overwrites the previous `request.json`. A durable answered-marker is not yet implemented ([mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451)).
+
+### Failure modes
+
+| Condition | Result |
+|-----------|--------|
+| `request.json` does not parse, fails schema, or its hashes do not match its content | Execution fails, error type `human_input_malformed` (non-retryable) |
+| File larger than the GitHub contents-API inline limit (1 MB) | Execution fails, `human_input_malformed` |
+| Sealed by a different workflow id or run id, or `created_at` more than 10 minutes before this run started | Skipped as a leftover (`human_input.foreign_execution`) |
+| Already expired when read | Skipped as a leftover (`human_input.stale_expired`) |
+| `round` > 3, or 3 answers already accepted | Execution fails, `clarification_rounds_exhausted` (non-retryable) |
+| No accepted answer before the deadline | Loop ends with outcome `timed_out`; no implementation runs |
+
+## What the continuation receives
+
+When an answer is accepted, the workflow resubmits `mctl-agents-investigate` with the original parameters plus `human_input_responses`: a JSON array with one entry per accepted answer in this execution, oldest first.
+
+| Field | Meaning |
+|-------|---------|
+| `request_id`, `request_hash` | The request this answer resolved |
+| `value` | The answer, already validated against the request's `response` type |
+| `respondent` | `actor_type:actor_id`, for example `github:alice`. Derived from authentication by mctl-api |
+| `surface` | Where the answer was typed. Caller-declared provenance, not trusted |
+| `received_at` | When mctl-api received the answer |
+
+Guarantees on `main`:
+
+- Every answer accepted in this execution is included, not just the latest.
+- Each `value` passed `validate_response`: correct `request_id` and `request_hash`, before expiry, from a respondent in `actor_refs`, and matching the response type.
+- The question text is not included; the agent must keep its own record of what it asked.
+
+Not guaranteed:
+
+- The answer is correct, safe or authorized. Treat `value` as untrusted human input, not as an instruction.
+- The continuation reaches the agent. The investigate CWFT does not declare `human_input_responses` yet, and the investigator does not read it ([mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451)).
+- A new ContextSnapshot. No code on `main` folds answers into one.
+
+## Related
+
+- [Architecture](/human-input/architecture)
+- [Semantics](/human-input/semantics)
+- [Surface adapter guide](/human-input/surface-adapters)
+
+
+================================================================================
+FILE: /human-input/architecture.md
+================================================================================
+# Human Input: Architecture
+
+Human input is the platform primitive that lets a DevLoop agent stop, ask a human a question, and continue with the answer. It is separate from human approval: an answer is information, never authorization (see [Semantics](/human-input/semantics)).
+
+This page describes what exists on `main` today. It does not define the contract.
+
+::: info Normative source
+The contract is **ADR 013** in mctl-agents: [`docs/adr/013-human-input-contract.md`](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md). The code of record is [`orchestrator/human_input.py`](https://github.com/mctlhq/mctl-agents/blob/main/orchestrator/human_input.py). Where this page and ADR 013 disagree, ADR 013 wins.
+
+The tracking issue ([mctl-docs#106](https://github.com/mctlhq/mctl-docs/issues/106)) refers to ADR 009. ADR 009 is the ContextSnapshot contract; the human-input contract was numbered 013.
+:::
+
+::: warning Status
+- **Consumer side: built.** `DevLoopWorkflow` reads, validates and waits on a request, and resumes on a valid answer ([mctl-agents#333](https://github.com/mctlhq/mctl-agents/issues/333)).
+- **Read model and response API: merged, not yet released.** [mctl-api#261](https://github.com/mctlhq/mctl-api/issues/261) (PRs #346, #348) ships with release PR [mctl-api#340](https://github.com/mctlhq/mctl-api/pull/340).
+- **Producer side: not built.** Nothing on `main` writes a request yet. The capability is listed in the catalog profile ([mctl-gitops#1277](https://github.com/mctlhq/mctl-gitops/issues/1277)) but stays inert, and the remaining producer work is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+- **Surfaces: none shipped.** Telegram ([mctl-telegram#571](https://github.com/mctlhq/mctl-telegram/issues/571)) and the Portal Execution Canvas ([mctl-portal#124](https://github.com/mctlhq/mctl-portal/issues/124)) are both blocked.
+:::
+
+## Components
+
+| Component | Repository | Role |
+|-----------|------------|------|
+| Contract (`HumanInputRequest`, `HumanInputResponse`) | mctl-agents `orchestrator/human_input.py` | Schema, sealing, hashing, `validate_response`. Stdlib only; runs in the agent sandbox and as pure Temporal workflow code |
+| Request document | mctl-gitops `main` | One sealed `request.json` per proposal. This is the transport |
+| `find_human_input_request` activity | mctl-agents `orchestrator/temporal/activities/human_input.py` | GitHub contents-API read of the request file |
+| `DevLoopWorkflow` | mctl-agents `orchestrator/temporal/workflows/dev_loop.py` | Parks in `WAITING_FOR_INPUT`, validates answers, resubmits the investigator |
+| Read model and response endpoint | mctl-api `internal/api/handlers_human_input*.go` | Lists and verifies requests, derives state from the workflow, delivers answers as a Temporal signal |
+| Delivery ledger | mctl-api `internal/humaninput/ledger_postgres.go` | Postgres table `human_input_deliveries`: idempotency and recoverable delivery |
+| Surfaces | mctl-telegram, mctl-portal, others | Render requests and submit answers through mctl-api. They hold no state of their own |
+
+The request file lives at:
+
+```
+platform-gitops/agents-state/<service>/proposals/<slug>/human-input/request.json
+```
+
+There is at most one per proposal. A re-asking investigator overwrites it, and an answered request is not removed, so the set of files is the set of requests that exist, not the set that are pending. Only the owning workflow knows whether a request is pending.
+
+## Flow
+
+```mermaid
+sequenceDiagram
+    participant inv as Investigator (Argo)
+    participant git as mctl-gitops main
+    participant wf as DevLoopWorkflow (Temporal)
+    participant api as mctl-api
+    participant srf as Surface
+    participant hum as Human
+
+    inv->>git: write sealed request.json
+    Note over inv: Argo step ends, pod exits
+    wf->>git: find_human_input_request (contents API)
+    wf->>wf: validate, park in WAITING_FOR_INPUT
+    srf->>api: GET /api/v1/human-input?state=pending
+    api->>git: read and verify request_hash
+    api->>wf: query human_input_state
+    api-->>srf: redacted request, state pending
+    srf->>hum: show question
+    hum->>srf: answer
+    srf->>api: POST /api/v1/human-input/{request_id}/response (human's own token)
+    api->>api: record in human_input_deliveries
+    api->>wf: signal human_input_response
+    wf->>wf: validate_response, resume_count + 1
+    api->>wf: query until resume_count advances
+    api-->>srf: 200 accepted
+    wf->>inv: resubmit mctl-agents-investigate with human_input_responses
+```
+
+1. The investigator decides it cannot proceed without a human decision and writes one sealed `HumanInputRequest` to its proposal's `human-input/` directory. **Not built yet** (see Status).
+2. After the investigate step succeeds, `DevLoopWorkflow` looks up the proposal slug and calls `find_human_input_request`. A 404 means no request; anything else non-200 is retried.
+3. The workflow parses the document with `HumanInputRequest.from_dict`, which recomputes `question_hash`, `request_hash` and `request_id` and rejects a mismatch. A malformed document fails the execution with the non-retryable error type `human_input_malformed`.
+4. Leftovers are skipped (a question already answered in this execution, a request sealed by another workflow or run, one whose `created_at` is more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before this run started, or one already expired). Otherwise the workflow enters `WAITING_FOR_INPUT`.
+5. A surface reads the request from mctl-api, shows it, and submits the human's answer to mctl-api, authenticated as that human.
+6. mctl-api checks eligibility, `request_hash`, expiry and the value type, records the answer in its ledger, and sends the `human_input_response` signal.
+7. The workflow re-validates the answer with `validate_response`. On success it increments its resume count, returns to `RUNNING`, and resubmits `mctl-agents-investigate` with every answer accepted so far. It then checks again for a new request, bounded by `MAX_CLARIFICATION_ROUNDS`.
+
+The clarification branch runs only on executions that pass `workflow.patched("human-input")`, so histories recorded before the feature replay unchanged.
+
+## No pod held while waiting
+
+The wait is a Temporal `wait_condition` with a timeout. No Argo workflow, Claude Agent SDK session or activity slot is held during the wait. Only the `find_human_input_request` read before it, and one more investigate submission when a continuation runs, use resources. A loop can stay in `WAITING_FOR_INPUT` for days at the cost of Temporal history storage.
+
+## State model
+
+Three separate vocabularies are in play. They must not be confused.
+
+### Workflow state (`human_input_state` query)
+
+The Temporal query `human_input_state` on `DevLoopWorkflow` returns `HumanInputState`:
+
+| Field | Meaning |
+|-------|---------|
+| `state` | `RUNNING`, `WAITING_FOR_INPUT` or `INPUT_TIMED_OUT` |
+| `request_id`, `request_hash`, `question_hash` | The request currently or last waited on |
+| `expires_at` | As sealed in the request |
+| `effective_deadline` | The deadline the wait actually uses. Differs from `expires_at` when a far-future value was clamped |
+| `round` | Producer-written round number |
+| `resume_count` | Answers this execution has accepted |
+| `rejected_count` | Payloads this execution refused (invalid, arrived while not waiting, or over the queue cap) |
+
+A workflow that never waited returns the all-empty shape (`RUNNING`, zero counters), so pollers can call the query unconditionally. `state` is never `WAITING_FOR_APPROVAL`: that name belongs to the separate approval gate.
+
+When the wait concludes, the workflow records one of three outcomes: `answered`, `timed_out` (the loop ends with `human input wait expired for request <id>`) or `abandoned` (the operator `abandon` signal, which wins over an answer racing it).
+
+### Read-model state (mctl-api)
+
+mctl-api keeps no copy of the state machine. Each read derives a request's state from its sealed `expires_at` and the owning workflow's `human_input_state`:
+
+| State | Derived when |
+|-------|--------------|
+| `pending` | The workflow reports `WAITING_FOR_INPUT` for this `request_id` and `expires_at` is in the future. The only state an answer is accepted in |
+| `expired` | `expires_at` has passed, and the workflow is waiting on it or cannot be asked |
+| `timed_out` | The workflow reports `INPUT_TIMED_OUT` for this request |
+| `resolved` | The workflow reports `RUNNING` for this request with `resume_count > 0` |
+| `not_pending` | The workflow is waiting on a different request, on none, or no longer exists |
+| `unknown` | The workflow did not answer, returned no state, or reported an unrecognised state |
+
+A workflow that was terminated or failed while parked still answers the query with its last state, so its request reads as `pending` until `expires_at`. An answer to it is refused, because signalling a closed execution fails.
+
+### Delivery state (mctl-api ledger)
+
+The ledger records what mctl-api did with an answer. It is not the request's state:
+
+| State | Meaning |
+|-------|---------|
+| `pending_delivery` | Recorded, not yet confirmed by the workflow. The value is retained so any later call can redeliver it |
+| `accepted` | The workflow resumed on this answer. Terminal |
+| `rejected` | The workflow refused it, or the request stopped waiting first. Frees the request for another submission |
+
+## Continuation
+
+Every continuation resubmits `mctl-agents-investigate` with the full set of accepted answers as the `human_input_responses` parameter, a JSON array with one entry per answer:
+
+```json
+[
+  {
+    "request_id": "hir-377a93a48528eb13",
+    "request_hash": "sha256:…",
+    "value": "option-b",
+    "respondent": "github:alice",
+    "surface": "telegram",
+    "received_at": "2026-09-23T10:15:00Z"
+  }
+]
+```
+
+The full history is sent, not just the latest answer, so a later round never re-asks an earlier question.
+
+::: warning Not yet wired end to end
+The `mctl-agents-investigate` CWFT on mctl-gitops `main` does not declare `human_input_responses`, and nothing in the investigator reads it. Pinning the parameter against the CWFT is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451). No step on `main` folds answers into a new ContextSnapshot; the parameter above is the whole continuation context.
+:::
+
+## Log and audit events
+
+`DevLoopWorkflow` logs the following events. Every one carries ids, hashes, timestamps and counters only, never `question`, `reason` or `value`.
+
+| Event | Emitted when |
+|-------|--------------|
+| `human_input.foreign_execution` | A request was sealed by another workflow id or run, or predates this run; skipped |
+| `human_input.stale_expired` | A request was already expired when read; skipped as a leftover |
+| `human_input.requested` | A valid request for this execution was found |
+| `human_input.wait_started` | The workflow entered `WAITING_FOR_INPUT` |
+| `human_input.expiry_clamped` | `expires_at` exceeded now + `MAX_REQUEST_TTL_SECONDS` and was clamped |
+| `human_input.delivered` | A queued answer payload is about to be validated |
+| `human_input.responded` | An answer was validated; `accepted` is `true` or `false` |
+| `human_input.resumed` | An accepted answer resumed the loop |
+| `human_input.timed_out` | The deadline passed with no accepted answer |
+| `human_input.abandoned` | The `abandon` signal ended the wait |
+| `human_input.cancelled` | The workflow was cancelled while waiting |
+
+There is no `human_input.answered` event; an accepted answer produces `human_input.responded` with `accepted: true`, followed by `human_input.resumed`.
+
+mctl-api writes audit entries for submissions with the operations `human_input.signal_sent`, `human_input.response_accepted` and `human_input.response_rejected`. They also carry ids only.
+
+## Related
+
+- [Semantics](/human-input/semantics): clarification vs approval, and the bounds
+- [Surface adapter guide](/human-input/surface-adapters): the mctl-api read model and response endpoint
+- [Agent author guide](/human-input/agent-authors): the `human.request_input` capability and continuation
+- Roadmap epic: [mctlhq/.github#42](https://github.com/mctlhq/.github/issues/42)
+
+
+================================================================================
+FILE: /human-input/semantics.md
+================================================================================
+# Human Input: Semantics
+
+This page states what a human-input answer means, what it cannot mean, and the bounds that keep a clarification loop finite. The normative source is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the rules below restate it and the code that enforces it.
+
+In this page, **must** and **must not** are normative for every component that produces, relays or consumes human input.
+
+## Three different things
+
+| | Retrieval | Clarification | Approval |
+|---|-----------|---------------|----------|
+| Question it answers | "What does the data say?" | "What did the human mean?" | "Is this action authorized?" |
+| Who acts | The agent, with its own tools | A human in the request's `requested_from.actor_refs` | An approver, through the approval path |
+| Mechanism | Tool calls; `context_refs` point at what was read | `HumanInputRequest` / `HumanInputResponse`, `WAITING_FOR_INPUT` | The workflow's `approve` signal, `WAITING_FOR_APPROVAL` |
+| Effect | Evidence for the agent | Data handed to the next investigate run | Unblocks the gated action |
+
+Retrieval does not involve this primitive. An agent must not raise a clarification for something it can read itself. `context_refs` entries are locators only: each must start with `github:`, `gitops-file:`, `context_snapshot:` or `evidence:`, so a request cannot carry a raw payload in place of a reference.
+
+Approval is tracked separately in [mctl-agents#198](https://github.com/mctlhq/mctl-agents/issues/198).
+
+## Clarification is not approval
+
+- A human-input answer **must never** satisfy an approval or policy gate. In `DevLoopWorkflow` the `human_input_response` signal handler never touches the approval flag; only the `approve` signal sets it.
+- The two durable waits **must** stay distinguishable by state string. `human_input_state` reports `RUNNING`, `WAITING_FOR_INPUT` or `INPUT_TIMED_OUT`, never `WAITING_FOR_APPROVAL`.
+- mctl-api's response endpoint **never** signals `approve`, and nothing it records is read by the approval path. Approval has its own endpoint, `POST /api/v1/agents/dev-loop/{workflow_id}/approve`.
+- An answer whose text reads like an approval ("use option B and merge it") resumes the clarification wait and nothing else.
+
+A consequence for surfaces: showing a pending question and showing a pending approval are two different UI states, and one control must not do both.
+
+## Answers are data, not instructions
+
+A `HumanInputResponse` is data with provenance. It grants, authorizes and approves nothing.
+
+- **Provenance is attached by the platform, not the answer.** The respondent is derived from authentication as `github:<login>`; the request body cannot name one. `surface` is caller-declared and recorded as provenance only; it is shape-checked (`^[a-z][a-z0-9_-]{0,31}$`) and not trusted.
+- **The answer is bound to exactly one question.** A response carries `request_id` and `request_hash`, and both must match the sealed request. `request_hash` covers every content field except `request_id`, `request_hash` and `created_at`, so an answer cannot be replayed against a changed question.
+- **The value is typed.** `validate_response` accepts, per `response.type`:
+  - `free_text`: a non-blank string
+  - `single_choice`: one of the declared `options`
+  - `multi_choice`: a non-empty list of declared `options` (no min/max count, duplicates not rejected)
+  - `structured`: a JSON object
+- **The agent must treat `value` as untrusted input.** It is text a human typed, delivered to a model. It is context for the agent's own decision, not a command channel into the platform.
+- **No transcripts.** Workflow logs and the `human_input_state` query expose ids, hashes, timestamps and counters, never `question`, `reason` or `value`. mctl-api audit entries carry ids only; the ledger keeps the raw value only until delivery resolves or the request expires.
+
+## Controls
+
+Constants from `orchestrator/human_input.py`, `DevLoopWorkflow` and mctl-api on `main`:
+
+| Control | Value | Enforced by |
+|---------|-------|-------------|
+| Maximum request lifetime | `MAX_REQUEST_TTL_SECONDS = 604800` (7 days) | `validate()`: `expires_at` must parse, be after `created_at`, and be at most 7 days after it. The workflow also clamps the wait to its own now + 7 days (`human_input.expiry_clamped`) |
+| Default request lifetime | `DEFAULT_REQUEST_TTL_SECONDS = 86400` (1 day) | Declared only. No code reads it yet ([mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451)) |
+| Clarification rounds | `MAX_CLARIFICATION_ROUNDS = 3` | The workflow's own resume count. At 3 accepted answers the next request fails the execution with `clarification_rounds_exhausted` (non-retryable). The producer-written `round` is also checked but is advisory |
+| Outstanding requests | `MAX_OUTSTANDING_REQUESTS_PER_EXECUTION = 1` | Declared only; one request per execution follows from one `request.json` per proposal (#451) |
+| Dedupe | `question_hash` | SHA-256 over the whitespace-collapsed, case-folded question plus the response spec. A request whose `question_hash` was already answered in this execution is ignored, not waited on |
+| Answer queue | `HUMAN_INPUT_RESPONSE_QUEUE_LIMIT = 16` | Payloads over the cap, or arriving while not waiting, are counted in `rejected_count` and dropped |
+| Leftover detection | `HUMAN_INPUT_PRIOR_RUN_SLACK = 10 min` | A request whose `created_at` predates this run's start by more than 10 minutes is another execution's leftover and is skipped |
+| First answer wins | Workflow and ledger | The workflow resumes on the first valid answer. mctl-api's ledger lets the first claim win and refuses a different answer with `answered` |
+| Write rate | 20 requests/min per user | The response endpoint is in mctl-api's write rate-limit group |
+| Response size | 64 KiB | mctl-api request body limit |
+
+### Timeouts and expiry
+
+- A request that is already expired when the workflow reads it is a leftover from an earlier execution and is skipped (`human_input.stale_expired`). It does not end the new execution.
+- A request that expires while the workflow waits ends the loop: the state becomes `INPUT_TIMED_OUT`, the outcome is `timed_out`, and no implementation runs.
+- No answer is accepted at or after `expires_at`, whether checked by mctl-api or by the workflow.
+- The `abandon` signal ends the wait at once and wins over an answer arriving at the same moment.
+
+### Retirement by read
+
+The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before the current run started. A durable answered-marker written by the producer is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+
+## Related
+
+- [Architecture](/human-input/architecture)
+- [Surface adapter guide](/human-input/surface-adapters)
+- [Agent author guide](/human-input/agent-authors)
+
+
+================================================================================
+FILE: /human-input/surface-adapters.md
+================================================================================
+# Human Input: Surface Adapter Guide
+
+A surface is any place a human sees a pending question and types an answer: Telegram, the Portal, a GitHub comment, an MCP client. This guide describes how a surface integrates with the mctl-api read model and response endpoint.
+
+::: warning Status
+The endpoints below are merged in mctl-api ([mctl-api#261](https://github.com/mctlhq/mctl-api/issues/261)) and ship with release PR [mctl-api#340](https://github.com/mctlhq/mctl-api/pull/340). Until that release is deployed they are not available on `api.mctl.ai`.
+
+No surface adapter exists yet:
+
+- **Telegram**: [mctl-telegram#571](https://github.com/mctlhq/mctl-telegram/issues/571), blocked.
+- **Portal**: [mctl-portal#124](https://github.com/mctlhq/mctl-portal/issues/124), blocked. The Execution Canvas it builds on ([mctl-portal#111](https://github.com/mctlhq/mctl-portal/issues/111)) does not exist yet, and the portal calls mctl-api with a service token only, which cannot answer (see [Identity](#identity)).
+- **GitHub comment, MCP client**: no adapter exists, and mctl-api exposes no MCP tool for human input.
+:::
+
+## Surfaces consume, never own, state
+
+This rule is normative for every surface:
+
+- A surface **must** read pending requests and their state from mctl-api, and **must not** treat a local copy as the source of truth. The request content is owned by mctl-gitops; whether it is pending is owned by the `DevLoopWorkflow` execution.
+- A surface **must** submit answers through `POST /api/v1/human-input/{request_id}/response`. It **must not** signal Temporal, write to mctl-gitops, or call the approval endpoint as a result of an answer.
+- A surface **may** cache a request for display, and **must** re-read it before presenting it as answerable.
+- A surface **must not** invent a respondent. The respondent is whoever authenticated the submission.
+
+## Identity
+
+mctl-api decides who may see and who may answer from how the caller authenticated. See [Authentication](/security/authentication) for the token types.
+
+| Caller | Sees a request | Can answer |
+|--------|----------------|------------|
+| GitHub token whose `github:<login>` is in `actor_refs` | Yes | Yes |
+| mctl-api OAuth JWT (minted after GitHub login) whose `github:<login>` is in `actor_refs` | Yes | Yes |
+| Dex JWT | Only if also an admin | No. A non-admin gets `404` (the request is not visible); an admin gets `403 not_eligible`. This holds even if the Dex username equals a GitHub login in `actor_refs` |
+| Platform admin (GitHub-verified) | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
+| Service principal (relaying for a surface) | Yes, including `eligible_actors` and `invalid_documents` | No: `403`. A human answer relayed by a machine credential cannot be told apart from the machine answering |
+| Anyone else | No: the request is reported as `404` | No |
+
+The consequence for adapter design: a surface may list requests with a service credential, but must submit each answer with the answering human's own GitHub-verified credential. The respondent is recorded as `github:<login>`, taken from authentication. The request body has no respondent field and unknown fields are rejected.
+
+## Endpoints
+
+All three require authentication. The two reads share the general authenticated rate limit; the response endpoint is in the write group (20 requests per minute per user).
+
+### `GET /api/v1/human-input`
+
+Lists the requests the caller may see.
+
+| Query parameter | Values | Default |
+|-----------------|--------|---------|
+| `state` | `pending`, `all` | `pending` |
+| `work_item_id` | a WorkItem id | none |
+
+```json
+{
+  "items": [
+    {
+      "request_id": "hir-377a93a48528eb13",
+      "request_hash": "sha256:…",
+      "request_version": 1,
+      "round": 1,
+      "work_item_id": "…",
+      "service": "mctl-api",
+      "proposal": "issue-261-…",
+      "workflow_id": "dev-loop-mctlhq-mctl-api-261",
+      "agent": "issue-investigator",
+      "question": "…",
+      "reason": "…",
+      "response_type": "single_choice",
+      "options": ["option-a", "option-b"],
+      "context_refs": ["github:mctlhq/mctl-api#261"],
+      "audience": "repo_operators",
+      "can_respond": true,
+      "created_at": "…",
+      "expires_at": "…",
+      "state": "pending"
+    }
+  ],
+  "count": 1
+}
+```
+
+- `eligible_actors` (the full `actor_refs` list) and `invalid_documents` (request files that failed seal verification) are returned only to admins and the service principal.
+- Internal correlation data (execution hashes, the target commit, Argo names, `question_hash`) is never returned.
+- With `state=pending`, the endpoint answers **503** rather than a short or empty list when pending cannot be determined for any candidate (no Temporal client, a query failed or timed out). Treat 503 as "unknown", never as "nothing is waiting". `state=all` returns each request with `state: unknown` instead.
+- A request file that fails verification is never listed.
+
+### `GET /api/v1/human-input/{request_id}`
+
+Returns one request in the same shape, with its state. `request_id` must match `^hir-[0-9a-f]{16}$` (otherwise 400). A request the caller may not see returns **404**, not 403.
+
+### `POST /api/v1/human-input/{request_id}/response`
+
+```json
+{
+  "request_hash": "sha256:…",
+  "value": "option-b",
+  "surface": "telegram"
+}
+```
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `request_hash` | Yes | Echo the `request_hash` from the read model |
+| `value` | Yes | String for `free_text` (non-blank) and `single_choice` (one option), non-empty array of options for `multi_choice`, object for `structured` |
+| `surface` | No | Defaults to `api`. Must match `^[a-z][a-z0-9_-]{0,31}$`. Provenance only |
+
+The body is limited to 64 KiB; unknown fields and trailing data are rejected.
+
+Result body (`HumanInputResponseResult`):
+
+```json
+{
+  "request_id": "hir-377a93a48528eb13",
+  "status": "accepted",
+  "state": "resolved",
+  "respondent": "github:alice",
+  "received_at": "2026-09-23T10:15:00Z"
+}
+```
+
+`status` is one of `accepted`, `pending_delivery`, `rejected`.
+
+## Handling outcomes
+
+| HTTP | `status` / `state` | Meaning | What the surface should do |
+|------|--------------------|---------|----------------------------|
+| 200 | `accepted` / `resolved` | The workflow resumed on this answer | Mark the question answered |
+| 200 | `accepted`, detail `already accepted` | The same answer from the same respondent was already accepted | Treat as success (idempotent retry) |
+| 202 | `pending_delivery` / `pending` | Signalled, not confirmed within the 5-second confirmation budget | Resubmit the same answer later to check |
+| 400 | `Error` | Malformed `request_id` or body | Fix the request |
+| 401 | `Error` | Not authenticated | Authenticate the human |
+| 403 | `rejected` / `not_eligible` | Caller is not GitHub-verified, or not in `actor_refs` | Tell the human they cannot answer this request |
+| 403 | `Error` | The service principal tried to answer | Submit with the human's credential |
+| 404 | `Error` | No such request, or not visible to the caller | Stop showing it |
+| 409 | `rejected` / `superseded` | `request_hash` does not match the current request | Re-read the request; the question changed |
+| 409 | `rejected` / `expired` | Past `expires_at` | Stop showing it |
+| 409 | `rejected` / `timed_out` | The workflow's wait timed out | Stop showing it |
+| 409 | `rejected` / `not_pending` | The workflow is not waiting on this request, or no longer exists | Stop showing it |
+| 409 | `rejected` / `answered` | A different answer was recorded first | Show that the question was already answered |
+| 409 | `rejected` / `pending` | The workflow refused this answer and is still waiting | Let the human correct and resubmit |
+| 422 | `rejected` / `invalid_value` | The value does not match `response_type` | Let the human correct and resubmit |
+| 500 | `Error` or `rejected` | Request files unreadable, or a recorded answer unreadable and dropped | Retry later; report if persistent |
+| 503 | `pending_delivery` / `unknown` | The answer **is recorded** but could not be signalled | Resubmit; the next submission delivers the recorded answer first |
+| 503 | `Error` | Nothing was recorded (endpoint not configured, ledger unavailable, workflow could not be asked) | Retry later |
+
+There is no `410 Gone`; expiry is reported as `409` with state `expired`.
+
+## Delivery guarantees
+
+- **Record before signal.** The answer is written to the `human_input_deliveries` ledger as `pending_delivery` before the signal is sent. A Temporal outage leaves it recorded and retryable, not lost.
+- **First claim wins.** There is at most one live delivery per `request_id`. A different answer submitted later gets `409 answered`. If the first delivery was rejected, the request is free again.
+- **Any later submission redelivers.** When a recorded answer is still `pending_delivery`, the next submission for that request, from anyone, first pushes the recorded answer through. No background worker is involved.
+- **At least once.** Two identical submissions racing each other can both signal. The workflow tolerates this: it takes the first valid answer and counts and drops payloads that arrive after it stops waiting.
+- **Acceptance is proven, not assumed.** mctl-api records the workflow's `resume_count` before delivering. An answer counts as accepted only when `resume_count` has advanced **and** the workflow still reports this `request_id`.
+- **Configuration.** The ledger uses `HUMAN_INPUT_DB_URL`, falling back to `AUDIT_DB_URL`. With neither, the response endpoint answers 503; there is no in-memory fallback.
+
+## Adapter checklist
+
+1. List with `GET /api/v1/human-input?state=pending`; treat 503 as unknown.
+2. Render `question`, `reason`, `response_type`, `options` and `expires_at`. Offer answer controls only when `can_respond` is `true` for the human in front of the surface.
+3. Map the surface user to a GitHub-verified mctl-api credential. If you cannot, the surface can display requests but cannot collect answers.
+4. Submit with the human's credential, echoing `request_hash` and setting `surface`.
+5. On 202 or `503 pending_delivery`, resubmit the same answer; do not change it.
+6. On `superseded`, re-read and re-render. On `expired`, `timed_out`, `not_pending`, `answered` or 404, stop presenting the request.
+7. Keep clarification and approval visually and functionally separate. Never trigger an approval from an answer.
+
+## Related
+
+- [Architecture](/human-input/architecture)
+- [Semantics](/human-input/semantics)
+- [REST API](/api/)
+- OpenAPI: [api.mctl.ai/openapi.yaml](https://api.mctl.ai/openapi.yaml) (includes these endpoints once mctl-api#340 is released)
 
 
 ================================================================================
