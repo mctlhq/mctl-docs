@@ -352,8 +352,6 @@ toward merge:
 4. If the proposal is unsalvageable (repeated review failures, or Codex flags a hard
    blocker), it closes the PR and flips the status to `status: rejected`.
 
-In this repository (mctl-docs), the platform may require an explicit human approval (an action-approval receipt) before it merges an agent-authored PR.
-
 The shepherd also runs autonomously on a `30 */2 * * *` UTC cron, so on-demand triggers
 are mainly for "I just merged a fix, advance the queue now" cases.
 
