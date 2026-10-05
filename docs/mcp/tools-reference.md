@@ -354,6 +354,7 @@ toward merge:
 
 For services where the merge-approval gate is enabled, step 3 additionally waits
 for an explicit human approval of the exact PR head before the shepherd merges it.
+An approval never carries over to a newer head: a push asks again.
 
 The shepherd also runs autonomously on a `30 */2 * * *` UTC cron, so on-demand triggers
 are mainly for "I just merged a fix, advance the queue now" cases.
