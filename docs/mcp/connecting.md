@@ -4,12 +4,22 @@ Connect your AI assistant to MCTL to manage infrastructure through natural langu
 
 ## Prerequisites
 
-1. A GitHub account with access to an MCTL organization
+1. An MCTL account with access to a team workspace
 2. An AI client that supports MCP (Claude, Cursor, VS Code, etc.)
 
 ## Setup
 
-Authenticate with GitHub and get a ready-to-use config for your client.
+There are two ways to connect, depending on what your client supports.
+
+**Sign in from the client (recommended).** Clients that implement MCP
+authorization only need the server URL, `https://api.mctl.ai/mcp`. They
+discover the sign-in endpoints, open the MCTL sign-in page in your browser,
+and keep the session refreshed. Nothing is pasted into a config file.
+Claude.ai and Claude Code work this way today; pick their tab below.
+
+**Paste a token.** Clients that cannot complete the sign-in yet (Cursor,
+VS Code, Windsurf and others below) take a bearer token in their config.
+Use the token card below to get a pre-filled config.
 
 <McpSetup />
 

@@ -7,6 +7,7 @@ const AUTH_KEY = 'mctl_auth'
 const AUTH_TTL = 8 * 60 * 60 * 1000
 const LOGIN_URL = 'https://mctl.ai/api/github/login?for=docs'
 const SESSION_URL = 'https://mctl.ai/api/github/session'
+const CLAUDE_CODE_CMD = 'claude mcp add --transport http mctl ' + MCP_ENDPOINT
 
 interface StoredAuth {
   token?: string
@@ -203,6 +204,7 @@ onMounted(async () => {
 
 const tabs = [
   { key: 'claude-ai', label: 'Claude.ai' },
+  { key: 'claude-code', label: 'Claude Code' },
   { key: 'claude', label: 'Claude Desktop' },
   { key: 'cursor', label: 'Cursor' },
   { key: 'vscode', label: 'VS Code' },
@@ -220,6 +222,7 @@ const tabs = [
       <!-- Auth card -->
       <div class="auth-card">
         <h3>Get your token</h3>
+        <p class="auth-desc">Only for clients that cannot sign in by themselves. Claude.ai and Claude Code need no token: pick their tab.</p>
         <p class="auth-desc">Authenticate with GitHub to get a pre-filled config for your developer client.</p>
         <p class="auth-hint">
           Access requires membership in a team workspace.<br>
@@ -333,7 +336,17 @@ const tabs = [
               </div>
             </div>
           </div>
-          <p class="config-note">Click Connect &mdash; GitHub will open for sign-in, then you'll be returned to Claude automatically. No token needed.</p>
+          <p class="config-note">Click Connect &mdash; the MCTL sign-in page opens, then you'll be returned to Claude automatically. No token needed.</p>
+        </div>
+
+        <!-- Claude Code -->
+        <div v-show="activeTab === 'claude-code'" class="tab-content">
+          <p class="config-path">Run in your terminal</p>
+          <div class="code-block-wrap">
+            <pre>{{ CLAUDE_CODE_CMD }}</pre>
+            <button class="btn-copy" :class="{ copied: copied['cfg-claude-code'] }" @click="copy('cfg-claude-code', CLAUDE_CODE_CMD)">{{ copied['cfg-claude-code'] ? 'copied!' : 'copy' }}</button>
+          </div>
+          <p class="config-note">Then run <code>/mcp</code> inside Claude Code and choose <strong>mctl</strong> &rarr; Authenticate. The MCTL sign-in page opens in your browser. No token needed.</p>
         </div>
 
         <!-- Claude Desktop -->
