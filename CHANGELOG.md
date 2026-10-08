@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.1.43](https://github.com/mctlhq/mctl-docs/compare/0.1.42...0.1.43) (2026-10-07)
+
+
+### Features
+
+* **agents:** issue-125-test-e2e-add-an-approval-gate-note-to-th ([61e915b](https://github.com/mctlhq/mctl-docs/commit/61e915bb84310112bf5b57662ebbf13d81215630))
+* **agents:** issue-125-test-e2e-add-an-approval-gate-note-to-th ([bf9fe7e](https://github.com/mctlhq/mctl-docs/commit/bf9fe7e02fa96fd22970d4a72186fb1abcd08abe))
+
+
+### Bug Fixes
+
+* **agents:** address P1/P2 codex findings on issue-125-test-e2e-add-an-approval-gate-note-to-th ([2f242c3](https://github.com/mctlhq/mctl-docs/commit/2f242c32c285f1253934d3f31bd36cd6b757a21b))
+
+
+### Documentation
+
+* address review — record the token-redaction conflict and upstream divergences ([46a8d97](https://github.com/mctlhq/mctl-docs/commit/46a8d9788b6423c25884ddbc6a25df4402c5f90a))
+* cite the tracking issue for the mcp.* rename ([38821e7](https://github.com/mctlhq/mctl-docs/commit/38821e7c1cf113709612ea0445ecf70cf337bee9))
+* correct the redaction mechanism — masked, not dropped ([82ce132](https://github.com/mctlhq/mctl-docs/commit/82ce132acc7c5727a127096900a2c7356583fc9c))
+* fix a miscount and classify the last unclassified attribute ([6f3a919](https://github.com/mctlhq/mctl-docs/commit/6f3a91988e5d68241f97c3cb55e8c735a4387569))
+* give gen_ai.* a table, and stop blaming redact_all_types ([83b0c5d](https://github.com/mctlhq/mctl-docs/commit/83b0c5d8a7ebf83adabc189a267c0dede6c80cb8))
+* **human-input:** address review — prior-run slack wording, API catalog entry ([a3b9c85](https://github.com/mctlhq/mctl-docs/commit/a3b9c8543449ebeb881fdb27d295da8f3523a62f))
+* **human-input:** architecture, semantics, surface-adapter and agent-author guides ([0896ef1](https://github.com/mctlhq/mctl-docs/commit/0896ef13c6941a4e76cfb7ae5ad9abd8aac8fa36))
+* **human-input:** architecture, semantics, surface-adapter and agent-author guides ([5f29e52](https://github.com/mctlhq/mctl-docs/commit/5f29e52b0deaf828bfede5aa8edefc93e98ce3be))
+* **human-input:** surface identity links and relay (mctl-api[#350](https://github.com/mctlhq/mctl-docs/issues/350)) ([eb39fe8](https://github.com/mctlhq/mctl-docs/commit/eb39fe8537ed407eabe95b30209a3b7e912582b4))
+* **human-input:** surface identity links and relay (mctl-api[#350](https://github.com/mctlhq/mctl-docs/issues/350)) ([93c42d9](https://github.com/mctlhq/mctl-docs/commit/93c42d98e17828065bfca700b9a83a17be6837b3))
+* **mcp:** note the per-service merge-approval gate ([b611d94](https://github.com/mctlhq/mctl-docs/commit/b611d941e4b551127998d017eab1f274425da80d))
+* **mcp:** put client sign-in first and add a Claude Code tab ([d798be6](https://github.com/mctlhq/mctl-docs/commit/d798be6b99ba8c08d338f7171a59f5fc331915ce))
+* **mcp:** put client sign-in first and add a Claude Code tab ([c31ba52](https://github.com/mctlhq/mctl-docs/commit/c31ba526336fc798fa7da110b1bde83a3b255c6e))
+* **mcp:** state that a merge approval is bound to one head ([1825fa2](https://github.com/mctlhq/mctl-docs/commit/1825fa27306d277389e02f983514e69479d2b639))
+* **observability:** define the mctl telemetry attribute catalog ([ec724a4](https://github.com/mctlhq/mctl-docs/commit/ec724a490c969f5b0504e24f0d3907ef5f8fff19))
+* **observability:** define the mctl telemetry attribute catalog and its OTel mapping ([3adff32](https://github.com/mctlhq/mctl-docs/commit/3adff32d7e072e118b09372a75d96185fe072aac))
+* **observability:** reserve the incident-agent span attributes ([164f00a](https://github.com/mctlhq/mctl-docs/commit/164f00a216dea145db51248e02a6aa78eadb6950))
+* **observability:** reserve the incident-agent span attributes ([70de956](https://github.com/mctlhq/mctl-docs/commit/70de956ae57d855102073a60d3092f78993130f0))
+* regenerate llms-full.txt ([037d42c](https://github.com/mctlhq/mctl-docs/commit/037d42c8c8bf968fdf4281e1a854e544232bf1d7))
+* regenerate llms-full.txt from the final surface-identity page ([e3d9809](https://github.com/mctlhq/mctl-docs/commit/e3d980953031dee291b39f19a610576bac45f556))
+* state the redact_all_types reasoning correctly, and stop over-claiming cardinality ([9cbcefa](https://github.com/mctlhq/mctl-docs/commit/9cbcefab725e7f1bf1c129e1220a8f8b1f91c9fe))
+* three consistency fixes from the approving review ([bb25611](https://github.com/mctlhq/mctl-docs/commit/bb256112048013af9feaae9f077ae5155276036e))
+
 ## [0.1.42](https://github.com/mctlhq/mctl-docs/compare/0.1.41...0.1.42) (2026-09-19)
 
 
