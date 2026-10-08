@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-10-07T07:44:43.864Z
+Generated: 2026-10-08T14:33:15.619Z
 Total Files Included: 33
 
 ================================================================================
@@ -2798,11 +2798,12 @@ There are two ways to connect, depending on what your client supports.
 authorization only need the server URL, `https://api.mctl.ai/mcp`. They
 discover the sign-in endpoints, open the MCTL sign-in page in your browser,
 and keep the session refreshed. Nothing is pasted into a config file.
-Claude.ai and Claude Code work this way today; pick their tab below.
+Claude.ai, Claude Code, Cursor and VS Code work this way today; pick their
+tab below.
 
-**Paste a token.** Clients that cannot complete the sign-in yet (Cursor,
-VS Code, Windsurf and others below) take a bearer token in their config.
-Use the token card below to get a pre-filled config.
+**Paste a token.** Clients that cannot complete the sign-in yet (Claude
+Desktop, Windsurf, Gemini CLI, Copilot CLI and others below) take a bearer
+token in their config. Use the token card below to get a pre-filled config.
 
 <McpSetup />
 
@@ -3900,10 +3901,10 @@ Every write operation submits an Argo Workflow that produces a git commit in the
 GitHub OAuth with PKCE flow. Only `read:user` and `user:email` scopes are requested — no access to your code or repositories. The OAuth token is sent per-request and never stored server-side.
 
 **Do I need to install anything?**
-No for Claude.ai — use the native connector. For developer clients (Cursor, VS Code, Claude Desktop, etc.), add a one-time MCP server config with your GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
+No for Claude.ai — use the native connector. Claude Code, Cursor and VS Code need a one-time MCP server config with only the server URL; they open the MCTL sign-in page themselves. Other developer clients (Claude Desktop, Windsurf, etc.) need the config with a GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
 
 **What GitHub token scope is needed?**
-For developer clients: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
+For developer clients that take a token: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
 
 **How many tools are available?**
 70 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).

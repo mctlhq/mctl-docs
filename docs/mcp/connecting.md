@@ -15,11 +15,12 @@ There are two ways to connect, depending on what your client supports.
 authorization only need the server URL, `https://api.mctl.ai/mcp`. They
 discover the sign-in endpoints, open the MCTL sign-in page in your browser,
 and keep the session refreshed. Nothing is pasted into a config file.
-Claude.ai and Claude Code work this way today; pick their tab below.
+Claude.ai, Claude Code, Cursor and VS Code work this way today; pick their
+tab below.
 
-**Paste a token.** Clients that cannot complete the sign-in yet (Cursor,
-VS Code, Windsurf and others below) take a bearer token in their config.
-Use the token card below to get a pre-filled config.
+**Paste a token.** Clients that cannot complete the sign-in yet (Claude
+Desktop, Windsurf, Gemini CLI, Copilot CLI and others below) take a bearer
+token in their config. Use the token card below to get a pre-filled config.
 
 <McpSetup />
 

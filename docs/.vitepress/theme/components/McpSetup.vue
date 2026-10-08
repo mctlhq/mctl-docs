@@ -75,18 +75,15 @@ const configs = computed(() => {
       mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
     }, null, 2),
 
+    // Cursor and VS Code sign in by themselves, so their config carries no
+    // credential and does not depend on the token card.
     cursor: JSON.stringify({
-      mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
+      mcpServers: { mctl: { url: MCP_ENDPOINT } }
     }, null, 2),
 
-    vscode: t === TOKEN_PLACEHOLDER
-      ? JSON.stringify({
-          servers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ${input:mctlToken}' } } },
-          inputs: [{ id: 'mctlToken', type: 'promptString', description: 'GitHub token \u2014 run: gh auth token', password: true }]
-        }, null, 2)
-      : JSON.stringify({
-          servers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
-        }, null, 2),
+    vscode: JSON.stringify({
+      servers: { mctl: { type: 'http', url: MCP_ENDPOINT } }
+    }, null, 2),
 
     windsurf: JSON.stringify({
       mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
@@ -222,7 +219,7 @@ const tabs = [
       <!-- Auth card -->
       <div class="auth-card">
         <h3>Get your token</h3>
-        <p class="auth-desc">Only for clients that cannot sign in by themselves. Claude.ai and Claude Code need no token: pick their tab.</p>
+        <p class="auth-desc">Only for clients that cannot sign in by themselves. Claude.ai, Claude Code, Cursor and VS Code need no token: pick their tab.</p>
         <p class="auth-desc">Authenticate with GitHub to get a pre-filled config for your developer client.</p>
         <p class="auth-hint">
           Access requires membership in a team workspace.<br>
@@ -361,11 +358,12 @@ const tabs = [
 
         <!-- Cursor -->
         <div v-show="activeTab === 'cursor'" class="tab-content">
-          <p class="config-path">Cursor Settings &rarr; MCP &rarr; Add server</p>
+          <p class="config-path">Add to <code>~/.cursor/mcp.json</code>, or Cursor Settings &rarr; MCP &rarr; Add server</p>
           <div class="code-block-wrap">
             <pre>{{ configs.cursor }}</pre>
             <button class="btn-copy" :class="{ copied: copied['cfg-cursor'] }" @click="copy('cfg-cursor', configs.cursor)">{{ copied['cfg-cursor'] ? 'copied!' : 'copy' }}</button>
           </div>
+          <p class="config-note">Cursor then asks you to sign in to <strong>mctl</strong> in its MCP settings. The MCTL sign-in page opens in your browser. No token needed.</p>
         </div>
 
         <!-- VS Code -->
@@ -375,7 +373,7 @@ const tabs = [
             <pre>{{ configs.vscode }}</pre>
             <button class="btn-copy" :class="{ copied: copied['cfg-vscode'] }" @click="copy('cfg-vscode', configs.vscode)">{{ copied['cfg-vscode'] ? 'copied!' : 'copy' }}</button>
           </div>
-          <p class="config-note">Requires VS Code &ge; 1.99 with the GitHub Copilot Chat extension.</p>
+          <p class="config-note">Start the server from the file; VS Code asks to sign in and opens the MCTL sign-in page in your browser. No token needed. Requires a recent VS Code with the GitHub Copilot Chat extension.</p>
         </div>
 
         <!-- Windsurf -->
