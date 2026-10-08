@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.44](https://github.com/mctlhq/mctl-docs/compare/0.1.43...0.1.44) (2026-10-08)
+
+
+### Documentation
+
+* **mcp:** Cursor and VS Code sign in from the client ([0cd9637](https://github.com/mctlhq/mctl-docs/commit/0cd96373fafedad355befa0f90cb2fdc635f36f2))
+* **mcp:** Cursor and VS Code sign in from the client ([ee1d007](https://github.com/mctlhq/mctl-docs/commit/ee1d007125cdcc816d0c2153401b23fb87484887))
+
 ## [0.1.43](https://github.com/mctlhq/mctl-docs/compare/0.1.42...0.1.43) (2026-10-07)
 
 
