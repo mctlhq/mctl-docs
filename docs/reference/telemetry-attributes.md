@@ -93,7 +93,7 @@ them still gets them.
 | `mctl.team` | Collector, from pod label `mctl.ai/team` | shipped | The same pair promtail relabels for logs, so a trace and a log line for one pod carry matching tenant identity with no mapping table. |
 | `mctl.component` | Collector, from pod label `mctl.ai/component` | shipped | As above, from `mctl.ai/component`. |
 | `k8s.cluster.name` | Collector, `resource` processor | shipped | `action: insert`, so a producer that sets it wins. |
-| `deployment.environment` | Collector, `resource` processor | shipped, **deprecated spelling** | `action: insert`, same rule. Upstream replaced this key with `deployment.environment.name`, which is `stable`. A producer setting it itself — which `insert` explicitly invites — should be aware it is writing the deprecated name. Moving the Collector is `mctlhq/mctl-gitops#1332`. |
+| `deployment.environment.name` | Collector, `resource` processor | shipped | `action: insert`, same rule. The stable upstream key; the Collector moved to it from the deprecated `deployment.environment` in `mctlhq/mctl-gitops#1724` (`mctlhq/mctl-gitops#1332`) and does not emit the old key. A producer setting the environment itself should use this name too. |
 
 The `insert` semantics matter: the Collector never overwrites a producer's
 value for these two. A producer that knows better — a workload running for one
@@ -230,30 +230,29 @@ computed from the token counts downstream, not emitted as an attribute.
 | `gen_ai.operation.name` | string | reserved | Upstream convention, e.g. `chat`, `invoke_agent`. Bounded. |
 | `gen_ai.provider.name` | string | reserved | Upstream convention. Bounded. |
 | `gen_ai.request.model` | string | reserved | The concrete model. Bounded, and the dimension cost is grouped by. |
-| `gen_ai.usage.input_tokens` | int | reserved | Token count in. Currently masked — see the warning below. |
-| `gen_ai.usage.output_tokens` | int | reserved | Token count out. Currently masked — see the warning below. |
+| `gen_ai.usage.input_tokens` | int | reserved | Token count in. Exempted from redaction — see the tip below. |
+| `gen_ai.usage.output_tokens` | int | reserved | Token count out. Exempted from redaction — see the tip below. |
 
 All five are `reserved`: no MCTL service emits `gen_ai.*` today.
 
-::: warning Token counts do not currently survive the Collector
-The redaction pattern reproduced below matches any key containing `token`, so
-`gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are **masked
-before export** today — as are both deprecated spellings. There is no spelling
-of a token counter that survives.
+::: tip Token counts survive the Collector as integers
+The credential pattern reproduced below matches any key containing `token`.
+Until `mctlhq/mctl-gitops#1332` was fixed, that masked every token counter and
+rewrote its integer value to the string `****`.
 
-Masked, not dropped, and for an integer counter that is worse: the attribute
-arrives with its value replaced by the string `****`, so a consumer gets a
-present key of the wrong type rather than a missing one.
+The Collector now exempts exactly the GenAI usage counters through
+`ignored_key_patterns`, which the processor evaluates before every other rule
+and which leaves a matching attribute untouched — value and type:
 
-The intent of that pattern is credential shapes, not usage counters, so this is
-a configuration defect rather than a policy: tracked as
-`mctlhq/mctl-gitops#1332`. Nothing is broken in production yet because no
-producer has a tracer wired.
+```
+^gen_ai\.usage\.((cache_read|cache_creation)[._])?(input|output|reasoning|prompt|completion|total)_tokens$
+```
 
-Emit the attributes under these names anyway — they are the correct names, and
-the Collector is what has to change. But **do not build cost attribution on
-them until `mctl-gitops#1332` is closed**, because until then no usable count
-reaches the backend and nothing reports an error.
+The pattern is anchored and enumerates counter names, so a credential-shaped
+key in the same namespace (`gen_ai.usage.access_token`) is still masked. A test
+in `mctl-gitops` (`tests/test_otel_collector_redaction_e2e.py`) runs the pinned
+Collector binary and checks that the counters arrive as integers. Cost
+attribution can build on them.
 :::
 
 ## Privacy
@@ -297,8 +296,12 @@ its value, and the deployed configuration only ever masks.
   whatever was read, and `SetStr` coerces the type either way. Turning it on
   changes what this branch sees, not what it writes. (It does change what the
   value-matching branch writes — that is why the flag exists — just not here.)
-- **There is no diagnostic trail.** `summary` is unset, which is neither `info`
-  nor `debug`, so the processor adds no count and no list of what it touched.
+- **Masking is countable, not listed.** `summary: info` adds
+  `redaction.masked.count` and `redaction.redacted.count` to a span the
+  processor touched. Key names are never listed (that would be `debug`).
+- **Ignored keys skip every rule.** A key matching `ignored_key_patterns` is
+  not checked against the key patterns *or* the value patterns. Only the
+  GenAI usage counters are ignored, and they are numeric by definition.
 
 The consequences for a producer:
 
@@ -318,11 +321,12 @@ The consequences for a producer:
 - **Redaction is a backstop, not a design.** It catches names nobody has
   invented yet, which is why it uses patterns rather than an exact key list.
   A producer must still not collect what it does not need.
-- **The first pattern is currently broader than its intent.** `.*token.*`
-  catches `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` along
-  with the credentials it is aimed at. See the warning above and
-  `mctlhq/mctl-gitops#1332`. This is the one place where what is enforced and
-  what is intended differ, and it is recorded rather than glossed.
+- **The first pattern is broader than its intent, and the gap is closed by an
+  exemption, not by narrowing it.** `.*token.*` would catch the GenAI usage
+  counters along with the credentials it is aimed at; the ignore list above
+  carves out exactly those counters (`mctlhq/mctl-gitops#1332`). Any other
+  key containing `token` is still masked, so do not name a measurement that
+  way.
 
 Personal data deserves its own line. `mctl.actor.id` and `mctl.user.id`
 identify a person. They are permitted because an audit trail that cannot name
@@ -405,7 +409,7 @@ in its own pull request, referencing the epic. Specifically:
 - Edge correlation contract: `mctlhq/mctl-telegram#617`
 - Cost attribution, which consumes the token counters: `mctlhq/.github#48`
 - Backend selection: `mctlhq/mctl-gitops#1280`
-- Collector redaction and `deployment.environment` defects: `mctlhq/mctl-gitops#1332`
+- Collector redaction and `deployment.environment` defects (fixed): `mctlhq/mctl-gitops#1332`, `mctlhq/mctl-gitops#1724`
 - `mcp.*` rename: `mctlhq/mctl-telegram#658`
 - Collector configuration: `mctl-gitops`, `platform-gitops/bootstrap/templates/observability/otel-collector.yaml`
 - Upstream: <https://github.com/open-telemetry/semantic-conventions-genai>
