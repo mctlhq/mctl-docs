@@ -93,7 +93,7 @@ them still gets them.
 | `mctl.team` | Collector, from pod label `mctl.ai/team` | shipped | The same pair promtail relabels for logs, so a trace and a log line for one pod carry matching tenant identity with no mapping table. |
 | `mctl.component` | Collector, from pod label `mctl.ai/component` | shipped | As above, from `mctl.ai/component`. |
 | `k8s.cluster.name` | Collector, `resource` processor | shipped | `action: insert`, so a producer that sets it wins. |
-| `deployment.environment.name` | Collector, `resource` processor | shipped | `action: insert`, same rule. The stable upstream key; the Collector moved to it from the deprecated `deployment.environment` in `mctlhq/mctl-gitops#1724` (#1332) and does not emit the old key. A producer setting the environment itself should use this name too. |
+| `deployment.environment.name` | Collector, `resource` processor | shipped | `action: insert`, same rule. The stable upstream key; the Collector moved to it from the deprecated `deployment.environment` in `mctlhq/mctl-gitops#1724` (`mctlhq/mctl-gitops#1332`) and does not emit the old key. A producer setting the environment itself should use this name too. |
 
 The `insert` semantics matter: the Collector never overwrites a producer's
 value for these two. A producer that knows better — a workload running for one
@@ -230,8 +230,8 @@ computed from the token counts downstream, not emitted as an attribute.
 | `gen_ai.operation.name` | string | reserved | Upstream convention, e.g. `chat`, `invoke_agent`. Bounded. |
 | `gen_ai.provider.name` | string | reserved | Upstream convention. Bounded. |
 | `gen_ai.request.model` | string | reserved | The concrete model. Bounded, and the dimension cost is grouped by. |
-| `gen_ai.usage.input_tokens` | int | reserved | Token count in. Exempted from redaction — see the note below. |
-| `gen_ai.usage.output_tokens` | int | reserved | Token count out. Exempted from redaction — see the note below. |
+| `gen_ai.usage.input_tokens` | int | reserved | Token count in. Exempted from redaction — see the tip below. |
+| `gen_ai.usage.output_tokens` | int | reserved | Token count out. Exempted from redaction — see the tip below. |
 
 All five are `reserved`: no MCTL service emits `gen_ai.*` today.
 
