@@ -42,7 +42,7 @@ Once connected, your AI assistant can:
 
 Authentication follows a three-step model:
 
-1. **Token validated per request** — your GitHub token or OAuth credential is checked on every MCP call. The server never stores tokens.
+1. **Token validated per request** — the token your client received when you signed in is checked on every MCP call. The server never stores tokens.
 2. **Team-scoped access** — access is limited to workspaces resolved from your GitHub team memberships in the GitOps repo. Admins can operate on all tenants.
 3. **Full audit trail** — every write operation submits an Argo Workflow that produces a git commit. All changes are traceable and reversible.
 

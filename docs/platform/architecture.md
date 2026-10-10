@@ -75,7 +75,7 @@ graph TB
 ### MCP Request
 
 1. AI client sends a tool call via Streamable HTTP to `api.mctl.ai/mcp`
-2. `mctl-api` authenticates the request (GitHub token, Dex JWT, or OAuth JWT)
+2. `mctl-api` authenticates the request (OAuth JWT from MCTL sign-in)
 3. The handler validates input and checks RBAC for the tenant
 4. `mctl-api` submits an Argo Workflow for the requested operation
 5. An operation ID is returned immediately
@@ -97,7 +97,7 @@ graph TB
 | Path | Protocol | Auth |
 |------|----------|------|
 | Client -> MCP Server | Streamable HTTP (POST/GET) | Bearer token per request |
-| Client -> REST API | HTTPS | GitHub token / Dex JWT / OAuth JWT |
+| Client -> REST API | HTTPS | OAuth JWT |
 | Argo Workflows -> GitOps | Git (SSH) | Deploy key |
 | ArgoCD -> Cluster | Kubernetes API | ServiceAccount |
 | AlertManager -> Agent | Webhook (HTTP) | Internal network |

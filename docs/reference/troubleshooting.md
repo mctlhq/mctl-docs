@@ -41,17 +41,12 @@ platform admin to check for stale tenants tied to your account and remove
 them; recreating your session (sign out and back in) after cleanup clears
 the stale group claim.
 
-### Token type confusion
+### Token rejected
 
-MCTL accepts three token types. The API auto-detects the type:
-
-| Token looks like | Type | How to get |
-|------------------|------|------------|
-| No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
-| 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
-| 2 dots, self-issued | OAuth JWT | OAuth flow on the [Connecting](/mcp/connecting) page |
-
-If your token is rejected, ensure you're using the right type for your client.
+Clients sign in through MCTL and hold a token issued by `mctl-api`; you never
+paste one. If your client keeps getting `401`, remove the server from the
+client and add it again with the URL `https://api.mctl.ai/mcp` only, so it
+signs in from scratch. Remove any `Authorization` header you added by hand.
 
 ## MCP Connection
 

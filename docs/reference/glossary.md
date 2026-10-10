@@ -6,7 +6,6 @@
 | **Argo Workflows** | Workflow engine for executing multi-step operations on Kubernetes |
 | **Backstage** | Developer portal framework by Spotify, used for the MCTL service catalog |
 | **Blue-Green Deployment** | Deployment strategy that runs two versions simultaneously and switches traffic |
-| **Dex** | OpenID Connect identity provider used for SSO |
 | **GitOps** | Operating model where Git is the single source of truth for infrastructure |
 | **MCP** | Model Context Protocol — open standard for connecting AI to external tools |
 | **Namespace** | Kubernetes isolation boundary, one per tenant |

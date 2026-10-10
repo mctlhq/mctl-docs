@@ -23,13 +23,12 @@ This rule is normative for every surface:
 
 ## Identity
 
-mctl-api decides who may see and who may answer from how the caller authenticated. See [Authentication](/security/authentication) for the token types.
+mctl-api decides who may see and who may answer from how the caller authenticated. See [Authentication](/security/authentication) for how callers sign in.
 
 | Caller | Sees a request | Can answer |
 |--------|----------------|------------|
 | GitHub token whose `github:<login>` is in `actor_refs` | Yes | Yes |
-| mctl-api OAuth JWT (minted after GitHub login) whose `github:<login>` is in `actor_refs` | Yes | Yes |
-| Dex JWT | Only if also an admin | No. A non-admin gets `404` (the request is not visible); an admin gets `403 not_eligible`. This holds even if the Dex username equals a GitHub login in `actor_refs` |
+| mctl-api OAuth JWT (minted after MCTL sign-in) whose `github:<login>` is in `actor_refs` | Yes | Yes |
 | Platform admin (GitHub-verified) | Yes, including `eligible_actors` and `invalid_documents` | Only if their verified `github:<login>` is in `actor_refs` |
 | Service principal (`mctl-agent`) | Yes, including `eligible_actors` and `invalid_documents` | No: `403`. A human answer relayed by a machine credential cannot be told apart from the machine answering |
 | Surface principal (`surface:telegram`, `surface:portal`) relaying through a verified link | As the linked human | As the linked human, if their `github:<login>` is in `actor_refs`. See [Surface Identity and Relay](/human-input/surface-identity) |

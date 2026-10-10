@@ -9,18 +9,13 @@ Connect your AI assistant to MCTL to manage infrastructure through natural langu
 
 ## Setup
 
-There are two ways to connect, depending on what your client supports.
-
-**Sign in from the client (recommended).** Clients that implement MCP
-authorization only need the server URL, `https://api.mctl.ai/mcp`. They
-discover the sign-in endpoints, open the MCTL sign-in page in your browser,
-and keep the session refreshed. Nothing is pasted into a config file.
-Claude.ai, Claude Code, Claude Desktop, Cursor, VS Code and Gemini CLI work
-this way today; pick their tab below.
-
-**Paste a token.** Clients that cannot complete the sign-in yet (Windsurf,
-Copilot CLI and others below) take a bearer
-token in their config. Use the token card below to get a pre-filled config.
+Give your client the server URL, `https://api.mctl.ai/mcp`, and nothing
+else. Clients that implement MCP authorization discover the sign-in
+endpoints, open the MCTL sign-in page in your browser, and keep the session
+refreshed. Nothing is pasted into a config file. Claude.ai, Claude Code,
+Claude Desktop, Cursor, VS Code and Gemini CLI work this way today; pick
+their tab below. MCTL sign-in from Windsurf and Copilot CLI is not enabled
+yet.
 
 <McpSetup />
 
@@ -34,15 +29,11 @@ After connecting, try a simple command:
 
 This calls the `mctl_whoami` tool and returns your identity, organization, and tenant access.
 
-## Token Types
+## Tokens
 
-MCTL accepts three token types. The API auto-detects the type:
-
-| Token format | Type | How to get |
-|---|---|---|
-| No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
-| 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
-| 2 dots, self-issued | OAuth JWT | OAuth flow on this page (sign in above) |
+The token your client holds is issued by `mctl-api` when you sign in, and the
+client refreshes it by itself. See [Authentication](/security/authentication)
+for the flow.
 
 ## Troubleshooting
 

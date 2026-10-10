@@ -9,7 +9,7 @@ organization.
 **Go REST API + MCP Server** — the central control plane.
 
 - Handles all client requests (MCP tools, REST API)
-- Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
+- Authenticates via MCTL sign-in (OAuth JWT)
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
 - Exposes 58 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
