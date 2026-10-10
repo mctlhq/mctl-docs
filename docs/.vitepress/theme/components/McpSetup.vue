@@ -71,12 +71,9 @@ const configToken = computed(() => mcpToken.value || TOKEN_PLACEHOLDER)
 const configs = computed(() => {
   const t = configToken.value
   return {
-    claude: JSON.stringify({
-      mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
-    }, null, 2),
-
-    // Cursor and VS Code sign in by themselves, so their config carries no
-    // credential and does not depend on the token card.
+    // Cursor, VS Code and Gemini CLI sign in by themselves, so their config
+    // carries no credential and does not depend on the token card. Claude
+    // Desktop needs no config at all: it uses a custom connector.
     cursor: JSON.stringify({
       mcpServers: { mctl: { url: MCP_ENDPOINT } }
     }, null, 2),
@@ -90,7 +87,7 @@ const configs = computed(() => {
     }, null, 2),
 
     gemini: JSON.stringify({
-      mcpServers: { mctl: { httpUrl: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t }, trust: true } }
+      mcpServers: { mctl: { httpUrl: MCP_ENDPOINT, trust: true } }
     }, null, 2),
 
     copilot: JSON.stringify({
@@ -219,7 +216,7 @@ const tabs = [
       <!-- Auth card -->
       <div class="auth-card">
         <h3>Get your token</h3>
-        <p class="auth-desc">Only for clients that cannot sign in by themselves. Claude.ai, Claude Code, Cursor and VS Code need no token: pick their tab.</p>
+        <p class="auth-desc">Only for clients that cannot sign in by themselves. Claude.ai, Claude Code, Claude Desktop, Cursor, VS Code and Gemini CLI need no token: pick their tab.</p>
         <p class="auth-desc">Authenticate with GitHub to get a pre-filled config for your developer client.</p>
         <p class="auth-hint">
           Access requires membership in a team workspace.<br>
@@ -348,12 +345,23 @@ const tabs = [
 
         <!-- Claude Desktop -->
         <div v-show="activeTab === 'claude'" class="tab-content">
-          <p class="config-path">Add to <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></p>
-          <div class="code-block-wrap">
-            <pre>{{ configs.claude }}</pre>
-            <button class="btn-copy" :class="{ copied: copied['cfg-claude'] }" @click="copy('cfg-claude', configs.claude)">{{ copied['cfg-claude'] ? 'copied!' : 'copy' }}</button>
+          <p class="config-path"><strong>Claude Desktop</strong> &rarr; Settings &rarr; Connectors &rarr; Add custom connector</p>
+          <div class="connector-values">
+            <div class="val-block">
+              <span class="val-label">Remote MCP server URL</span>
+              <div class="val-value-row">
+                <code>{{ MCP_ENDPOINT }}</code>
+                <button class="btn-copy" :class="{ copied: copied['desktop-url'] }" @click="copy('desktop-url', MCP_ENDPOINT)">{{ copied['desktop-url'] ? 'copied!' : 'copy' }}</button>
+              </div>
+            </div>
+            <div class="val-block">
+              <span class="val-label">OAuth Client ID and Client Secret</span>
+              <div class="val-value-row">
+                <span class="muted">Leave both empty: Claude Desktop registers itself</span>
+              </div>
+            </div>
           </div>
-          <p class="config-note">Restart Claude Desktop after saving.</p>
+          <p class="config-note">Click Connect &mdash; the MCTL sign-in page opens in your browser. No token needed. A connector you already added on Claude.ai shows up in Claude Desktop too.</p>
         </div>
 
         <!-- Cursor -->
@@ -392,6 +400,7 @@ const tabs = [
             <pre>{{ configs.gemini }}</pre>
             <button class="btn-copy" :class="{ copied: copied['cfg-gemini'] }" @click="copy('cfg-gemini', configs.gemini)">{{ copied['cfg-gemini'] ? 'copied!' : 'copy' }}</button>
           </div>
+          <p class="config-note">Then run <code>/mcp auth mctl</code> inside Gemini CLI. The MCTL sign-in page opens in your browser. No token needed. The sign-in needs a browser on the same machine, so it does not work over SSH.</p>
         </div>
 
         <!-- Copilot CLI -->
