@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-10-10T00:02:41.123Z
+Generated: 2026-10-10T00:07:02.612Z
 Total Files Included: 33
 
 ================================================================================

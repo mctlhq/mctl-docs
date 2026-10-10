@@ -350,8 +350,14 @@ const tabs = [
             <div class="val-block">
               <span class="val-label">Remote MCP server URL</span>
               <div class="val-value-row">
-                <code>https://api.mctl.ai/mcp</code>
-                <button class="btn-copy" :class="{ copied: copied['desktop-url'] }" @click="copy('desktop-url', 'https://api.mctl.ai/mcp')">{{ copied['desktop-url'] ? 'copied!' : 'copy' }}</button>
+                <code>{{ MCP_ENDPOINT }}</code>
+                <button class="btn-copy" :class="{ copied: copied['desktop-url'] }" @click="copy('desktop-url', MCP_ENDPOINT)">{{ copied['desktop-url'] ? 'copied!' : 'copy' }}</button>
+              </div>
+            </div>
+            <div class="val-block">
+              <span class="val-label">OAuth Client ID and Client Secret</span>
+              <div class="val-value-row">
+                <span class="muted">Leave both empty: Claude Desktop registers itself</span>
               </div>
             </div>
           </div>
