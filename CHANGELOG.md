@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.46](https://github.com/mctlhq/mctl-docs/compare/0.1.45...0.1.46) (2026-10-10)
+
+
+### Documentation
+
+* remove openclaw tools and references ([69f49e5](https://github.com/mctlhq/mctl-docs/commit/69f49e54650993f146e6014530900a664011def4))
+* remove openclaw tools and references ([e6de48f](https://github.com/mctlhq/mctl-docs/commit/e6de48fe58e6540be5682e54149bde970cee4539))
+
 ## [0.1.45](https://github.com/mctlhq/mctl-docs/compare/0.1.44...0.1.45) (2026-10-10)
 
 
