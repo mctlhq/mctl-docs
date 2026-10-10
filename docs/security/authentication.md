@@ -20,11 +20,15 @@ No credential is ever copied into a config file.
 
 `mctl-api` still accepts a GitHub token as a bearer while its remaining callers are moved to MCP sign-in. Do not use it for an MCP client or anything else that can open a browser.
 
-Its one documented use is a non-interactive caller: the CI deploy job in [Scaffolding](/guides/scaffolding) authenticates with a classic PAT (`read:user`) stored as `MCTL_GITHUB_TOKEN`. That path stays until a non-interactive MCTL credential replaces it.
+It has no documented use left. The CI deploy job in [Scaffolding](/guides/scaffolding), which used a classic PAT stored as `MCTL_GITHUB_TOKEN`, now authenticates with GitHub Actions OIDC (below). Move any remaining caller off it.
 
 ```
 Authorization: Bearer <github-token>
 ```
+
+## GitHub Actions OIDC (CI deploys)
+
+A GitHub Actions job authenticates with its own OIDC token, minted with the audience `https://api.mctl.ai` (`permissions: id-token: write`). No secret is stored. The token resolves to a service principal `ci:<owner>/<repo>` that may only deploy a new tag of the component whose `github.com/source-repo` is that repository, from `main` or a tag, on `push`, `workflow_dispatch` or `release`. Pull-request runs are refused. See [Scaffolding](/guides/scaffolding#ci-auto-deploy-job) for the job.
 
 ## Auth Bypass (Development)
 
