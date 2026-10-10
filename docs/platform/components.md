@@ -12,7 +12,7 @@ organization.
 - Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
-- Exposes 70 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
+- Exposes 58 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
 
 | | |
 |---|---|
@@ -75,7 +75,7 @@ organization.
 - Creates tickets and stores incident state
 - Analyzes alerts using Claude API plus builtin, YAML, and remote skills
 - Executes skills (rollback, scale, restart, quota, probe, drift, etc.)
-- Can dispatch incidents to external agents such as OpenClaw through signed webhooks
+- Can dispatch incidents to external agents through signed webhooks
 - Creates PRs to `mctl-gitops` with fixes and tracks PR metadata
 - Notifies operators through Telegram for updates, review, and approvals
 - Full incident lifecycle: detect, analyze, propose fix, review, verify

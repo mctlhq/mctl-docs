@@ -26,7 +26,7 @@ With the MCTL MCP server you can:
 - **Manage domains** — add, verify, and remove custom domains
 - **Provision databases** — create databases with auto-configured secrets
 - **Preview environments** — create and manage preview deployments
-- **Resource management** — check usage, get sizing recommendations
+- **Resource management** — check CPU and memory usage
 - **Platform skill registry** — list, read, publish, deprecate, and enable/disable platform-wide skills per tenant
 
 ## What You Get

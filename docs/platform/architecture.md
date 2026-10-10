@@ -88,7 +88,7 @@ graph TB
 1. AlertManager fires an alert (e.g., pod crash loop)
 2. `mctl-agent` receives the alert webhook and creates a ticket
 3. Evidence is collected and a skill is selected for diagnosis
-4. The agent either prepares a direct fix PR or dispatches the incident to an external agent such as OpenClaw
+4. The agent either prepares a direct fix PR or dispatches the incident to an external agent
 5. A fix lands in `mctl-gitops` as a PR rather than mutating the cluster directly
 6. On merge, ArgoCD syncs the change
 
