@@ -1,51 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const MCP_ENDPOINT = 'https://api.mctl.ai/mcp'
-const TOKEN_PLACEHOLDER = 'YOUR_GITHUB_TOKEN'
-const AUTH_KEY = 'mctl_auth'
-const AUTH_TTL = 8 * 60 * 60 * 1000
-const LOGIN_URL = 'https://mctl.ai/api/github/login?for=docs'
-const SESSION_URL = 'https://mctl.ai/api/github/session'
 const CLAUDE_CODE_CMD = 'claude mcp add --transport http mctl ' + MCP_ENDPOINT
-
-interface StoredAuth {
-  token?: string
-  login?: string
-  name?: string
-  avatar_url?: string
-  exp: number
-}
-
-function loadStorage(): StoredAuth | null {
-  try {
-    const d = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null') as StoredAuth | null
-    if (!d || Date.now() > d.exp) { localStorage.removeItem(AUTH_KEY); return null }
-    return d
-  } catch { return null }
-}
-
-function saveStorage(data: Partial<StoredAuth>) {
-  try {
-    const cur = loadStorage() || ({} as Partial<StoredAuth>)
-    localStorage.setItem(AUTH_KEY, JSON.stringify({ ...cur, ...data, exp: Date.now() + AUTH_TTL }))
-  } catch {}
-}
-
-function clearStorage() {
-  try { localStorage.removeItem(AUTH_KEY) } catch {}
-}
-
-const mcpToken = ref('')
-const mcpLogin = ref('')
-const mcpName = ref('')
-const mcpAvatarUrl = ref('')
-const authError = ref('')
-const manualTokenInput = ref('')
-const isAuthenticated = computed(() => !!mcpToken.value)
-const maskedToken = computed(() => mcpToken.value
-  ? mcpToken.value.slice(0, 8) + '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' + mcpToken.value.slice(-4)
-  : '')
+// Older versions of this page kept a GitHub token here for the clients that
+// could not sign in by themselves. Every client now signs in through MCTL.
+const LEGACY_AUTH_KEY = 'mctl_auth'
 
 const activeTab = ref('claude-ai')
 const copied = ref<Record<string, boolean>>({})
@@ -66,133 +26,47 @@ async function copy(key: string, text: string) {
   setTimeout(() => { copied.value[key] = false }, 1800)
 }
 
-const configToken = computed(() => mcpToken.value || TOKEN_PLACEHOLDER)
+// No config carries a credential: every client signs in through MCTL with
+// the standard MCP authorization flow, starting from the server URL alone.
+const configs = {
+  cursor: JSON.stringify({
+    mcpServers: { mctl: { url: MCP_ENDPOINT } }
+  }, null, 2),
 
-const configs = computed(() => {
-  const t = configToken.value
-  return {
-    // Cursor, VS Code and Gemini CLI sign in by themselves, so their config
-    // carries no credential and does not depend on the token card. Claude
-    // Desktop needs no config at all: it uses a custom connector.
-    cursor: JSON.stringify({
-      mcpServers: { mctl: { url: MCP_ENDPOINT } }
-    }, null, 2),
+  vscode: JSON.stringify({
+    servers: { mctl: { type: 'http', url: MCP_ENDPOINT } }
+  }, null, 2),
 
-    vscode: JSON.stringify({
-      servers: { mctl: { type: 'http', url: MCP_ENDPOINT } }
-    }, null, 2),
+  windsurf: JSON.stringify({
+    mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT } }
+  }, null, 2),
 
-    windsurf: JSON.stringify({
-      mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
-    }, null, 2),
+  gemini: JSON.stringify({
+    mcpServers: { mctl: { httpUrl: MCP_ENDPOINT, trust: true } }
+  }, null, 2),
 
-    gemini: JSON.stringify({
-      mcpServers: { mctl: { httpUrl: MCP_ENDPOINT, trust: true } }
-    }, null, 2),
+  copilot: JSON.stringify({
+    mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT } }
+  }, null, 2),
 
-    copilot: JSON.stringify({
-      mcpServers: { mctl: { type: 'http', url: MCP_ENDPOINT, headers: { Authorization: 'Bearer ' + t } } }
-    }, null, 2),
-
-    other: [
-      '# Streamable HTTP transport (MCP spec 2024-11-05)',
-      '# Single endpoint \u2014 POST to call tools, GET to open stream',
-      '',
-      'endpoint:   ' + MCP_ENDPOINT,
-      'transport:  streamable-http',
-      'auth:       Authorization: Bearer ' + t,
-    ].join('\n'),
-  }
-})
-
-function setAuth(token: string, login: string, name: string, avatarUrl: string) {
-  mcpToken.value = token
-  mcpLogin.value = login
-  mcpName.value = name || login
-  mcpAvatarUrl.value = avatarUrl || ''
-  saveStorage({ token, login, name: mcpName.value, avatar_url: avatarUrl || '' })
+  other: [
+    '# Streamable HTTP transport',
+    '# Single endpoint \u2014 POST to call tools, GET to open stream',
+    '',
+    'endpoint:   ' + MCP_ENDPOINT,
+    'transport:  streamable-http',
+    'auth:       MCP authorization (OAuth 2.1, PKCE, dynamic client registration)',
+    'discovery:  https://api.mctl.ai/.well-known/oauth-protected-resource',
+  ].join('\n'),
 }
 
-function signOut() {
-  mcpToken.value = ''
-  mcpLogin.value = ''
-  mcpName.value = ''
-  mcpAvatarUrl.value = ''
-  manualTokenInput.value = ''
-  clearStorage()
-}
-
-function applyManualToken() {
-  const token = manualTokenInput.value.trim()
-  if (!token) return
-  mcpToken.value = token
-  mcpLogin.value = ''
-  mcpName.value = ''
-  mcpAvatarUrl.value = ''
-  saveStorage({ token })
-}
-
-const AUTH_ERROR_MSGS: Record<string, string> = {
-  ACCESS_DENIED: 'GitHub access denied. Please try again.',
-  INVALID_STATE: 'Auth state mismatch. Please try again.',
-  TOKEN_EXCHANGE: 'Failed to exchange GitHub token. Please try again.',
-  PROFILE_FETCH: 'Failed to fetch GitHub profile. Please try again.',
-}
-
-onMounted(async () => {
+onMounted(() => {
+  try { localStorage.removeItem(LEGACY_AUTH_KEY) } catch {}
+  // A sign-in started from an older version of this page may still land
+  // here with a token handoff in the fragment. Drop it unread.
   const hash = window.location.hash
-
-  if (hash.startsWith('#auth_error=')) {
-    const code = hash.slice(12)
-    authError.value = AUTH_ERROR_MSGS[code] || 'GitHub auth failed. Please try again.'
-    history.replaceState(null, '', location.pathname)
-    return
-  }
-
-  if (hash.startsWith('#session=')) {
-    const sessionCode = hash.slice(9)
-    history.replaceState(null, '', location.pathname)
-    try {
-      const res = await fetch(SESSION_URL, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: sessionCode }),
-      })
-      if (res.ok) {
-        const data = await res.json() as { token?: string; login?: string; name?: string; avatar_url?: string }
-        if (data.token) {
-          setAuth(data.token, data.login || '', data.name || '', data.avatar_url || '')
-          return
-        }
-      }
-      authError.value = 'GitHub session expired. Please try again.'
-    } catch {
-      authError.value = 'Failed to redeem GitHub session. Please try again.'
-    }
-    return
-  }
-
-  // Legacy worker redirects put identity+token in #auth=. Kept so a docs
-  // deploy can land before the mctl-web worker that switched to #session=.
-  if (hash.startsWith('#auth=')) {
-    const encoded = hash.slice(6)
-    try {
-      const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/')
-      const data = JSON.parse(atob(base64)) as { token?: string; login?: string; name?: string; avatar_url?: string }
-      if (data.token) {
-        setAuth(data.token, data.login || '', data.name || '', data.avatar_url || '')
-      }
-    } catch {
-      authError.value = 'Failed to parse auth response. Please try again.'
-    }
-    history.replaceState(null, '', location.pathname)
-    return
-  }
-
-  const saved = loadStorage()
-  if (saved?.token) {
-    setAuth(saved.token, saved.login || '', saved.name || '', saved.avatar_url || '')
+  if (hash.startsWith('#session=') || hash.startsWith('#auth=') || hash.startsWith('#auth_error=')) {
+    history.replaceState(null, '', location.pathname + location.search)
   }
 })
 
@@ -213,83 +87,18 @@ const tabs = [
   <div class="mcp-setup">
     <div class="mcp-grid">
 
-      <!-- Auth card -->
+      <!-- Access card -->
       <div class="auth-card">
-        <h3>Get your token</h3>
-        <p class="auth-desc">Only for clients that cannot sign in by themselves. Claude.ai, Claude Code, Claude Desktop, Cursor, VS Code and Gemini CLI need no token: pick their tab.</p>
-        <p class="auth-desc">Authenticate with GitHub to get a pre-filled config for your developer client.</p>
-        <p class="auth-hint">
+        <h3>Sign in with MCTL</h3>
+        <p class="auth-desc">Give your client the server URL and nothing else. On first use it opens the MCTL sign-in page in your browser and returns to the client on its own. There is no token to copy.</p>
+        <div class="val-value-row">
+          <code>{{ MCP_ENDPOINT }}</code>
+          <button class="btn-copy" :class="{ copied: copied['endpoint'] }" @click="copy('endpoint', MCP_ENDPOINT)">{{ copied['endpoint'] ? 'copied!' : 'copy' }}</button>
+        </div>
+        <p class="auth-hint" style="margin-top:1rem">
           Access requires membership in a team workspace.<br>
           Not added yet? <a href="https://mctl.ai/#request-access">Request access</a> from your platform admin.
         </p>
-
-        <!-- Unauthenticated -->
-        <template v-if="!isAuthenticated">
-          <a :href="LOGIN_URL" class="btn-github">
-            <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-            </svg>
-            Get your token
-          </a>
-
-          <p class="auth-perms">
-            Permissions requested: <strong>read your username and avatar</strong> (<code>read:user</code>) and
-            <strong>verified email</strong> (<code>user:email</code>).<br>
-            No access to your code, repositories, or organizations.
-            See our <a href="https://mctl.ai/privacy">Privacy Policy</a>.
-          </p>
-
-          <div class="auth-divider"><span>or</span></div>
-
-          <div class="token-input-row">
-            <input
-              v-model="manualTokenInput"
-              class="token-input"
-              type="password"
-              placeholder="ghp_... or gho_... token"
-              autocomplete="off"
-              spellcheck="false"
-              @keydown.enter="applyManualToken"
-            >
-            <button class="btn-apply" @click="applyManualToken">Apply</button>
-          </div>
-          <p class="auth-hint" style="margin-top:0.5rem">
-            Get via CLI: <code>gh auth token</code>
-          </p>
-        </template>
-
-        <!-- Authenticated -->
-        <template v-else>
-          <div v-if="mcpLogin" class="user-profile">
-            <img v-if="mcpAvatarUrl" class="user-avatar" :src="mcpAvatarUrl" :alt="mcpLogin">
-            <div class="user-info">
-              <div class="user-login">@{{ mcpLogin }}</div>
-              <div v-if="mcpName !== mcpLogin" class="user-name">{{ mcpName }}</div>
-            </div>
-            <button class="btn-signout" title="Sign out" @click="signOut">&times;</button>
-          </div>
-          <div v-else class="user-profile">
-            <span class="auth-hint">Token applied</span>
-            <button class="btn-signout" title="Sign out" @click="signOut">&times;</button>
-          </div>
-
-          <div class="token-row">
-            <span class="token-label">token</span>
-            <span class="token-value">{{ maskedToken }}</span>
-            <button
-              class="btn-copy"
-              :class="{ copied: copied['token'] }"
-              @click="copy('token', mcpToken)"
-            >{{ copied['token'] ? 'copied!' : 'copy' }}</button>
-          </div>
-
-          <p class="auth-hint">
-            Token is validated server-side on every request.<br>
-            Access scoped to your team memberships.
-          </p>
-        </template>
-
-        <div v-if="authError" class="auth-error">{{ authError }}</div>
       </div>
 
       <!-- Config tabs -->
@@ -312,25 +121,18 @@ const tabs = [
             <div class="val-block">
               <span class="val-label">Remote MCP server URL</span>
               <div class="val-value-row">
-                <code>https://api.mctl.ai/mcp</code>
-                <button class="btn-copy" :class="{ copied: copied['ai-url'] }" @click="copy('ai-url', 'https://api.mctl.ai/mcp')">{{ copied['ai-url'] ? 'copied!' : 'copy' }}</button>
+                <code>{{ MCP_ENDPOINT }}</code>
+                <button class="btn-copy" :class="{ copied: copied['ai-url'] }" @click="copy('ai-url', MCP_ENDPOINT)">{{ copied['ai-url'] ? 'copied!' : 'copy' }}</button>
               </div>
             </div>
             <div class="val-block">
-              <span class="val-label">OAuth Client ID</span>
+              <span class="val-label">OAuth Client ID and Client Secret</span>
               <div class="val-value-row">
-                <code>mctl-connector</code>
-                <button class="btn-copy" :class="{ copied: copied['ai-id'] }" @click="copy('ai-id', 'mctl-connector')">{{ copied['ai-id'] ? 'copied!' : 'copy' }}</button>
-              </div>
-            </div>
-            <div class="val-block">
-              <span class="val-label">Client Secret</span>
-              <div class="val-value-row">
-                <span class="muted">Leave empty (PKCE)</span>
+                <span class="muted">Leave both empty: Claude registers itself</span>
               </div>
             </div>
           </div>
-          <p class="config-note">Click Connect &mdash; the MCTL sign-in page opens, then you'll be returned to Claude automatically. No token needed.</p>
+          <p class="config-note">Click Add, then Connect &mdash; the MCTL sign-in page opens, then you'll be returned to Claude automatically. No token needed.</p>
         </div>
 
         <!-- Claude Code -->
@@ -391,6 +193,7 @@ const tabs = [
             <pre>{{ configs.windsurf }}</pre>
             <button class="btn-copy" :class="{ copied: copied['cfg-windsurf'] }" @click="copy('cfg-windsurf', configs.windsurf)">{{ copied['cfg-windsurf'] ? 'copied!' : 'copy' }}</button>
           </div>
+          <p class="config-note">MCTL sign-in from Windsurf is not enabled yet. Until it is, connect from Claude Code, Cursor, VS Code or Gemini CLI.</p>
         </div>
 
         <!-- Gemini CLI -->
@@ -410,7 +213,7 @@ const tabs = [
             <pre>{{ configs.copilot }}</pre>
             <button class="btn-copy" :class="{ copied: copied['cfg-copilot'] }" @click="copy('cfg-copilot', configs.copilot)">{{ copied['cfg-copilot'] ? 'copied!' : 'copy' }}</button>
           </div>
-          <p class="config-note">Requires <code>gh copilot</code> extension.</p>
+          <p class="config-note">MCTL sign-in from Copilot CLI is not enabled yet. Until it is, connect from Claude Code, Cursor, VS Code or Gemini CLI.</p>
         </div>
 
         <!-- Other -->
@@ -420,7 +223,7 @@ const tabs = [
             <pre>{{ configs.other }}</pre>
             <button class="btn-copy" :class="{ copied: copied['cfg-other'] }" @click="copy('cfg-other', configs.other)">{{ copied['cfg-other'] ? 'copied!' : 'copy' }}</button>
           </div>
-          <p class="config-note">Transport: <strong>Streamable HTTP</strong> (MCP spec 2024-11-05). Send the <code>Authorization</code> header on every request.</p>
+          <p class="config-note">Transport: <strong>Streamable HTTP</strong>. Any client that implements MCP authorization finds the sign-in on its own from the first <code>401</code> response; register the client dynamically and sign in through the browser.</p>
         </div>
       </div>
     </div>
@@ -476,183 +279,6 @@ const tabs = [
 
 .auth-hint a {
   color: var(--accent);
-}
-
-.auth-perms {
-  font-size: 0.72rem;
-  line-height: 1.5;
-  color: var(--surface-fg-subtle);
-  margin: 0.75rem 0 0;
-}
-
-.auth-perms strong {
-  color: var(--surface-fg-muted);
-}
-
-.auth-perms a {
-  color: var(--accent);
-}
-
-.btn-github {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: transparent;
-  border: 1.5px solid var(--accent);
-  border-radius: 8px;
-  color: var(--accent);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-
-.btn-github:hover {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 15%, transparent);
-}
-
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1rem 0;
-  color: var(--surface-fg-muted);
-  font-size: 0.78rem;
-}
-
-.auth-divider::before,
-.auth-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--surface-line);
-}
-
-.token-input-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.token-input {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: var(--surface-bg);
-  border: 1px solid var(--surface-line);
-  border-radius: 6px;
-  color: var(--surface-fg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-}
-
-.token-input::placeholder {
-  color: var(--surface-fg-muted);
-}
-
-.btn-apply {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  color: var(--accent);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.btn-apply:hover {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-}
-
-/* ── User profile ── */
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: color-mix(in srgb, var(--accent) 4%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
-  border-radius: 8px;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-}
-
-.user-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.user-login {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--surface-fg);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.user-name {
-  font-size: 0.75rem;
-  color: var(--surface-fg-muted);
-}
-
-.btn-signout {
-  background: none;
-  border: none;
-  color: var(--surface-fg-subtle);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-}
-
-.btn-signout:hover {
-  color: var(--status-bad);
-}
-
-/* ── Token row ── */
-.token-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--surface-bg);
-  border: 1px solid var(--surface-line);
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
-}
-
-.token-label {
-  color: var(--surface-fg-subtle);
-  flex-shrink: 0;
-}
-
-.token-value {
-  flex: 1;
-  color: var(--surface-fg);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Auth error ── */
-.auth-error {
-  margin-top: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: color-mix(in srgb, var(--status-bad) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--status-bad) 30%, transparent);
-  border-radius: 6px;
-  color: var(--status-bad);
-  font-size: 0.8rem;
 }
 
 /* ── Config panel ── */

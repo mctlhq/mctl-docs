@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-10-10T07:30:52.767Z
+Generated: 2026-10-10T09:43:29.809Z
 Total Files Included: 33
 
 ================================================================================
@@ -66,13 +66,8 @@ Include an `Authorization` header with every request to `/api/v1/*` endpoints:
 curl -H "Authorization: Bearer YOUR_TOKEN" https://api.mctl.ai/api/v1/tenants
 ```
 
-Two token types are accepted:
-
-| Type | Format | Validation |
-|------|--------|------------|
-| **GitHub PAT** | `ghp_xxxx...` (no dots) | Validated against GitHub API; requires `read:user` scope |
-| **Dex JWT** | `eyJhbG...` (2 dots, external issuer) | Verified via JWKS at `ops.mctl.ai/api/dex/keys` |
-| **OAuth JWT** | `eyJhbG...` (2 dots, self-issued) | HMAC-SHA256 verification; issued via OAuth 2.0 PKCE flow |
+Use the access token an MCP client receives when it signs in through MCTL
+(an OAuth JWT issued by `mctl-api`).
 
 See [Authentication](/security/authentication) for details.
 
@@ -2774,18 +2769,13 @@ Connect your AI assistant to MCTL to manage infrastructure through natural langu
 
 ## Setup
 
-There are two ways to connect, depending on what your client supports.
-
-**Sign in from the client (recommended).** Clients that implement MCP
-authorization only need the server URL, `https://api.mctl.ai/mcp`. They
-discover the sign-in endpoints, open the MCTL sign-in page in your browser,
-and keep the session refreshed. Nothing is pasted into a config file.
-Claude.ai, Claude Code, Claude Desktop, Cursor, VS Code and Gemini CLI work
-this way today; pick their tab below.
-
-**Paste a token.** Clients that cannot complete the sign-in yet (Windsurf,
-Copilot CLI and others below) take a bearer
-token in their config. Use the token card below to get a pre-filled config.
+Give your client the server URL, `https://api.mctl.ai/mcp`, and nothing
+else. Clients that implement MCP authorization discover the sign-in
+endpoints, open the MCTL sign-in page in your browser, and keep the session
+refreshed. Nothing is pasted into a config file. Claude.ai, Claude Code,
+Claude Desktop, Cursor, VS Code and Gemini CLI work this way today; pick
+their tab below. MCTL sign-in from Windsurf and Copilot CLI is not enabled
+yet.
 
 <McpSetup />
 
@@ -2799,15 +2789,11 @@ After connecting, try a simple command:
 
 This calls the `mctl_whoami` tool and returns your identity, organization, and tenant access.
 
-## Token Types
+## Tokens
 
-MCTL accepts three token types. The API auto-detects the type:
-
-| Token format | Type | How to get |
-|---|---|---|
-| No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
-| 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
-| 2 dots, self-issued | OAuth JWT | OAuth flow on this page (sign in above) |
+The token your client holds is issued by `mctl-api` when you sign in, and the
+client refreshes it by itself. See [Authentication](/security/authentication)
+for the flow.
 
 ## Troubleshooting
 
@@ -2944,7 +2930,7 @@ Once connected, your AI assistant can:
 
 Authentication follows a three-step model:
 
-1. **Token validated per request** — your GitHub token or OAuth credential is checked on every MCP call. The server never stores tokens.
+1. **Token validated per request** — the token your client received when you signed in is checked on every MCP call. The server never stores tokens.
 2. **Team-scoped access** — access is limited to workspaces resolved from your GitHub team memberships in the GitOps repo. Admins can operate on all tenants.
 3. **Full audit trail** — every write operation submits an Argo Workflow that produces a git commit. All changes are traceable and reversible.
 
@@ -3462,7 +3448,7 @@ graph TB
 ### MCP Request
 
 1. AI client sends a tool call via Streamable HTTP to `api.mctl.ai/mcp`
-2. `mctl-api` authenticates the request (GitHub token, Dex JWT, or OAuth JWT)
+2. `mctl-api` authenticates the request (OAuth JWT from MCTL sign-in)
 3. The handler validates input and checks RBAC for the tenant
 4. `mctl-api` submits an Argo Workflow for the requested operation
 5. An operation ID is returned immediately
@@ -3484,7 +3470,7 @@ graph TB
 | Path | Protocol | Auth |
 |------|----------|------|
 | Client -> MCP Server | Streamable HTTP (POST/GET) | Bearer token per request |
-| Client -> REST API | HTTPS | GitHub token / Dex JWT / OAuth JWT |
+| Client -> REST API | HTTPS | OAuth JWT |
 | Argo Workflows -> GitOps | Git (SSH) | Deploy key |
 | ArgoCD -> Cluster | Kubernetes API | ServiceAccount |
 | AlertManager -> Agent | Webhook (HTTP) | Internal network |
@@ -3505,7 +3491,7 @@ organization.
 **Go REST API + MCP Server** — the central control plane.
 
 - Handles all client requests (MCP tools, REST API)
-- Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
+- Authenticates via MCTL sign-in (OAuth JWT)
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
 - Exposes 58 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
@@ -3862,13 +3848,13 @@ No direct kubectl access, no raw Vault reads, no cluster-level operations. Destr
 Every write operation submits an Argo Workflow that produces a git commit in the GitOps repository. ArgoCD detects the change and syncs it to the cluster. Use `mctl_get_workflow_status` to track progress.
 
 **How does auth work for Claude.ai connector?**
-GitHub OAuth with PKCE flow. Only `read:user` and `user:email` scopes are requested — no access to your code or repositories. The OAuth token is sent per-request and never stored server-side.
+Standard MCP authorization: OAuth 2.1 with PKCE. Claude registers itself, you sign in on the MCTL sign-in page, and Claude receives a token issued by MCTL. You never handle a token yourself.
 
 **Do I need to install anything?**
-No for Claude.ai and Claude Desktop — use a custom connector. Claude Code, Cursor, VS Code and Gemini CLI need a one-time MCP server config with only the server URL; they open the MCTL sign-in page themselves. Other developer clients (Windsurf, Copilot CLI, etc.) need the config with a GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
+No for Claude.ai and Claude Desktop — use a custom connector. Claude Code, Cursor, VS Code and Gemini CLI need a one-time MCP server config with only the server URL; they open the MCTL sign-in page themselves. MCTL sign-in from Windsurf and Copilot CLI is not enabled yet. See [Connecting](/mcp/connecting) for setup instructions.
 
-**What GitHub token scope is needed?**
-For developer clients that take a token: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
+**Do I need a GitHub token?**
+No. Every supported client signs in through MCTL from the server URL alone.
 
 **How many tools are available?**
 58 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource usage. See the [Tools Reference](/mcp/tools-reference).
@@ -4381,17 +4367,12 @@ platform admin to check for stale tenants tied to your account and remove
 them; recreating your session (sign out and back in) after cleanup clears
 the stale group claim.
 
-### Token type confusion
+### Token rejected
 
-MCTL accepts three token types. The API auto-detects the type:
-
-| Token looks like | Type | How to get |
-|------------------|------|------------|
-| No dots (e.g. `ghp_abc123`) | GitHub PAT | GitHub Settings > Tokens |
-| 2 dots, external issuer | Dex JWT | SSO login at `ops.mctl.ai` |
-| 2 dots, self-issued | OAuth JWT | OAuth flow on the [Connecting](/mcp/connecting) page |
-
-If your token is rejected, ensure you're using the right type for your client.
+Clients sign in through MCTL and hold a token issued by `mctl-api`; you never
+paste one. If your client keeps getting `401`, remove the server from the
+client and add it again with the URL `https://api.mctl.ai/mcp` only, so it
+signs in from scratch. Remove any `Authorization` header you added by hand.
 
 ## MCP Connection
 
@@ -4612,39 +4593,25 @@ FILE: /security/authentication.md
 ================================================================================
 # Authentication
 
-MCTL supports three authentication methods, all validated by `mctl-api`.
+Every request to `mctl-api` carries a bearer token, and the API verifies it on every call.
 
-## GitHub Token
+## MCP Sign-in (OAuth)
 
-Direct GitHub personal access token authentication. The API validates the token against the GitHub API and checks organization membership.
+The standard way to connect. `mctl-api` implements MCP authorization: OAuth 2.1 with PKCE and dynamic client registration.
 
-**Used by**: MCP clients, API scripts
-
-```
-Authorization: Bearer ghp_xxxxxxxxxxxx
-```
-
-Personal access tokens need only the `read:user` scope. (The browser OAuth flow used by Claude.ai additionally requests `user:email`.) Organization membership is resolved server-side; no `read:org` scope is required.
-
-## Dex SSO (JWT)
-
-OpenID Connect via Dex, the platform's SSO provider at `ops.mctl.ai`.
-
-**Used by**: Developer portal, internal services
-
-The API validates the JWT signature using JWKS keys from `ops.mctl.ai/api/dex/keys`. Groups are extracted from token claims.
-
-## OAuth JWT
-
-OAuth 2.0 PKCE flow for browser-based clients. Tokens are issued by `mctl-api` itself and signed with HMAC-SHA256.
-
-**Used by**: Claude.ai native connector, mctl.ai web flows
+**Used by**: Claude.ai, Claude Code, Claude Desktop, Cursor, VS Code, Gemini CLI, the `mctl` CLI
 
 The flow:
-1. Client initiates OAuth PKCE flow via `mctl.ai/api/github/login`
-2. User authenticates with GitHub
-3. MCTL issues a JWT with the user's identity and groups
-4. The token is redeemed via `POST /api/github/session` (never placed in a URL)
+1. The client calls `https://api.mctl.ai/mcp` without a token and receives `401` with a pointer to `/.well-known/oauth-protected-resource`
+2. The client registers itself (`/oauth/register`) and opens `/oauth/authorize` in your browser
+3. You sign in on the MCTL sign-in page (`auth.mctl.ai`)
+4. The client exchanges the code at `/oauth/token` for an access token issued and signed by `mctl-api`, and refreshes it on its own
+
+No credential is ever copied into a config file.
+
+## GitHub Token (legacy)
+
+`mctl-api` still accepts a GitHub token as a bearer while its remaining callers are moved to MCP sign-in. It is no longer handed out by these docs, and it will be removed. Do not set up new clients with it.
 
 ## Auth Bypass (Development)
 

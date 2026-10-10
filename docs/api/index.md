@@ -16,13 +16,8 @@ Include an `Authorization` header with every request to `/api/v1/*` endpoints:
 curl -H "Authorization: Bearer YOUR_TOKEN" https://api.mctl.ai/api/v1/tenants
 ```
 
-Two token types are accepted:
-
-| Type | Format | Validation |
-|------|--------|------------|
-| **GitHub PAT** | `ghp_xxxx...` (no dots) | Validated against GitHub API; requires `read:user` scope |
-| **Dex JWT** | `eyJhbG...` (2 dots, external issuer) | Verified via JWKS at `ops.mctl.ai/api/dex/keys` |
-| **OAuth JWT** | `eyJhbG...` (2 dots, self-issued) | HMAC-SHA256 verification; issued via OAuth 2.0 PKCE flow |
+Use the access token an MCP client receives when it signs in through MCTL
+(an OAuth JWT issued by `mctl-api`).
 
 See [Authentication](/security/authentication) for details.
 

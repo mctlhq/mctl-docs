@@ -1,38 +1,24 @@
 # Authentication
 
-MCTL supports three authentication methods, all validated by `mctl-api`.
+Every request to `mctl-api` carries a bearer token, and the API verifies it on every call.
 
-## GitHub Token
+## MCP Sign-in (OAuth)
 
-Direct GitHub personal access token authentication. The API validates the token against the GitHub API and checks organization membership.
+The standard way to connect. `mctl-api` implements MCP authorization: OAuth 2.1 with PKCE and dynamic client registration.
 
-**Used by**: MCP clients, API scripts
-
-```
-Authorization: Bearer ghp_xxxxxxxxxxxx
-```
-
-Personal access tokens need only the `read:user` scope. (The browser OAuth flow used by Claude.ai additionally requests `user:email`.) Organization membership is resolved server-side; no `read:org` scope is required.
-
-## Dex SSO (JWT)
-
-OpenID Connect via Dex, the platform's SSO provider at `ops.mctl.ai`.
-
-**Used by**: Developer portal, internal services
-
-The API validates the JWT signature using JWKS keys from `ops.mctl.ai/api/dex/keys`. Groups are extracted from token claims.
-
-## OAuth JWT
-
-OAuth 2.0 PKCE flow for browser-based clients. Tokens are issued by `mctl-api` itself and signed with HMAC-SHA256.
-
-**Used by**: Claude.ai native connector, mctl.ai web flows
+**Used by**: Claude.ai, Claude Code, Claude Desktop, Cursor, VS Code, Gemini CLI, the `mctl` CLI
 
 The flow:
-1. Client initiates OAuth PKCE flow via `mctl.ai/api/github/login`
-2. User authenticates with GitHub
-3. MCTL issues a JWT with the user's identity and groups
-4. The token is redeemed via `POST /api/github/session` (never placed in a URL)
+1. The client calls `https://api.mctl.ai/mcp` without a token and receives `401` with a pointer to `/.well-known/oauth-protected-resource`
+2. The client registers itself (`/oauth/register`) and opens `/oauth/authorize` in your browser
+3. You sign in on the MCTL sign-in page (`auth.mctl.ai`)
+4. The client exchanges the code at `/oauth/token` for an access token issued and signed by `mctl-api`, and refreshes it on its own
+
+No credential is ever copied into a config file.
+
+## GitHub Token (legacy)
+
+`mctl-api` still accepts a GitHub token as a bearer while its remaining callers are moved to MCP sign-in. It is no longer handed out by these docs, and it will be removed. Do not set up new clients with it.
 
 ## Auth Bypass (Development)
 
