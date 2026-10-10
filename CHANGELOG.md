@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.45](https://github.com/mctlhq/mctl-docs/compare/0.1.44...0.1.45) (2026-10-10)
+
+
+### Documentation
+
+* **mcp:** say what to put in Desktop's optional OAuth fields ([ab29a39](https://github.com/mctlhq/mctl-docs/commit/ab29a39d822bfb6feb36090c9408aebe2d012945))
+* **mcp:** sign in from Claude Desktop and Gemini CLI ([bf26cd4](https://github.com/mctlhq/mctl-docs/commit/bf26cd4e3d73feb5bdfda5bcb63209466dde016b))
+* **mcp:** sign in from Claude Desktop and Gemini CLI ([1de063a](https://github.com/mctlhq/mctl-docs/commit/1de063ae0c4cda85a298817b85147de94fc094d2))
+* **telemetry:** qualify the [#1332](https://github.com/mctlhq/mctl-docs/issues/1332) reference and name the tip container ([c8ccff4](https://github.com/mctlhq/mctl-docs/commit/c8ccff41c4a77c1baa4c6de1f55b3c2f9f7bc02d))
+* **telemetry:** token counters survive redaction after gitops[#1332](https://github.com/mctlhq/mctl-docs/issues/1332) ([f5dd687](https://github.com/mctlhq/mctl-docs/commit/f5dd687f566200706673d1552285bcc997edcad9))
+* **telemetry:** token counters survive redaction after gitops[#1332](https://github.com/mctlhq/mctl-docs/issues/1332) ([610393d](https://github.com/mctlhq/mctl-docs/commit/610393dbc773429f4d7674e9b50782f2ca46355c))
+
 ## [0.1.44](https://github.com/mctlhq/mctl-docs/compare/0.1.43...0.1.44) (2026-10-08)
 
 
