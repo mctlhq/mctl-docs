@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.48](https://github.com/mctlhq/mctl-docs/compare/0.1.47...0.1.48) (2026-10-10)
+
+
+### Documentation
+
+* **scaffolding:** deploy from CI with GitHub Actions OIDC ([c8b9f25](https://github.com/mctlhq/mctl-docs/commit/c8b9f251e0d2265bccb76159b9eab1b01fe9e880))
+* **scaffolding:** deploy from CI with GitHub Actions OIDC ([7eb7490](https://github.com/mctlhq/mctl-docs/commit/7eb749004c43c12b9e219d9ba168eb91faa08506)), closes [#139](https://github.com/mctlhq/mctl-docs/issues/139)
+
 ## [0.1.47](https://github.com/mctlhq/mctl-docs/compare/0.1.46...0.1.47) (2026-10-10)
 
 
