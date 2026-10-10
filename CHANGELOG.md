@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.49](https://github.com/mctlhq/mctl-docs/compare/0.1.48...0.1.49) (2026-10-10)
+
+
+### Documentation
+
+* classify every DevLoop trace attribute by cardinality ([3a9bf47](https://github.com/mctlhq/mctl-docs/commit/3a9bf4747ae91ce3b583a6e700cec1d97deb5eaa))
+* **telemetry:** reserve the DevLoop execution-trace attributes ([d829f3d](https://github.com/mctlhq/mctl-docs/commit/d829f3d02239b54cce79affa79491e541178faa6))
+* **telemetry:** reserve the DevLoop execution-trace attributes ([bd1ddb4](https://github.com/mctlhq/mctl-docs/commit/bd1ddb467313db9c6520da58595644fc96c7cac5))
+
 ## [0.1.48](https://github.com/mctlhq/mctl-docs/compare/0.1.47...0.1.48) (2026-10-10)
 
 
