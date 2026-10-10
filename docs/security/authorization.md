@@ -30,7 +30,7 @@ Tenants are fully isolated:
 
 ## How Groups Work
 
-Groups are defined in `mctl-gitops` and map GitHub teams or Dex groups to tenants:
+Groups are defined in `mctl-gitops` and map GitHub teams to tenants:
 - A user in the `backend-team` GitHub team gets access to the `backend-team` tenant
 - Platform admins have access to all tenants
 - Group membership is resolved at request time (no caching)

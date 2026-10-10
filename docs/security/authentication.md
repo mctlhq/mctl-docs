@@ -18,7 +18,13 @@ No credential is ever copied into a config file.
 
 ## GitHub Token (legacy)
 
-`mctl-api` still accepts a GitHub token as a bearer while its remaining callers are moved to MCP sign-in. It is no longer handed out by these docs, and it will be removed. Do not set up new clients with it.
+`mctl-api` still accepts a GitHub token as a bearer while its remaining callers are moved to MCP sign-in. Do not use it for an MCP client or anything else that can open a browser.
+
+Its one documented use is a non-interactive caller: the CI deploy job in [Scaffolding](/guides/scaffolding) authenticates with a classic PAT (`read:user`) stored as `MCTL_GITHUB_TOKEN`. That path stays until a non-interactive MCTL credential replaces it.
+
+```
+Authorization: Bearer <github-token>
+```
 
 ## Auth Bypass (Development)
 

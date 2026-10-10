@@ -29,7 +29,7 @@ Standard MCP authorization: OAuth 2.1 with PKCE. Claude registers itself, you si
 No for Claude.ai and Claude Desktop — use a custom connector. Claude Code, Cursor, VS Code and Gemini CLI need a one-time MCP server config with only the server URL; they open the MCTL sign-in page themselves. MCTL sign-in from Windsurf and Copilot CLI is not enabled yet. See [Connecting](/mcp/connecting) for setup instructions.
 
 **Do I need a GitHub token?**
-No. Every supported client signs in through MCTL from the server URL alone.
+Not for an MCP client: every supported client signs in through MCTL from the server URL alone. The one exception is a CI job that deploys through the API, which cannot open a browser; see [Scaffolding](/guides/scaffolding).
 
 **How many tools are available?**
 58 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource usage. See the [Tools Reference](/mcp/tools-reference).

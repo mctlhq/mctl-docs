@@ -8,6 +8,7 @@ const CLAUDE_CODE_CMD = 'claude mcp add --transport http mctl ' + MCP_ENDPOINT
 const LEGACY_AUTH_KEY = 'mctl_auth'
 
 const activeTab = ref('claude-ai')
+const legacyNotice = ref(false)
 const copied = ref<Record<string, boolean>>({})
 
 async function copy(key: string, text: string) {
@@ -67,6 +68,7 @@ onMounted(() => {
   const hash = window.location.hash
   if (hash.startsWith('#session=') || hash.startsWith('#auth=') || hash.startsWith('#auth_error=')) {
     history.replaceState(null, '', location.pathname + location.search)
+    legacyNotice.value = true
   }
 })
 
@@ -90,6 +92,7 @@ const tabs = [
       <!-- Access card -->
       <div class="auth-card">
         <h3>Sign in with MCTL</h3>
+        <p v-if="legacyNotice" class="auth-notice">This page no longer hands out a token. Add the server URL below to your client instead; it signs you in by itself.</p>
         <p class="auth-desc">Give your client the server URL and nothing else. On first use it opens the MCTL sign-in page in your browser and returns to the client on its own. There is no token to copy.</p>
         <div class="val-value-row">
           <code>{{ MCP_ENDPOINT }}</code>
@@ -279,6 +282,15 @@ const tabs = [
 
 .auth-hint a {
   color: var(--accent);
+}
+
+.auth-notice {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--surface-fg);
+  border-left: 2px solid var(--accent);
+  padding-left: 0.6rem;
+  margin: 0 0 0.75rem;
 }
 
 /* ── Config panel ── */

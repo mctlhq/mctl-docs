@@ -16,8 +16,11 @@ Include an `Authorization` header with every request to `/api/v1/*` endpoints:
 curl -H "Authorization: Bearer YOUR_TOKEN" https://api.mctl.ai/api/v1/tenants
 ```
 
-Use the access token an MCP client receives when it signs in through MCTL
-(an OAuth JWT issued by `mctl-api`).
+Interactive callers use the access token an MCP client receives when it
+signs in through MCTL (an OAuth JWT issued by `mctl-api`). Non-interactive
+callers that cannot open a browser, such as the CI deploy job in
+[Scaffolding](/guides/scaffolding), still use a GitHub token; see
+[GitHub Token (legacy)](/security/authentication#github-token-legacy).
 
 See [Authentication](/security/authentication) for details.
 
