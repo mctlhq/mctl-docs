@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.47](https://github.com/mctlhq/mctl-docs/compare/0.1.46...0.1.47) (2026-10-10)
+
+
+### Documentation
+
+* finish the Dex sweep and keep the CI token path documented ([b2f41bb](https://github.com/mctlhq/mctl-docs/commit/b2f41bba13a2cdb4a12e8d7cb4ae6581c3617bda))
+* **mcp:** connect every client through MCTL sign-in ([cbb3f44](https://github.com/mctlhq/mctl-docs/commit/cbb3f446dc997f29a38d946ba3dc8298458486dd))
+* **mcp:** connect every client through MCTL sign-in ([db1cfb3](https://github.com/mctlhq/mctl-docs/commit/db1cfb384d3163d3a836c3cd7e3c1d2b31903fc5))
+
 ## [0.1.46](https://github.com/mctlhq/mctl-docs/compare/0.1.45...0.1.46) (2026-10-10)
 
 
