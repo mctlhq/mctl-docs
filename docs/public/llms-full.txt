@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-10-10T00:07:02.612Z
+Generated: 2026-10-10T07:30:52.767Z
 Total Files Included: 33
 
 ================================================================================
@@ -31,7 +31,7 @@ hero:
       link: https://github.com/mctlhq
 features:
   - title: MCP Server
-    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 70 tools for full platform control through natural language.
+    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 58 tools for full platform control through natural language.
   - title: GitOps-First
     details: Every change flows through Git. ArgoCD ensures your cluster matches your desired state, with full audit trail and zero imperative commands.
   - title: Tenant Isolation
@@ -1920,24 +1920,6 @@ Scale your services up or down based on demand.
 
 The `mctl_scale_service` tool updates the replica count through GitOps. Changes are tracked as operations.
 
-## Resource Profiles
-
-Use OpenClaw resource profiles to right-size your services:
-
-### Get Sizing Recommendations
-
-```
-"Get resource sizing recommendations for my-app in staging"
-```
-
-The `mctl_get_openclaw_sizing_recommendation` tool analyzes current resource usage and suggests optimal CPU and memory limits.
-
-### Apply a Resource Profile
-
-```
-"Apply the recommended resource profile to my-app in staging"
-```
-
 ## Check Resource Usage
 
 ```
@@ -2868,8 +2850,7 @@ Real-world examples of managing infrastructure through natural language.
 
 ```
 "Scale my-api to 5 replicas in production"
-"Get resource sizing recommendations for my-api in staging"
-"Apply the recommended resource profile to my-api"
+"Show me resource usage for my-api in staging"
 ```
 
 ## Managing Domains
@@ -2947,7 +2928,7 @@ With the MCTL MCP server you can:
 - **Manage domains** — add, verify, and remove custom domains
 - **Provision databases** — create databases with auto-configured secrets
 - **Preview environments** — create and manage preview deployments
-- **Resource management** — check usage, get sizing recommendations
+- **Resource management** — check CPU and memory usage
 - **Platform skill registry** — list, read, publish, deprecate, and enable/disable platform-wide skills per tenant
 
 ## What You Get
@@ -2987,7 +2968,7 @@ FILE: /mcp/tools-reference.md
 ================================================================================
 # MCP Tools Reference
 
-The MCTL MCP server exposes 70 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The MCTL MCP server exposes 58 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -3163,23 +3144,6 @@ with that object's TTL.
 | `mctl_publish_platform_skill` | Publish or update a platform skill catalog entry via GitOps (admin only) | Write |
 | `mctl_deprecate_platform_skill` | Mark a platform skill as deprecated via GitOps (admin only) | Write |
 
-## OpenClaw (Resource Optimization)
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_get_openclaw_sizing_recommendation` | Read VictoriaMetrics history and return recommended resource profile | Read |
-| `mctl_deploy_openclaw` | Prepare self-service OpenClaw deployment. Returns Telegram bot-token intake URL | Write |
-| `mctl_resume_openclaw_deploy` | Resume onboarding after bot token saved. Provisions database and submits deploy workflow | Write |
-| `mctl_apply_openclaw_resource_profile` | Apply a named runtime profile (startup, steady-medium, steady-small) via GitOps | Write |
-| `mctl_list_openclaw_skills` | List OpenClaw skills managed in gitops for a team | Read |
-| `mctl_read_openclaw_skill` | Return the raw content of a single skill from gitops | Read |
-| `mctl_save_openclaw_skill` | Save a skill (SKILL.md) to the tenant's OpenClaw agent | Write |
-| `mctl_delete_openclaw_skill` | Remove a skill from the tenant's OpenClaw agent | Destructive |
-| `mctl_list_openclaw_identity` | List identity override files managed in gitops for a team | Read |
-| `mctl_read_openclaw_identity` | Return the raw content of a single identity override file | Read |
-| `mctl_save_openclaw_identity` | Save an identity override (AGENTS.md, SOUL.md, IDENTITY.md, USER.md, TOOLS.md) | Write |
-| `mctl_delete_openclaw_identity` | Remove an identity override from the tenant's OpenClaw agent | Destructive |
-
 ## mctl-agents pipeline controls
 
 > **Admin-only.** All tools in this section require membership in the `admins` group.
@@ -3255,7 +3219,7 @@ Useful for spot-checking one repo after a significant release.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-openclaw`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
+| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
 
 **Cost / duration:** ~$2–5, ~5–10 minutes.
 
@@ -3511,7 +3475,7 @@ graph TB
 1. AlertManager fires an alert (e.g., pod crash loop)
 2. `mctl-agent` receives the alert webhook and creates a ticket
 3. Evidence is collected and a skill is selected for diagnosis
-4. The agent either prepares a direct fix PR or dispatches the incident to an external agent such as OpenClaw
+4. The agent either prepares a direct fix PR or dispatches the incident to an external agent
 5. A fix lands in `mctl-gitops` as a PR rather than mutating the cluster directly
 6. On merge, ArgoCD syncs the change
 
@@ -3544,7 +3508,7 @@ organization.
 - Authenticates via GitHub OAuth, Dex SSO, or OAuth JWT
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
-- Exposes 70 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
+- Exposes 58 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
 
 | | |
 |---|---|
@@ -3607,7 +3571,7 @@ organization.
 - Creates tickets and stores incident state
 - Analyzes alerts using Claude API plus builtin, YAML, and remote skills
 - Executes skills (rollback, scale, restart, quota, probe, drift, etc.)
-- Can dispatch incidents to external agents such as OpenClaw through signed webhooks
+- Can dispatch incidents to external agents through signed webhooks
 - Creates PRs to `mctl-gitops` with fixes and tracks PR metadata
 - Notifies operators through Telegram for updates, review, and approvals
 - Full incident lifecycle: detect, analyze, propose fix, review, verify
@@ -3676,7 +3640,7 @@ Every action is an async **operation** with a trackable ID. You can check status
 
 **Multi-tenant** — each team gets isolated namespaces with RBAC policies and resource quotas. No cross-tenant access.
 
-**AI-native** — built from the ground up for AI interaction. The MCP server exposes 70 tools covering the full platform lifecycle.
+**AI-native** — built from the ground up for AI interaction. The MCP server exposes 58 tools covering the full platform lifecycle.
 
 **Self-healing** — the mctl-agent watches AlertManager and automatically creates PRs to fix common issues.
 
@@ -3889,10 +3853,10 @@ Any client that supports the Model Context Protocol (MCP): Claude.ai, Claude Cod
 ## MCP
 
 **What can the AI do?**
-Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 70 tools.
+Read platform state (services, logs, resource usage, workflows, incidents) and trigger operations (deploy, rollback, scale, create previews, manage domains, provision databases). See the [Tools Reference](/mcp/tools-reference) for all 58 tools.
 
 **What can it NOT do?**
-No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`, `mctl_delete_openclaw_skill`, `mctl_delete_openclaw_identity`, `mctl_trigger_implementer`, `mctl_trigger_shepherd`) are explicitly annotated and require AI client confirmation before execution.
+No direct kubectl access, no raw Vault reads, no cluster-level operations. Destructive tools (`mctl_retire_service`, `mctl_delete_tenant`, `mctl_remove_custom_domain`, `mctl_delete_preview`, `mctl_trigger_implementer`, `mctl_trigger_shepherd`) are explicitly annotated and require AI client confirmation before execution.
 
 **Where do write operations go?**
 Every write operation submits an Argo Workflow that produces a git commit in the GitOps repository. ArgoCD detects the change and syncs it to the cluster. Use `mctl_get_workflow_status` to track progress.
@@ -3907,7 +3871,7 @@ No for Claude.ai and Claude Desktop — use a custom connector. Claude Code, Cur
 For developer clients that take a token: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
 
 **How many tools are available?**
-70 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource optimization. See the [Tools Reference](/mcp/tools-reference).
+58 tools covering tenants, services, operations, incidents, domains, databases, previews, and resource usage. See the [Tools Reference](/mcp/tools-reference).
 
 ## Platform
 
@@ -3943,7 +3907,6 @@ FILE: /reference/glossary.md
 | **GitOps** | Operating model where Git is the single source of truth for infrastructure |
 | **MCP** | Model Context Protocol — open standard for connecting AI to external tools |
 | **Namespace** | Kubernetes isolation boundary, one per tenant |
-| **OpenClaw** | Resource optimization system for right-sizing service CPU and memory |
 | **Operation** | An async task (deploy, scale, rollback) tracked by ID |
 | **PKCE** | Proof Key for Code Exchange — OAuth 2.0 extension for public clients |
 | **Preview Environment** | Temporary deployment for testing a branch or pull request |

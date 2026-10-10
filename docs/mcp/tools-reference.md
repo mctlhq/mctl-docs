@@ -1,6 +1,6 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 70 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The MCTL MCP server exposes 58 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
 
 ## Identity
 
@@ -176,23 +176,6 @@ with that object's TTL.
 | `mctl_publish_platform_skill` | Publish or update a platform skill catalog entry via GitOps (admin only) | Write |
 | `mctl_deprecate_platform_skill` | Mark a platform skill as deprecated via GitOps (admin only) | Write |
 
-## OpenClaw (Resource Optimization)
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_get_openclaw_sizing_recommendation` | Read VictoriaMetrics history and return recommended resource profile | Read |
-| `mctl_deploy_openclaw` | Prepare self-service OpenClaw deployment. Returns Telegram bot-token intake URL | Write |
-| `mctl_resume_openclaw_deploy` | Resume onboarding after bot token saved. Provisions database and submits deploy workflow | Write |
-| `mctl_apply_openclaw_resource_profile` | Apply a named runtime profile (startup, steady-medium, steady-small) via GitOps | Write |
-| `mctl_list_openclaw_skills` | List OpenClaw skills managed in gitops for a team | Read |
-| `mctl_read_openclaw_skill` | Return the raw content of a single skill from gitops | Read |
-| `mctl_save_openclaw_skill` | Save a skill (SKILL.md) to the tenant's OpenClaw agent | Write |
-| `mctl_delete_openclaw_skill` | Remove a skill from the tenant's OpenClaw agent | Destructive |
-| `mctl_list_openclaw_identity` | List identity override files managed in gitops for a team | Read |
-| `mctl_read_openclaw_identity` | Return the raw content of a single identity override file | Read |
-| `mctl_save_openclaw_identity` | Save an identity override (AGENTS.md, SOUL.md, IDENTITY.md, USER.md, TOOLS.md) | Write |
-| `mctl_delete_openclaw_identity` | Remove an identity override from the tenant's OpenClaw agent | Destructive |
-
 ## mctl-agents pipeline controls
 
 > **Admin-only.** All tools in this section require membership in the `admins` group.
@@ -268,7 +251,7 @@ Useful for spot-checking one repo after a significant release.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-openclaw`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
+| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
 
 **Cost / duration:** ~$2–5, ~5–10 minutes.
 

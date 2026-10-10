@@ -31,8 +31,7 @@ Real-world examples of managing infrastructure through natural language.
 
 ```
 "Scale my-api to 5 replicas in production"
-"Get resource sizing recommendations for my-api in staging"
-"Apply the recommended resource profile to my-api"
+"Show me resource usage for my-api in staging"
 ```
 
 ## Managing Domains
