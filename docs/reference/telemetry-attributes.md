@@ -196,7 +196,8 @@ identity above, `gen_ai.*` for model and tool spans, and these names for what
 upstream does not model. All are `reserved`: the emitting code is merged in
 `mctl-agents` `orchestrator/tracing.py` and
 `orchestrator/temporal/activities/argo.py`, but nothing exports in production
-until the bounded rollout in `mctlhq/mctl-gitops#1280`'s producer amendment.
+until the bounded rollout under the producer amendment to the `#1280` soak
+(`mctlhq/mctl-gitops#1788`).
 
 | Attribute | Where | Type | Status | Meaning |
 |---|---|---|---|---|
@@ -211,7 +212,7 @@ until the bounded rollout in `mctlhq/mctl-gitops#1280`'s producer amendment.
 | `mctl.policy.version` | `mctl.policy.decision` event | string | reserved | The policy version that decided. |
 | `mctl.policy.action_kind` | `mctl.policy.decision` event | string | reserved | The class of action being decided. Bounded. |
 | `mctl.policy.operation` | `mctl.policy.decision` event | string | reserved | The operation within that class. Bounded. The target it acts on is deliberately not recorded. |
-| `mctl.policy.approval_ref` | `mctl.policy.decision` event | string | reserved | The approval receipt id, for a decision that went through a human. Empty otherwise. A join key. |
+| `mctl.policy.approval_ref` | `mctl.policy.decision` event | string | reserved | The approval receipt id, for a decision that went through a human. Omitted otherwise, per the producer rule above. A join key. |
 | `mctl.policy.approver` | `mctl.policy.decision` event | string | reserved | Who approved. The same privacy class as `mctl.actor.id` above; see Privacy. |
 | `mctl.policy.decided_at` | `mctl.policy.decision` event | string | reserved | When the approval was observed, which is not the event's own timestamp: the event is recorded later, in the pod. The one timestamp-valued attribute in this catalog, admitted for that reason only. |
 | `mctl.context.strategy.name` | log fields today | string | reserved | Context-assembly strategy (`mctlhq/mctl-agents#527`). Emitted as `CONTEXT_STRATEGY_RELEASE` / `_COMPARE` log fields, not yet on a span. |
@@ -382,8 +383,12 @@ dimension at all:
 `mctl.ticket.type`, `mctl.skill.name`, `mctl.diagnosis.confidence`,
 `mctl.diagnosis.fixable`, `mctl.ticket.outcome`,
 `mctl.argo.workflow.phase`, `mctl.github.operation`, `mctl.github.mutation`,
-`mctl.artifact.kind`, `mctl.policy.decision`, `mctl.policy.code`,
-`mctl.policy.action_kind`, `mctl.policy.operation`, the three
+`mctl.artifact.name`, `mctl.artifact.kind`, `mctl.policy.rule_id`,
+`mctl.policy.decision`, `mctl.policy.code`, `mctl.policy.version`,
+`mctl.policy.action_kind`, `mctl.policy.operation`, the five `mctl.context.*`
+attributes (a strategy's name, version and content hash, the binding revision
+and the release mode change only when a strategy or binding is released, the
+same reasoning as the release tuple that follows), the three
 version-identity attributes (`mctl.agent.definition_version`,
 `mctl.agent.profile_version`, `mctl.agent.release_revision` — a release tuple
 is bounded and changes only on promotion, so grouping by it is exactly the
@@ -412,10 +417,13 @@ dimension.
 
 `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens` are neither: they
 are *measurements*, not dimensions and not join keys. Aggregate them, never
-group by them.
+group by them. `mctl.policy.decided_at` is neither as well: a value to read on
+one decision, never to group, aggregate or join by.
 
 **Must not become attributes.** Anything unbounded that is not a join key:
-timestamps already carried by the span, free-form messages, commit diffs, file
+timestamps already carried by the span (`mctl.policy.decided_at` is a
+different moment from its event's own timestamp, and is the one admitted
+exception), free-form messages, commit diffs, file
 contents, retry counters that belong in metrics, and full URLs where a
 repository name and a number carry the same information in bounded form.
 
