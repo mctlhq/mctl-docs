@@ -5,9 +5,11 @@ expects three artifacts to already be in place:
 
 1. **`Dockerfile`** at the repo root (or at the configured `dockerfile_path`)
 2. (For auto-deploy on push to main) **`.github/workflows/ci.yml`** containing a `deploy` job
-3. A **`MCTL_GITHUB_TOKEN`** GitHub Actions secret — a classic GitHub PAT with scope `read:user`, used by the deploy job to authenticate to `api.mctl.ai`
+3. The component registered to this repository: onboarding records it as the
+   `github.com/source-repo` annotation, and the deploy job authenticates with
+   the job's own GitHub Actions OIDC token. No secret to create.
 
-If your repo is missing any of these, copy the canonical templates below.
+If your repo is missing the first two, copy the canonical templates below.
 They cover the common languages and produce small (~50–150 MB), non-root
 images with sane health-check semantics.
 
@@ -187,7 +189,11 @@ every push to `main` is auto-tagged with the next SemVer patch and
 triggers `mctl_deploy_service`. To switch to **tag-based**, change the
 `if:` to `startsWith(github.ref, 'refs/tags/')`, drop the *Compute next
 SemVer patch* and *Push new tag* steps, and pass <code v-pre>${{ github.ref_name }}</code>
-as `git_tag` in the curl payload.
+as `git_tag` in the request body.
+
+Whatever the trigger, the deploy runs only on `push` (to `main` or a tag),
+`workflow_dispatch` or `release`. mctl refuses the OIDC token of a
+`pull_request` run, and of any other event, so a PR can never deploy.
 
 ## Pre-merge docker build (recommended)
 
@@ -223,8 +229,12 @@ the `deploy` job's `needs:` list — a skipped dependency would skip
 Drop this `deploy` job into `.github/workflows/ci.yml`, after your
 existing build / lint / test jobs. The `needs:` list should reference
 jobs that actually run on push to `main` — not the PR-only docker
-build above. Replace `<team>`, `<service>`, `<owner>/<repo>`, and the
-`needs:` job name.
+build above. Replace `<team>`, `<service>` and the `needs:` job name.
+
+The job authenticates with its own GitHub Actions OIDC token, minted for
+the audience `https://api.mctl.ai`. The token lives for minutes and names
+the repository, event and ref the job ran for. You do not create or store
+any secret.
 
 ```yaml
 deploy:
@@ -233,26 +243,15 @@ deploy:
   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
   runs-on: ubuntu-latest
   permissions:
-    contents: write
+    contents: write   # push the release tag
+    id-token: write   # mint the OIDC token for api.mctl.ai
   steps:
-    - name: Skip if MCTL_GITHUB_TOKEN unset
-      id: gate
-      run: |
-        if [ -z "${{ secrets.MCTL_GITHUB_TOKEN }}" ]; then
-          echo "::warning::MCTL_GITHUB_TOKEN secret not set — skipping deploy"
-          echo "skip=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-        fi
-
     - uses: actions/checkout@v4
-      if: steps.gate.outputs.skip != 'true'
       with:
         fetch-depth: 0
 
     - name: Compute next SemVer patch
       id: tag
-      if: steps.gate.outputs.skip != 'true'
       run: |
         set -euo pipefail
         LAST=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
@@ -261,7 +260,6 @@ deploy:
         echo "tag=${MAJOR_MINOR}.$((PATCH + 1))" >> "$GITHUB_OUTPUT"
 
     - name: Push new tag
-      if: steps.gate.outputs.skip != 'true'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -270,36 +268,76 @@ deploy:
         git push origin "${{ steps.tag.outputs.tag }}"
 
     - name: Trigger mctl deploy-service
-      if: steps.gate.outputs.skip != 'true'
+      env:
+        GIT_TAG: ${{ steps.tag.outputs.tag }}
       run: |
         set -euo pipefail
+        TOKEN=$(curl -fsS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://api.mctl.ai" | jq -r .value)
+        echo "::add-mask::$TOKEN"
+        jq -n \
+          --arg team "<team>" \
+          --arg component "<service>" \
+          --arg repo "$GITHUB_REPOSITORY" \
+          --arg tag "$GIT_TAG" \
+          '{action: "deploy", team_name: $team, component_name: $component,
+            dockerfile_repo: $repo, git_tag: $tag}' |
         curl -fsS -X POST https://api.mctl.ai/api/v1/operations/deploy-service/execute \
-          -H "Authorization: Bearer ${{ secrets.MCTL_GITHUB_TOKEN }}" \
+          -H "Authorization: Bearer $TOKEN" \
           -H "Content-Type: application/json" \
-          -d '{
-            "action": "deploy",
-            "team_name": "<team>",
-            "component_name": "<service>",
-            "dockerfile_repo": "<owner>/<repo>",
-            "git_tag": "${{ steps.tag.outputs.tag }}"
-          }'
+          --data-binary @-
 ```
 
-The gate step makes the job a no-op (with a warning) if the secret
-isn't configured yet, so onboarding doesn't fail CI before the secret
-exists.
+What the CI token may do, and nothing else:
+
+- **Deploy only.** The one route it may call is
+  `POST /api/v1/operations/deploy-service/execute` with `action: deploy`.
+  `onboard`, `update-config`, every other operation, every read and `/mcp`
+  answer 403.
+- **A flat body with these fields only:** `action`, `team_name`,
+  `component_name`, `dockerfile_repo`, `git_tag` and `dockerfile_path`.
+  Anything else (env vars, secrets, host, port, scaling, database,
+  `image_tag`) is refused with 403 — change configuration through
+  `mctl_deploy_service action=update-config` as a tenant member instead. A
+  nested `"parameters"` object is rejected with 400.
+- **`git_tag` is required** and must match `^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`.
+- **Its own repository only.** `dockerfile_repo` must be the job's
+  repository (`$GITHUB_REPOSITORY`), and the component's
+  `github.com/source-repo` annotation, written at onboarding, must name the
+  same repository. A component onboarded from another repository cannot be
+  deployed from this one.
+- **Trusted events and refs only:** `push`, `workflow_dispatch` or `release`,
+  from `main` or a tag. `pull_request` runs are always refused.
+- **Enabled repository owners.** The repository's owner (organisation or
+  user) must be on mctl's allow-list. If the deploy answers 401 with a valid
+  workflow, ask a platform admin to add your owner.
+
+::: warning Dockerfile not at the repository root
+Send `dockerfile_path` in the body (add `--arg path "deploy/api.Dockerfile"`
+and `dockerfile_path: $path`). Omitting it does **not** keep the value you
+onboarded with: the deploy defaults it to `Dockerfile`, so a component
+onboarded with `deploy/api.Dockerfile` would build the wrong file. The path
+must be relative to the repository root, without `..` segments.
+:::
+
+::: info Migrating from `MCTL_GITHUB_TOKEN`
+Earlier versions of this guide authenticated the deploy job with a classic
+GitHub PAT stored as `MCTL_GITHUB_TOKEN`. That method is deprecated and will
+stop working when mctl stops accepting GitHub tokens. Replace the job with
+the one above, then delete the `MCTL_GITHUB_TOKEN` repository secret and
+revoke the PAT on GitHub.
+:::
 
 ## First-time onboard checklist
 
 1. **Add files** — copy the right Dockerfile and the `deploy` job above.
-2. **Create PAT** — `https://github.com/settings/tokens/new` (classic), scope **`read:user`**. Save as repo secret named **`MCTL_GITHUB_TOKEN`**.
-3. **Grant access** if mctl can't see the repo:
+2. **Grant access** if mctl can't see the repo:
    ```
    mctl_grant_repo_access(team="<team>", repo="<owner>/<repo>")
    ```
    Open the URL it returns, install the GitHub App, then run
    `mctl_sync_repos(team="<team>")`.
-4. **Onboard**:
+3. **Onboard**:
    ```
    mctl_deploy_service(
      action="onboard",
@@ -311,7 +349,11 @@ exists.
      service_template="default"
    )
    ```
-5. **Verify** — once mctl reports the workflow Succeeded:
+   Onboarding records `dockerfile_repo` as the component's
+   `github.com/source-repo` annotation; that is what lets this repository's
+   CI deploy it. Pass `dockerfile_path` here too if the Dockerfile is not at
+   the root.
+4. **Verify** — once mctl reports the workflow Succeeded:
    ```
    curl https://<team>-<service>.mctl.ai/healthz
    ```
@@ -323,13 +365,13 @@ exists.
    check even though the platform reports it healthy.
    
    **Important note on Authentication:** Kubernetes liveness and readiness probes do not send authorization headers. If your service uses authentication middleware or hooks, you **must explicitly bypass auth for your health check endpoints** (e.g. `/healthz`, `/readyz`). Failure to do so will result in 401 Unauthorized responses for K8s probes, causing Kubernetes to endlessly restart and kill your pod (SIGTERM) during deployment.
-6. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
+5. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
    without human intervention from then on.
 
 ## Reference implementation
 
 `mashkoffdmitry/pelican-libertex-social` runs exactly this pattern
 end-to-end: Node.js Dockerfile, the `deploy` job in
-`.github/workflows/ci.yml`, `MCTL_GITHUB_TOKEN` secret, deployed as
+`.github/workflows/ci.yml`, deployed as
 `labs/pelican-proxy` at `https://labs-pelican-proxy.mctl.ai`. Browse
 the repo for a working production example.
