@@ -26,7 +26,7 @@ Every write operation submits an Argo Workflow that produces a git commit in the
 GitHub OAuth with PKCE flow. Only `read:user` and `user:email` scopes are requested — no access to your code or repositories. The OAuth token is sent per-request and never stored server-side.
 
 **Do I need to install anything?**
-No for Claude.ai — use the native connector. Claude Code, Cursor and VS Code need a one-time MCP server config with only the server URL; they open the MCTL sign-in page themselves. Other developer clients (Claude Desktop, Windsurf, etc.) need the config with a GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
+No for Claude.ai and Claude Desktop — use a custom connector. Claude Code, Cursor, VS Code and Gemini CLI need a one-time MCP server config with only the server URL; they open the MCTL sign-in page themselves. Other developer clients (Windsurf, Copilot CLI, etc.) need the config with a GitHub token. See [Connecting](/mcp/connecting) for setup instructions.
 
 **What GitHub token scope is needed?**
 For developer clients that take a token: a PAT with `read:user` scope. The simplest way is `gh auth token` from the GitHub CLI. For Claude.ai, no token management is needed — the connector handles auth via OAuth.
