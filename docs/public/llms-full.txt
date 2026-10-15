@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-10-15T18:08:36.733Z
+Generated: 2026-10-15T18:09:36.507Z
 Total Files Included: 33
 
 ================================================================================
@@ -3511,7 +3511,7 @@ The catalog changes by release and caller permissions. Ask your client to refres
 The API submits a workflow which builds the image and updates GitOps. ArgoCD reconciles that configuration. Track the workflow, then check service sync/health and the application endpoint.
 
 **Can I rollback a deployment?**
-Yes. Use the `mctl_rollback_service` tool or API endpoint. Since every deployment is a Git commit, rollbacks are safe and auditable.
+Yes. Use `mctl_rollback_service` with an explicit known-good image tag. The workflow records the image change in Git; it does not restore database state, secrets or other configuration. See [Rollbacks](/guides/rollbacks).
 
 **How is tenant isolation enforced?**
 Each tenant has its own Kubernetes namespace with RBAC policies, network policies, and resource quotas. The cluster remains shared; access follows configured policies and grants.

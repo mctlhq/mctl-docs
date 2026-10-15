@@ -40,7 +40,7 @@ The catalog changes by release and caller permissions. Ask your client to refres
 The API submits a workflow which builds the image and updates GitOps. ArgoCD reconciles that configuration. Track the workflow, then check service sync/health and the application endpoint.
 
 **Can I rollback a deployment?**
-Yes. Use the `mctl_rollback_service` tool or API endpoint. Since every deployment is a Git commit, rollbacks are safe and auditable.
+Yes. Use `mctl_rollback_service` with an explicit known-good image tag. The workflow records the image change in Git; it does not restore database state, secrets or other configuration. See [Rollbacks](/guides/rollbacks).
 
 **How is tenant isolation enforced?**
 Each tenant has its own Kubernetes namespace with RBAC policies, network policies, and resource quotas. The cluster remains shared; access follows configured policies and grants.
