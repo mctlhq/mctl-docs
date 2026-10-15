@@ -32,7 +32,7 @@ The request file lives at:
 platform-gitops/agents-state/<service>/proposals/<slug>/human-input/request.json
 ```
 
-There is at most one per proposal. A re-asking investigator overwrites it, and the continuation removes an answered request and records `answered.json`, so the set of files is the set of requests that exist, not the set that are pending. Only the owning workflow knows whether a request is pending.
+There is at most one request file per proposal. A re-asking investigator overwrites it; after an answer, the continuation removes it and records `answered.json`. File cleanup and workflow state transitions are separate steps, so file presence alone does not establish that a request is pending. The owning workflow is authoritative for its current state.
 
 ## Flow
 
