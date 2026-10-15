@@ -1,44 +1,54 @@
 # Custom Domains
 
-Add custom domains to your services with automatic TLS certificate provisioning.
+Custom domains use registration, DNS ownership verification and an asynchronous
+GitOps workflow to configure ingress and TLS.
 
 ## Add a Custom Domain
 
-```
-"Add domain api.example.com to my-app in the staging tenant"
+```text
+Add domain api.example.com to my-app in staging
 ```
 
-The `mctl_add_custom_domain` tool:
-1. Creates an ingress rule for the domain
-2. Configures cert-manager to provision a TLS certificate
-3. Returns DNS configuration instructions
+`mctl_add_custom_domain` registers the domain and returns `challenge_record`,
+`challenge_value` and `cname_target`. Registration alone does not create ingress
+or issue a certificate. Adding and verifying require the developer role.
+
+## DNS Configuration
+
+Create the returned TXT ownership challenge and point the hostname at the returned
+CNAME target (normally `<team>-<service>.mctl.ai`). Use the actual response values.
+An unproxied CNAME pointing directly at that target is also accepted as ownership
+proof. For proxied DNS, use the TXT challenge because the proxy may hide the CNAME.
 
 ## Verify a Domain
 
-After adding a domain, you need to configure DNS to point to the cluster ingress:
-
-```
-"Verify domain api.example.com for my-app in staging"
+```text
+mctl_verify_domain(team="staging", service="my-app")
 ```
 
-The `mctl_verify_domain` tool checks that DNS is correctly configured and the TLS certificate has been issued.
+The tool checks registered domains for this service. Successful ownership
+verification triggers the add-custom-domain workflow to update ingress and TLS.
+Verification is a write operation; it does not prove the certificate is already
+issued. Track the returned workflow and check domain/service status before testing
+HTTPS. DNS and certificate issuance can take additional time.
 
 ## List Domains
 
-```
-"Show me all domains for the staging tenant"
+```text
+List domains for staging
 ```
 
 ## Remove a Domain
 
+Removing a domain requires the owner role. The tool removes its registry entry
+and submits ingress cleanup when needed. Track any returned workflow before
+assuming routing has been removed.
+
+```text
+Remove domain api.example.com from my-app in staging
 ```
-"Remove domain api.example.com from my-app in staging"
-```
 
-## DNS Configuration
+## Platform hostnames
 
-When you add a custom domain, you'll need to create a CNAME record pointing to the cluster ingress. The exact target will be provided in the tool response.
-
-| Record Type | Name | Value |
-|-------------|------|-------|
-| CNAME | `api.example.com` | *(provided by MCTL)* |
+The platform domain and its subdomains cannot be self-registered through this
+API. Operators configure these hosts through GitOps ingress values instead.

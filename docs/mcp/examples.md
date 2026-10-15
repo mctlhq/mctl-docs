@@ -13,7 +13,7 @@ Real-world examples of managing infrastructure through natural language.
 ## Deploying a Service
 
 ```
-"Deploy my-api from ghcr.io/myorg/my-api:2.1.0 to the staging tenant"
+"Onboard my-api from repo myorg/my-api tag 2.1.0 port 8080 for staging"
 "What's the status of that deployment?"
 "Show me logs for my-api in staging"
 ```
@@ -23,15 +23,15 @@ Real-world examples of managing infrastructure through natural language.
 ```
 "Are there any open incidents?"
 "Show me details of incident INC-42"
-"What's the resource usage for my-api in production?"
+"What's the namespace resource usage for production?"
 "Get the last 200 lines of logs for my-api in production"
 ```
 
 ## Scaling and Performance
 
 ```
-"Scale my-api to 5 replicas in production"
-"Show me resource usage for my-api in staging"
+"Enable autoscaling for my-api in production with min 2, max 5 replicas and CPU threshold 80"
+"Show me namespace resource usage for staging"
 ```
 
 ## Managing Domains
@@ -45,9 +45,9 @@ Real-world examples of managing infrastructure through natural language.
 ## Preview Environments
 
 ```
-"Create a preview of my-frontend from ghcr.io/myorg/my-frontend:pr-123 in staging"
+"Create a preview of my-frontend at image tag pr-123 in staging"
 "List all previews in staging"
-"Delete the preview for PR 123"
+"List previews in staging, then delete the selected preview using its preview_id"
 ```
 
 ## Incident Response
@@ -73,6 +73,6 @@ show me the details and the logs for the affected services"
 ```
 
 ```
-"Scale my-api to 3 replicas in staging and add the domain
+"Configure autoscaling for my-api in staging with min 1 and max 3 replicas, then register the domain
 api-staging.example.com to it"
 ```

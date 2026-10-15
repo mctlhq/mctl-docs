@@ -10,8 +10,7 @@ expects three artifacts to already be in place:
    the job's own GitHub Actions OIDC token. No secret to create.
 
 If your repo is missing the first two, copy the canonical templates below.
-They cover the common languages and produce small (~50–150 MB), non-root
-images with sane health-check semantics.
+Adapt the entrypoint, dependency installation and probes to your application. Image size and runtime privileges depend on the selected base image and application.
 
 ## Platform health checks
 
@@ -24,10 +23,10 @@ does not configure Kubernetes probes.
 
 | Repo contains | Template |
 | --- | --- |
-| `package.json`, `server.js` / `index.js` | [Node.js](#nodejs) |
+| `package.json`, `server.js` / `index.js` | [Node.js](#node-js) |
 | `pyproject.toml` or `requirements.txt` | [Python](#python) |
 | `go.mod` | [Go](#go) |
-| Static SPA (Vue / React / SvelteKit `dist/`) | [Static](#static-vue-react-build-nginx) |
+| Static SPA (Vue / React / SvelteKit `dist/`) | [Static](#static) |
 
 ## Node.js
 
@@ -75,7 +74,7 @@ entrypoint (`index.js`, `dist/main.js`), update the final `CMD`.
 ```dockerfile
 FROM python:3.12-slim AS builder
 WORKDIR /build
-COPY pyproject.toml requirements*.txt ./
+COPY requirements.txt ./
 RUN pip install --user --no-cache-dir -r requirements.txt
 
 FROM python:3.12-slim
@@ -95,11 +94,13 @@ ENV PATH=/home/app/.local/bin:$PATH \
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:8000/healthz || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=4)"
 
 ENTRYPOINT ["tini", "--"]
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
+
+This example requires `requirements.txt` containing your runtime dependencies, including `uvicorn`. For a pyproject-only project, adapt the dependency installation step.
 
 Replace `app:app` with your ASGI module path (e.g.,
 `my_service.main:app`). For non-uvicorn workloads, swap the `CMD` for
@@ -132,7 +133,7 @@ CMD ["/app/server"]
 
 Adjust `./cmd/server` to your binary's package path.
 
-## Static (Vue / React build → nginx)
+## Static (Vue / React build → nginx) {#static}
 
 ```dockerfile
 FROM node:22-alpine AS builder
@@ -367,11 +368,3 @@ revoke the PAT on GitHub.
    **Important note on Authentication:** Kubernetes liveness and readiness probes do not send authorization headers. If your service uses authentication middleware or hooks, you **must explicitly bypass auth for your health check endpoints** (e.g. `/healthz`, `/readyz`). Failure to do so will result in 401 Unauthorized responses for K8s probes, causing Kubernetes to endlessly restart and kill your pod (SIGTERM) during deployment.
 5. **Push the next commit** — CI auto-bumps to `0.1.1` and deploys
    without human intervention from then on.
-
-## Reference implementation
-
-`mashkoffdmitry/pelican-libertex-social` runs exactly this pattern
-end-to-end: Node.js Dockerfile, the `deploy` job in
-`.github/workflows/ci.yml`, deployed as
-`labs/pelican-proxy` at `https://labs-pelican-proxy.mctl.ai`. Browse
-the repo for a working production example.

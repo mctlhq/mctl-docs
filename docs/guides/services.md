@@ -1,90 +1,69 @@
 # Service Deployment
 
-Services are containerized applications managed by MCTL. Every service operation flows through GitOps.
+Services are containerized applications managed through GitOps. Deployment and
+configuration writes require the developer role on the tenant (or platform admin).
 
 ## Deploy a Service
 
-### Via MCP
+For a new service, use the repository-based [onboarding walkthrough](/guides/deploy-first-app).
+The deployment tool accepts a repository and Git tag, not an arbitrary image URL:
 
-```
-"Deploy my-app from ghcr.io/myorg/my-app:1.0.0 to the staging tenant"
+```text
+Onboard my-app from repo myorg/my-app tag 1.0.0 port 8080 for staging
 ```
 
-The `mctl_deploy_service` tool:
-1. Validates the image reference and tenant access
-2. Commits the service manifest to `mctl-gitops`
-3. Returns an operation ID for tracking
-4. ArgoCD syncs the change to the cluster
+`mctl_deploy_service(action="onboard", team_name="staging", component_name="my-app",
+dockerfile_repo="myorg/my-app", git_tag="1.0.0", port="8080")` submits the build
+and deployment workflow. For subsequent releases use `action="deploy"` with the
+repository and new Git tag. Use `action="update-config"` to change environment
+variables or secrets without rebuilding.
 
-### Track Deployment
+## Track Deployment
 
-```
-"What's the status of operation op-abc123?"
-"Show me recent operations in staging"
-```
+Keep the returned workflow name and poll `mctl_get_workflow_status`. The REST
+submission response uses `workflowName`; pass it as `workflow_name` to the MCP
+status tool. Then check `mctl_get_service_status` for ArgoCD sync/health and test
+the service's configured host. Request acceptance is not deployment completion.
 
 ## Get Service Status
 
-```
-"Show me the status of my-app in staging"
-"List all services in the production tenant"
+```text
+Show me the status of my-app in staging
 ```
 
-The `mctl_get_service_status` tool returns:
-- Current image and version
-- Replica count and health
-- Resource usage (CPU, memory)
-- Recent events and conditions
+This returns ArgoCD sync/health and service configuration. For logs use
+`mctl_get_service_logs`; for namespace quota usage use `mctl_get_resource_usage`.
+These are separate calls, not fields guaranteed by service status.
 
 ## Get Service Config
 
-```
-"Show me the config for my-app in staging"
-```
-
-Returns the full service configuration including environment variables, resource limits, and deployment strategy.
-
-## View Service Logs
-
-```
-"Show me logs for my-app in staging"
-"Get the last 100 lines of logs for my-app"
-```
+`mctl_get_service_config(team="staging", service="my-app")` returns the service
+configuration read from GitOps. Secret values are not exposed by this view.
 
 ## Scale a Service
 
-```
-"Scale my-app to 3 replicas in staging"
-```
-
-The `mctl_scale_service` tool updates the replica count through GitOps. The change is tracked as an operation.
+`mctl_scale_service` configures HPA autoscaling, including its enabled flag,
+minimum/maximum replicas and CPU threshold. See [Scaling](/guides/scaling).
 
 ## Rollback a Service
 
-```
-"Rollback my-app in staging to image tag 1.2.3"
-```
-
-The `mctl_rollback_service` tool requires an explicit `target_tag` and updates
-`image.tag` in GitOps. It does not restore old configuration or secrets. See
-[Rollbacks](/guides/rollbacks) for details.
+`mctl_rollback_service` requires an explicit `target_tag`. It updates `image.tag`
+in GitOps without restoring old configuration, secrets or database state.
+See [Rollbacks](/guides/rollbacks).
 
 ## Retire a Service
 
-::: warning
-Retiring a service removes it from the cluster. The GitOps history preserves the configuration for recovery.
+::: danger
+Retirement requires the owner role. It removes service resources and can delete
+Vault secrets and database resources. Git history is not a backup of those data.
 :::
 
-```
-"Retire the old-api service from staging"
+```text
+Retire the old-api service from staging
 ```
 
 ## Deployment Strategies
 
-The default chart uses a Kubernetes Deployment with rolling updates. Blue-green
-is opt-in: set `blueGreen.enabled: true` in the service Helm values through GitOps
-to use an Argo Rollout. With blue-green enabled, the platform handles:
-- Creating the new version alongside the old
-- Health checking the new version
-- Switching traffic
-- Cleaning up the old version
+The default chart uses a Kubernetes Deployment with rolling updates.
+`blueGreen.enabled: true` in GitOps opts into an Argo Rollout. Review the chart's
+promotion policy before relying on automatic traffic switching.

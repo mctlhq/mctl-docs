@@ -13,7 +13,7 @@ MCP is an open protocol that connects AI models to external tools and data sourc
 | **Endpoint** | `https://api.mctl.ai/mcp` |
 | **Transport** | Streamable HTTP (POST/GET) |
 | **Auth** | OAuth 2.0 PKCE or Bearer token |
-| **Tools** | 70 (32 read-only, 26 write, 12 destructive) |
+| **Tools** | Discover the tools available to your account with MCP `tools/list` |
 
 ## Capabilities
 
@@ -36,15 +36,15 @@ Once connected, your AI assistant can:
 1. **Inspect platform state** — query services, tenants, resource usage, logs, and workflow status in real time
 2. **Deploy and manage apps** — onboard, deploy, rollback, and preview services; create workspaces; provision databases
 3. **Manage domains and scaling** — add custom domains with auto-TLS, configure autoscaling, verify DNS
-4. **Full audit trail** — every write operation creates a git commit in the GitOps repo for complete traceability
+4. **Operation tracking** — workflow-backed changes return a workflow name; other writes update their own registries or stores
 
 ## How Access Works
 
 Authentication follows a three-step model:
 
-1. **Token validated per request** — the token your client received when you signed in is checked on every MCP call. The server never stores tokens.
-2. **Team-scoped access** — access is limited to workspaces resolved from your GitHub team memberships in the GitOps repo. Admins can operate on all tenants.
-3. **Full audit trail** — every write operation submits an Argo Workflow that produces a git commit. All changes are traceable and reversible.
+1. **Token validated per request** — the access token your client received when you signed in is checked on every MCP call. OAuth refresh-token hashes are stored server-side; the client manages its session.
+2. **Team-scoped access** — tenant membership and roles are checked against the configured authorization authority. See [Authorization](/security/authorization).
+3. **Operation-specific effects** — deployments use workflows and GitOps; domain registration, incident acknowledgements and other registry writes follow their own paths. Destructive changes may not be reversible.
 
 For detailed auth information, see [Authentication](/security/authentication).
 
@@ -56,6 +56,6 @@ Every tool is annotated with its behavior:
 |------------|---------|
 | `readOnly` | Only reads data, no side effects |
 | `write` | Creates or modifies resources (deploys, scaling, config changes) |
-| `destructive` | Deletes or retires resources; AI clients ask for confirmation |
+| `destructive` | Potentially destructive effects; client confirmation behavior varies |
 
 See the full [Tools Reference](/mcp/tools-reference) for details on each tool.

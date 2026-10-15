@@ -19,24 +19,24 @@ MCTL abstracts the complexity behind a unified control plane:
 - **Natural language** — connect Claude, Cursor, or VS Code via MCP and manage infrastructure conversationally
 - **REST API** — integrate with CI/CD pipelines, scripts, and custom tooling
 - **Developer Portal** — Backstage-powered UI for browsing services, tenants, and operations
-- **GitOps** — every change is a Git commit, synced by ArgoCD with full audit trail
+- **GitOps** — declared service configuration is committed to Git and reconciled by ArgoCD
 
 ## How It Works
 
 1. **You make a request** — via MCP tool, API call, or portal action
-2. **MCTL API processes it** — validates auth, checks RBAC, generates the desired state
-3. **GitOps repo is updated** — the change is committed to `mctl-gitops`
+2. **The API or portal processes it** — validates access and submits the relevant workflow
+3. **The workflow runs** — builds/provisions resources and commits service configuration to `mctl-gitops`
 4. **ArgoCD syncs** — detects the diff and applies it to the cluster
 5. **Operation completes** — you can track progress via the operation ID
 
-Every action is an async **operation** with a trackable ID. You can check status, view logs, and see the full history of changes.
+Workflow-backed writes return a workflow name. Reads and registry updates can complete synchronously; their responses and persistence differ by operation.
 
 ## Core Principles
 
-**GitOps-first** — the Git repository is the single source of truth. No imperative `kubectl apply` commands.
+**GitOps-first** — Git owns declared service configuration. Provisioning, previews, secrets and registry state also use their dedicated workflows and stores.
 
-**Multi-tenant** — each team gets isolated namespaces with RBAC policies and resource quotas. No cross-tenant access.
+**Multi-tenant** — each team gets isolated namespaces with RBAC policies and resource quotas. Access is governed by policy on a shared cluster.
 
-**AI-native** — built from the ground up for AI interaction. The MCP server exposes 58 tools covering the full platform lifecycle.
+**AI-native** — built from the ground up for AI interaction. The MCP server exposes tools according to the deployed version and caller permissions.
 
-**Self-healing** — the mctl-agent watches AlertManager and automatically creates PRs to fix common issues.
+**Self-healing** — the mctl-agent watches AlertManager and can propose fixes and open PRs for review.

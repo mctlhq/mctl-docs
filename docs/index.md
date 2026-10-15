@@ -2,8 +2,8 @@
 layout: home
 hero:
   name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
-  text: AI-Native Infrastructure Management
-  tagline: Deploy services, manage tenants, and operate your Kubernetes platform through natural language — no kubectl, no tickets, no waiting.
+  text: Platform Documentation
+  tagline: Connect your tools, deploy your first service, and operate your MCTL workspace.
   image:
     src: /logo.svg
     alt: MCTL
@@ -19,15 +19,15 @@ hero:
       link: https://github.com/mctlhq
 features:
   - title: MCP Server
-    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. 58 tools for full platform control through natural language.
+    details: Connect Claude, Cursor, or VS Code to your infrastructure via Model Context Protocol. Available tools follow your platform permissions.
   - title: GitOps-First
-    details: Every change flows through Git. ArgoCD ensures your cluster matches your desired state, with full audit trail and zero imperative commands.
+    details: Service configuration flows through Git. ArgoCD reconciles the declared state while workflows handle builds and provisioning.
   - title: Tenant Isolation
     details: Multi-tenant by design. Each team gets isolated namespaces, RBAC policies, network policies, and resource quotas out of the box.
   - title: Developer Portal
     details: Backstage-powered service catalog. Browse your services, domains, databases, and workflows in one place at app.mctl.ai.
   - title: Self-Healing Agent
-    details: Automated incident response. The mctl-agent watches AlertManager and creates PRs to fix issues before you notice them.
+    details: Incident investigation and remediation. The mctl-agent processes alerts and can propose fixes for review.
   - title: Full Platform Control
-    details: Services, domains, databases, preview environments, scaling, rollbacks — all manageable through MCP, REST API, portal, or GitOps.
+    details: Manage services, domains, databases, previews and rollbacks through the supported MCP, API and portal workflows.
 ---

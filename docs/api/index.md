@@ -1,6 +1,6 @@
 # REST API
 
-The MCTL REST API is served by `mctl-api` at `api.mctl.ai`. All operations available through MCP tools are also available as REST endpoints.
+The MCTL REST API is served by `mctl-api` at `api.mctl.ai`. This page covers common service-management endpoints. The platform also has specialized identity, domain, agent, lifecycle, work-item and commerce APIs; consult the linked schema and implementation for those contracts.
 
 ## Base URL
 
@@ -16,11 +16,7 @@ Include an `Authorization` header with every request to `/api/v1/*` endpoints:
 curl -H "Authorization: Bearer YOUR_TOKEN" https://api.mctl.ai/api/v1/tenants
 ```
 
-Interactive callers use the access token an MCP client receives when it
-signs in through MCTL (an OAuth JWT issued by `mctl-api`). Non-interactive
-callers that cannot open a browser, such as the CI deploy job in
-[Scaffolding](/guides/scaffolding), still use a GitHub token; see
-[GitHub Token (legacy)](/security/authentication#github-token-legacy).
+Interactive callers use MCTL sign-in. CI deployment jobs use GitHub Actions OIDC with audience `https://api.mctl.ai`, not a stored GitHub PAT; see [Scaffolding](/guides/scaffolding). Other machine callers require an explicitly configured service identity.
 
 See [Authentication](/security/authentication) for details.
 
@@ -42,7 +38,7 @@ All responses are JSON. Errors return:
 
 ## OpenAPI Specification
 
-The full OpenAPI 3.0 spec is available at:
+The published OpenAPI 3.0 schema is available at:
 - **YAML**: [api.mctl.ai/openapi.yaml](https://api.mctl.ai/openapi.yaml)
 - **Swagger UI**: [api.mctl.ai/docs](https://api.mctl.ai/docs)
 
@@ -82,7 +78,7 @@ List all team workspaces. **Admin access required.**
       "contactEmail": "billing@example.com",
       "quotas": { "cpu": "2", "memory": "4Gi", "pods": "10" },
       "members": [
-        { "userId": "alice", "role": "admin" }
+        { "userId": "alice", "role": "owner" }
       ]
     }
   ],
@@ -112,7 +108,7 @@ Get a specific tenant with its deployed services.
     "name": "billing",
     "displayName": "Billing Team",
     "quotas": { "cpu": "2", "memory": "4Gi", "pods": "10" },
-    "members": [{ "userId": "alice", "role": "admin" }]
+    "members": [{ "userId": "alice", "role": "owner" }]
   },
   "services": [
     {
@@ -423,7 +419,7 @@ List all registered platform operations with their parameter definitions.
 
 ### `GET /api/v1/operations/{name}`
 
-Get the parameter definitions and metadata for a specific operation.
+Get the parameter definitions and metadata for a specific operation. Writes require the operation's minimum role, not just membership; see [Authorization](/security/authorization).
 
 **Parameters**
 
@@ -448,7 +444,7 @@ Execute a platform operation. Submits an Argo Workflow and returns a workflow na
 |------|----|----------|-------------|
 | `name` | path | yes | Operation name |
 
-**Available operations**
+**Common operations** (use `GET /api/v1/operations` for the current registry and role requirements)
 
 | Name | Description | Risk |
 |------|-------------|------|

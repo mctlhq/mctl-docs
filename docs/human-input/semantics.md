@@ -47,9 +47,9 @@ Constants from `orchestrator/human_input.py`, `DevLoopWorkflow` and mctl-api on 
 | Control | Value | Enforced by |
 |---------|-------|-------------|
 | Maximum request lifetime | `MAX_REQUEST_TTL_SECONDS = 604800` (7 days) | `validate()`: `expires_at` must parse, be after `created_at`, and be at most 7 days after it. The workflow also clamps the wait to its own now + 7 days (`human_input.expiry_clamped`) |
-| Default request lifetime | `DEFAULT_REQUEST_TTL_SECONDS = 86400` (1 day) | Declared only. No code reads it yet ([mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451)) |
+| Default request lifetime | `DEFAULT_REQUEST_TTL_SECONDS = 86400` (1 day) | Producer uses it plus rounding to the next UTC hour, giving a lifetime over 24 and at most 25 hours |
 | Clarification rounds | `MAX_CLARIFICATION_ROUNDS = 3` | The workflow's own resume count. At 3 accepted answers the next request fails the execution with `clarification_rounds_exhausted` (non-retryable). The producer-written `round` is also checked but is advisory |
-| Outstanding requests | `MAX_OUTSTANDING_REQUESTS_PER_EXECUTION = 1` | Declared only; one request per execution follows from one `request.json` per proposal (#451) |
+| Outstanding requests | `MAX_OUTSTANDING_REQUESTS_PER_EXECUTION = 1` | One pending `request.json` per proposal; the workflow handles one question at a time |
 | Dedupe | `question_hash` | SHA-256 over the whitespace-collapsed, case-folded question plus the response spec. A request whose `question_hash` was already answered in this execution is ignored, not waited on |
 | Answer queue | `HUMAN_INPUT_RESPONSE_QUEUE_LIMIT = 16` | Payloads over the cap, or arriving while not waiting, are counted in `rejected_count` and dropped |
 | Leftover detection | `HUMAN_INPUT_PRIOR_RUN_SLACK = 10 min` | A request whose `created_at` predates this run's start by more than 10 minutes is another execution's leftover and is skipped |
@@ -66,7 +66,7 @@ Constants from `orchestrator/human_input.py`, `DevLoopWorkflow` and mctl-api on 
 
 ### Retirement by read
 
-The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before the current run started. A durable answered-marker written by the producer is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+The workflow never writes to mctl-gitops to retire a request. It skips, on read, any request that is expired, sealed by a different workflow id or run id, or created more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before the current run started. The producer continuation also removes a carried answered request and writes `answered.json`.
 
 ## Related
 

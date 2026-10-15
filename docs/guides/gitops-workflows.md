@@ -1,6 +1,6 @@
 # GitOps Workflows
 
-Every infrastructure change in MCTL flows through Git. ArgoCD watches the `mctl-gitops` repository and syncs the cluster to match the desired state.
+Declared service configuration in MCTL flows through Git. Registry writes, secrets and ephemeral preview operations have their own persistence and execution paths. ArgoCD watches the `mctl-gitops` repository and syncs the cluster to match the desired state.
 
 ## How GitOps Works in MCTL
 
@@ -17,7 +17,7 @@ sequenceDiagram
     Note over User,API: Request accepted quickly
     User->>API: Deploy service
     API->>WF: Submit async operation
-    API-->>User: Return operation ID
+    API-->>User: Return workflow name
 
     Note over WF,K8s: Cluster converges asynchronously via GitOps
     WF->>Git: Commit desired state
@@ -49,7 +49,7 @@ Long-running operations (deploy, scale, rollback) are executed as Argo Workflows
 "What's the status of workflow deploy-my-app-xyz?"
 ```
 
-Workflow UI is available at [workflows.mctl.ai](https://workflows.mctl.ai).
+Workflow UI is available at [workflows.mctl.ai](https://workflows.mctl.ai) for accounts with a separate access grant; MCP status/log tools do not require that UI grant.
 
 ## Repository Structure
 
@@ -62,23 +62,24 @@ platform-gitops/
       mctl-api/
       mctl-web/
       mctl-docs/
-    tenants/
-      team-alpha/     # Tenant-scoped services
-        my-app/
-        my-api/
-      team-beta/
-        ...
+    team-alpha/     # Tenant-scoped services
+      my-app/
+      my-api/
+    team-beta/
+      ...
 ```
 
 ## CI/CD Integration
 
-When you push a tag to a service repository:
+Onboarding alone does not install a deploy job in your repository. Use the
+[scaffolding CI example](/guides/scaffolding) to submit a deployment after your
+checks and tag creation. That job authenticates with GitHub Actions OIDC; the
+platform workflow performs the central build and deployment. A successful trigger
+job proves submission, not the completion of the downstream rollout.
 
-1. **CI builds** the Docker image and pushes to `ghcr.io/mctlhq/{repo}:{tag}`
-2. **CI updates** `mctl-gitops` with the new image tag
-3. **ArgoCD syncs** the change to the cluster
-
-This pattern is used by all MCTL platform services and is available for tenant services.
+Platform repositories also use release-please and repository-specific deployment
+workflows. Consult each repository's workflow files instead of assuming that every
+tag or push has identical effects.
 
 ## Grant Repository Access
 

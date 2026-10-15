@@ -9,23 +9,24 @@ Common issues and how to resolve them.
 Your token may be expired or invalid.
 
 1. Sign in again from the [Connecting](/mcp/connecting) page
-2. Verify your GitHub account has organization membership
+2. Verify your MCTL account and workspace membership with the operator
 3. Check the `Authorization: Bearer` header format
 
 For OAuth tokens (Claude.ai connector): disconnect and reconnect the MCP server.
 
 ### "Forbidden" on tenant operations
 
-Your GitHub identity does not have access to the requested tenant.
+Your authenticated identity lacks tenant access or the required operation role.
 
-- Check your GitHub team membership — tenants are mapped to GitHub teams
-- Destructive operations (`delete_tenant`, `retire_service`) require admin group membership
-- Ask your tenant admin to verify your access
+- Run `mctl_whoami` and check the accessible namespaces
+- Ask your operator to verify the tenant membership record and role
+- Deploy/configuration needs developer; retirement and tenant deletion need owner
+- A `503` during authorization is a failed role lookup, not evidence that you lack membership
 
 ### "Forbidden" on workflows.mctl.ai
 
 If you deploy or check logs via `mctl_deploy_service` / MCP, requests go
-through `mctl-api`'s service account and the tenant-group check described
+through `mctl-api`'s service account and the tenant authorization checks described
 above. Browsing or submitting workflows directly at
 [workflows.mctl.ai](https://workflows.mctl.ai) is a separate path: it uses
 Argo Workflows' own SSO, which maps your session to a per-tenant
@@ -59,11 +60,11 @@ signs in from scratch. Remove any `Authorization` header you added by hand.
 
 ### Timeout errors on tool calls
 
-Operations like `deploy-service` and `scale-service` are async. The tool returns an operation ID immediately — the actual work happens in the background.
+Operations like `deploy-service` and `scale-service` are async. The tool returns a workflow name immediately — the actual work happens in the background.
 
 If the MCP endpoint itself times out:
 - Check if `api.mctl.ai` is reachable
-- The request timeout is 30 seconds; complex queries may need a simpler filter
+- Client and server timeouts vary; inspect the error and check workflow status before retrying a write
 - Try again — transient network issues resolve quickly
 
 ### "Connection refused" in Claude Code / Cursor
@@ -78,10 +79,7 @@ in Claude Code; the CLI option is `--transport http`:
   "mcpServers": {
     "mctl": {
       "type": "http",
-      "url": "https://api.mctl.ai/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_TOKEN"
-      }
+      "url": "https://api.mctl.ai/mcp"
     }
   }
 }
@@ -98,7 +96,7 @@ in Claude Code; the CLI option is `--transport http`:
 2. Common causes:
    - **Image pull error**: the container image doesn't exist or requires authentication
    - **Insufficient resources**: the tenant's resource quota is exhausted
-   - **Port conflict**: another service is using the same port in the namespace
+   - **Probe/configuration error**: the app is not listening on its configured container port or health path
 
 3. Check resource usage:
    ```
@@ -109,13 +107,13 @@ in Claude Code; the CLI option is `--transport http`:
 
 ArgoCD detected a difference between the GitOps repo and the cluster state.
 
-- **Expected after a deploy**: ArgoCD syncs automatically within 3 minutes
+- **Expected after a deploy**: ArgoCD normally reconciles automatically; timing depends on sync policy and resource health
 - **Persistent OutOfSync**: someone may have manually modified the cluster. ArgoCD will reconcile on next sync
 - Check the ArgoCD UI at [ops.mctl.ai](https://ops.mctl.ai) for diff details
 
 ### Service shows "Degraded" health
 
-The service is running but not healthy. Common causes:
+ArgoCD reports an unhealthy resource; the application may not be running. Common causes:
 
 1. **Crash loop**: the container is repeatedly crashing
    ```
@@ -182,30 +180,27 @@ The `provision-database` operation creates a PostgreSQL database on the shared C
 
 Common issues:
 - **Database name conflict**: a database with that name already exists in the tenant
-- **Quota exceeded**: the tenant has reached its pod limit
+- **Workflow failure**: inspect the provisioning workflow and database cluster connectivity
 - **Vault permissions**: the tenant's Vault policy may not include the `teams/{team}/*` path
 
 ### Cannot connect to database
 
 Database credentials are stored in Vault and synced to Kubernetes secrets via ExternalSecrets.
 
-1. Verify the secret exists in your namespace:
-   ```
-   "Show me the status of my-app in staging"
-   ```
+1. Ask your operator to verify ExternalSecret synchronization and the generated database Secret. Service status alone does not expose secret contents.
 2. Check that your application reads the correct environment variables:
-   - `DATABASE_URL` or individual `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
-3. The database uses PgBouncer — connect on port `5432`, not the CNPG internal port
+   - the generated `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`; configure `DATABASE_URL` yourself if your application needs it
+3. Use the host and port from the provisioned `DB_HOST` and `DB_PORT`; do not substitute an assumed pooler address
 
 ## Domains
 
 ### Custom domain shows "pending"
 
-After adding a domain, you need to create a CNAME record pointing to your service's default host.
+After registration, create the returned TXT challenge and routing record, then call domain verification; see [Custom Domains](/guides/domains).
 
 1. Add the CNAME record at your DNS provider:
    ```
-   api.example.com  CNAME  my-app.mctl.ai
+   api.example.com  CNAME  staging-my-app.mctl.ai
    ```
 2. Wait for DNS propagation (usually 1-5 minutes, up to 48 hours)
 3. Verify the domain:
@@ -247,7 +242,7 @@ The mctl-agent processes alerts from AlertManager. If PRs aren't appearing:
 
 ### Agent PR was not merged
 
-Agent PRs require manual review and approval. Check:
+Agent PRs must satisfy the configured review and approval gates for their current head. Check:
 - The PR in the `mctl-gitops` repository on GitHub
 - Telegram notifications for operator approval requests
 - The incident status via MCP: `"Show me details of incident INC-xxx"`

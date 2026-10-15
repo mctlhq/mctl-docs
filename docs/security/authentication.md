@@ -34,9 +34,12 @@ A GitHub Actions job authenticates with its own OIDC token, minted with the audi
 
 For local development, set `AUTH_REQUIRED=false` to bypass authentication. This should never be used in production.
 
-## Token Scopes
+## Identity and access
 
-All authentication methods resolve to the same internal identity with:
-- **User ID** — GitHub username
-- **Organization** — GitHub organization membership
-- **Groups** — tenant access groups (from GitOps config or token claims)
+Interactive sign-in, CI and service credentials have different identity and
+permission rules. A GitHub login is a display/legacy identity, not a universal
+principal identifier. Tenant access follows the configured membership mode and
+operation role; see [Authorization](/security/authorization).
+
+Access tokens are validated per request. OAuth refresh tokens are represented by
+hashes in the server-side refresh store, allowing session refresh and revocation.

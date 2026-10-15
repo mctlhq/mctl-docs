@@ -10,11 +10,8 @@ The contract is **ADR 013** in mctl-agents: [`docs/adr/013-human-input-contract.
 The tracking issue ([mctl-docs#106](https://github.com/mctlhq/mctl-docs/issues/106)) refers to ADR 009. ADR 009 is the ContextSnapshot contract; the human-input contract was numbered 013.
 :::
 
-::: warning Status
-- **Consumer side: built.** `DevLoopWorkflow` reads, validates and waits on a request, and resumes on a valid answer ([mctl-agents#333](https://github.com/mctlhq/mctl-agents/issues/333)).
-- **Read model and response API: merged, not yet released.** [mctl-api#261](https://github.com/mctlhq/mctl-api/issues/261) (PRs #346, #348) ships with release PR [mctl-api#340](https://github.com/mctlhq/mctl-api/pull/340).
-- **Producer side: not built.** Nothing on `main` writes a request yet. The capability is listed in the catalog profile ([mctl-gitops#1277](https://github.com/mctlhq/mctl-gitops/issues/1277)) but stays inert, and the remaining producer work is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
-- **Surfaces: none shipped.** Telegram ([mctl-telegram#571](https://github.com/mctlhq/mctl-telegram/issues/571)) and the Portal Execution Canvas ([mctl-portal#124](https://github.com/mctlhq/mctl-portal/issues/124)) are both blocked.
+::: info Implementation status (source audit: 2026-10-15)
+The request producer, Temporal consumer, response API and surface relay are implemented. The investigator seals model-authored drafts and consumes accepted answers; the GitOps investigate template declares the continuation parameter. Telegram has an adapter, and Portal has backend routes for human input. Availability in a particular installation depends on its deployed versions, surface credentials and identity links; this source audit does not establish live rollout status.
 :::
 
 ## Components
@@ -35,7 +32,7 @@ The request file lives at:
 platform-gitops/agents-state/<service>/proposals/<slug>/human-input/request.json
 ```
 
-There is at most one per proposal. A re-asking investigator overwrites it, and an answered request is not removed, so the set of files is the set of requests that exist, not the set that are pending. Only the owning workflow knows whether a request is pending.
+There is at most one per proposal. A re-asking investigator overwrites it, and the continuation removes an answered request and records `answered.json`, so the set of files is the set of requests that exist, not the set that are pending. Only the owning workflow knows whether a request is pending.
 
 ## Flow
 
@@ -67,7 +64,7 @@ sequenceDiagram
     wf->>inv: resubmit mctl-agents-investigate with human_input_responses
 ```
 
-1. The investigator decides it cannot proceed without a human decision and writes one sealed `HumanInputRequest` to its proposal's `human-input/` directory. **Not built yet** (see Status).
+1. The investigator decides it cannot proceed without a human decision and writes one sealed `HumanInputRequest` to its proposal's `human-input/` directory. The model writes a draft; the orchestrator supplies identity and seals the request.
 2. After the investigate step succeeds, `DevLoopWorkflow` looks up the proposal slug and calls `find_human_input_request`. A 404 means no request; anything else non-200 is retried.
 3. The workflow parses the document with `HumanInputRequest.from_dict`, which recomputes `question_hash`, `request_hash` and `request_id` and rejects a mismatch. A malformed document fails the execution with the non-retryable error type `human_input_malformed`.
 4. Leftovers are skipped (a question already answered in this execution, a request sealed by another workflow or run, one whose `created_at` is more than 10 minutes (`HUMAN_INPUT_PRIOR_RUN_SLACK`) before this run started, or one already expired). Otherwise the workflow enters `WAITING_FOR_INPUT`.
@@ -147,9 +144,7 @@ Every continuation resubmits `mctl-agents-investigate` with the full set of acce
 
 The full history is sent, not just the latest answer, so a later round never re-asks an earlier question.
 
-::: warning Not yet wired end to end
-The `mctl-agents-investigate` CWFT on mctl-gitops `main` does not declare `human_input_responses`, and nothing in the investigator reads it. Pinning the parameter against the CWFT is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451). No step on `main` folds answers into a new ContextSnapshot; the parameter above is the whole continuation context.
-:::
+The investigate CWFT declares `human_input_responses`. The investigator validates the array, renders accepted answers as untrusted continuation context, and records answered request IDs so they are not asked again. See [Agent author guide](/human-input/agent-authors).
 
 ## Log and audit events
 

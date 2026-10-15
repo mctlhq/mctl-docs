@@ -1,35 +1,113 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 58 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The catalog below was checked against the registered tools in
+[`mctl-api` at `b8203cf`](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go).
+The deployed version and your permissions determine the tools you can discover
+and call. Use MCP `tools/list` for the current input schemas and annotations;
+a catalog entry is not a grant of access. See [Authorization](/security/authorization).
 
-## Identity
+Workflow-backed tools return submission information; poll the returned workflow
+name and inspect service health separately. Registry, identity, incident and
+commerce operations use their own stores and do not all produce Git commits.
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_whoami` | Check authentication status, user ID, team memberships, admin status, and accessible namespaces | Read |
+## Registered tools
 
-## Tenants
+| Tool | Purpose | Hint |
+|---|---|---|
+| `mctl_whoami` | [Check Identity](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_tenants` | [List Workspaces](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_tenant` | [Get Workspace Details](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_services` | [List Services](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_service_status` | [Get Service Status](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_service_config` | [Get Service Config](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_workflows` | [List Workflows](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_workflow_status` | [Get Workflow Status](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_resource_usage` | [Get Resource Usage](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_recent_operations` | [Recent Activity](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_operations` | [List Operations](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_operation` | [Get Operation Details](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_repos` | [List Repositories](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_grant_repo_access` | [Grant Repo Access](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_get_service_logs` | [Get Service Logs](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_workflow_logs` | [Get Workflow Step Logs](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_previews` | [List Previews](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_scale_service` | [Scale Service](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_deploy_service` | [Deploy Service](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_list_platform_skills` | [List Platform Skills](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_read_platform_skill` | [Read Platform Skill](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_tenant_skill_bindings` | [List Tenant Skill Bindings](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_enable_tenant_skill` | [Enable Tenant Skill](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_disable_tenant_skill` | [Disable Tenant Skill](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_publish_platform_skill` | [Publish Platform Skill](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_deprecate_platform_skill` | [Deprecate Platform Skill](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_create_tenant` | [Create Workspace](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_provision_database` | [Provision Database](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_retire_service` | [Retire Service](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_delete_tenant` | [Delete Workspace](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_sync_repos` | [Sync Repositories](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_rollback_service` | [Rollback Service](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_create_preview` | [Create Preview](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_delete_preview` | [Delete Preview](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_add_custom_domain` | [Add Custom Domain](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_remove_custom_domain` | [Remove Custom Domain](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_list_domains` | [List Domains](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_verify_domain` | [Verify Domain DNS](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_erpact_list_sites` | [List ERPact Sites](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_erpact_create_site` | [Create ERPact Site](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_erpact_site_status` | [Get ERPact Site Status](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_list_incidents` | [List Incidents](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_incident` | [Get Incident Detail](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_incident_summary` | [Incident Summary](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_acknowledge_incident` | [Acknowledge Incident](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_resolve_incident` | [Resolve Incident](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_trigger_agents_run` | [Run mctl-agents (full)](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_trigger_mentor_only` | [Run mctl-agents (mentor only)](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_trigger_single_service` | [Run mctl-agents (single service)](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_trigger_incident_responder` | [Run mctl-agents incident responder](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_trigger_implementer` | [Run mctl-agents Tier 2 implementer](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_trigger_shepherd` | [Run mctl-agents Tier 3 PR shepherd](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_trigger_reconcile` | [Run mctl-agents reconcile sweep](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_trigger_approve` | [Approve mctl-agents proposal](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_trigger_issue` | [Run mctl-agents issue-investigator](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_approve_dev_loop` | [Approve a DevLoopWorkflow](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_abandon_dev_loop` | [Abandon a DevLoopWorkflow](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_get_dev_loop` | [Describe a DevLoopWorkflow](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_lifecycle_ownership` | [Read lifecycle ownership](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle.go) | Read |
+| `mctl_inspect_lifecycle_conflict` | [Inspect lifecycle recovery conflict](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go) | Read |
+| `mctl_request_lifecycle_reconcile` | [Request lifecycle reconciliation](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go) | Write |
+| `mctl_fence_lifecycle_claim` | [Fence a dead lifecycle claim](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go) | Destructive |
+| `mctl_request_lifecycle_handoff` | [Request a lifecycle handoff off a stuck owner](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go) | Destructive |
+| `mctl_retry_lifecycle_handoff` | [Retry a stalled lifecycle handoff](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go) | Write |
+| `mctl_list_recent_agent_runs` | [Recent mctl-agents runs](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_epic_status` | [Roadmap epic status](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap.go) | Read |
+| `mctl_get_ready_work_items` | [Ready roadmap work items](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap.go) | Read |
+| `mctl_plan_epic_wave` | [Plan a roadmap epic wave](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap_wave.go) | Read |
+| `mctl_start_epic_wave` | [Start a planned roadmap epic wave](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap_wave.go) | Write |
+| `mctl_get_work_item` | [Work item](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go) | Read |
+| `mctl_list_work_item_executions` | [Work item executions](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go) | Read |
+| `mctl_list_work_item_snapshots` | [Work item context snapshots](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go) | Read |
+| `mctl_list_work_item_execution_requests` | [Work item execution requests](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go) | Read |
+| `mctl_request_work_item_execution` | [Request a work item execution](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go) | Write |
+| `mctl_get_commerce_budget` | [Commerce budget balance](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/commerce.go) | Read |
+| `mctl_list_commerce_invocations` | [Commerce invocations](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/commerce.go) | Read |
+| `mctl_get_commerce_receipt` | [Commerce receipt](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/commerce.go) | Read |
+| `mctl_trigger_portal_server_auth_apply` | [Apply Cloudflare MCP portal server auth](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_create_agent` | [Create Agent Definition](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_publish_agent_version` | [Publish Agent Version](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_list_agent_versions` | [List Agent Versions](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_resolve_agent` | [Resolve Agent Release](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_promote_agent` | [Promote Agent Version](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_rollback_agent` | [Rollback Agent Release](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_list_agent_executions` | [List Agent Executions](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_publish_agent_definition_version` | [Publish Agent Definition Version](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_publish_agent_profile_version` | [Publish Agent Execution Profile Version](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Write |
+| `mctl_set_agent_version_lifecycle` | [Set Agent Version Lifecycle](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_bind_agent_release` | [Bind Agent Release (v1alpha2)](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_rollback_agent_binding` | [Rollback Agent Binding (v1alpha2)](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Destructive |
+| `mctl_list_agents` | [List Agents](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
+| `mctl_get_agent` | [Get Agent](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go) | Read |
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_tenants` | List all team workspaces with resource quotas and member counts (admin only) | Read |
-| `mctl_get_tenant` | Get workspace details: members, quotas, and deployed services | Read |
-| `mctl_create_tenant` | Create a new workspace with namespace, resource quotas, network policies, Vault scope, ArgoCD RBAC, and SSO access | Write |
-| `mctl_delete_tenant` | Permanently delete a workspace and all its resources. Retires all services first | Destructive |
-
-## Services
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_services` | List deployed services showing name, team, image tag, host, and database status. Optional team filter | Read |
-| `mctl_get_service_status` | Get ArgoCD sync state, health status, and service configuration | Read |
-| `mctl_get_service_config` | Get full configuration from GitOps: image tag, host, port, component type, database status | Read |
-| `mctl_get_service_logs` | Fetch recent log lines from Loki, sorted by timestamp (most recent first) | Read |
-| `mctl_get_resource_usage` | Get resource quota usage: CPU, memory, pods used vs allocated | Read |
-| `mctl_deploy_service` | Deploy a service. Actions: "onboard" (first-time), "deploy" (update version), "update-config" (change env/secrets) — see [details below](#mctl-deploy-service) | Write |
-| `mctl_scale_service` | Update autoscaling: enable/disable HPA, set min/max replicas and CPU threshold | Write |
-| `mctl_rollback_service` | Roll back to a previously deployed image tag via GitOps | Write |
-| `mctl_retire_service` | Permanently remove a service: deletes GitOps manifests, Vault secrets, ArgoCD app, and K8s resources | Destructive |
+## Deployment parameters
 
 ### `mctl_deploy_service`
 
@@ -90,325 +168,18 @@ mctl_deploy_service(
 
 ---
 
-## Operations & Workflows
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_operations` | List all available platform operations with parameters, risk levels, and descriptions | Read |
-| `mctl_get_operation` | Get detailed schema of an operation: parameters, types, defaults, validation, risk level | Read |
-| `mctl_list_recent_operations` | List most recent platform operations from audit log (up to 50 entries) | Read |
-| `mctl_list_workflows` | List recent Argo Workflow runs for a team. Admins see all namespaces | Read |
-| `mctl_get_workflow_status` | Get status and logs of an Argo Workflow run | Read |
-| `mctl_get_workflow_logs` | Fetch Argo Workflow step logs from the workflow log archive, including runs whose Argo object has already been garbage-collected | Read |
+## Tool annotations
 
-## Incidents
+`readOnlyHint`, `destructiveHint` and `idempotentHint` describe tool behavior.
+They are hints to clients, not authorization checks or a guarantee that a client
+will request confirmation. The API enforces membership, roles and operation policy.
+Platform pipeline tools are admin-only. Tenant and owner restrictions still apply
+even when a client exposes a tool in its interface.
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_incidents` | List incidents (AlertManager alerts, GitHub Actions failures, polling). Filter by team, service, status, severity | Read |
-| `mctl_get_incident` | Get full incident details including evidence, analysis, and PR info. Accepts full ID or 8-char prefix | Read |
-| `mctl_incident_summary` | Get aggregate counts of active incidents by status, severity, and type | Read |
-| `mctl_acknowledge_incident` | Mark an incident as acknowledged. Records current user as acknowledger | Write |
-| `mctl_resolve_incident` | Mark an incident as resolved with optional reason | Write |
-| `mctl_trigger_incident_responder` | Run the incident responder on demand: diagnose generic incidents left in `analyzing` for over 30 minutes, write auto-accepted proposals for the Tier 2 implementer, then resolve. Same work as the scheduled run | Write |
+## Agent pipelines
 
-## Domains
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_domains` | List custom domains for a team or service. Shows status (pending/verified/active) | Read |
-| `mctl_verify_domain` | Check if a domain's CNAME record points to the expected target | Read |
-| `mctl_add_custom_domain` | Add a custom domain to a deployed service. Triggers DNS verification and TLS provisioning | Write |
-| `mctl_remove_custom_domain` | Remove a custom domain from a service. Auto-generated domain is not affected | Destructive |
-
-## Databases
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_provision_database` | Provision PostgreSQL on shared CNPG cluster. Creates database/role, stores credentials in Vault and K8s Secret | Write |
-
-## Preview Environments
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_previews` | List active previews with health status, sync state, and namespace | Read |
-| `mctl_create_preview` | Deploy ephemeral preview from existing image tag. Auto-deleted after TTL (default: 24h) | Write |
-| `mctl_delete_preview` | Remove a preview environment and all its K8s resources immediately | Destructive |
-
-## Repositories
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_repos` | List GitHub repos available to a team. Admins see org + personal repos | Read |
-| `mctl_grant_repo_access` | Generate GitHub App installation URL to grant platform access to a repo | Write |
-| `mctl_sync_repos` | Discover and register GitHub repos from App installations for a team | Write |
-
-## Agent Registry
-
-Version control for the mctl-agents fleet: an agent definition is registered
-once, versions are published against it, and a version is released to an
-environment (`production` or `shadow`). All admin-only.
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_create_agent` | Register a new agent definition (e.g. `issue-investigator`, `implementer`, `shepherd`). Required once per agent before any version can be published | Write |
-| `mctl_publish_agent_version` | Publish an immutable version of an agent. The agent definition must already exist | Write |
-| `mctl_promote_agent` | Release a published version to an environment (`production` or `shadow`) | Write |
-| `mctl_rollback_agent` | Roll an environment's release back to the version it had immediately before the current one | Write |
-| `mctl_resolve_agent` | Resolve which version is currently released to an environment | Read |
-| `mctl_list_agent_versions` | List every published version of an agent, newest first | Read |
-| `mctl_list_agent_executions` | List durable execution records from DevLoopWorkflow runs: which agent version ran, on which Argo workflow, with what result | Read |
-
-`mctl_list_agent_executions` and `mctl_list_recent_agent_runs` answer different
-questions. The former reads persisted records that outlive the Argo workflow
-object; the latter reflects live and recently-completed Argo state and expires
-with that object's TTL.
-
-## Platform Skills
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_platform_skills` | List the platform-wide skill catalog, filtered to what the caller can see | Read |
-| `mctl_read_platform_skill` | Read a single platform skill's metadata and raw SKILL.md content | Read |
-| `mctl_list_tenant_skill_bindings` | List which platform skills are enabled for which tenants | Read |
-| `mctl_enable_tenant_skill` | Enable a platform skill for a tenant via GitOps (admin only) | Write |
-| `mctl_disable_tenant_skill` | Disable a platform skill for a tenant via GitOps (admin only) | Write |
-| `mctl_publish_platform_skill` | Publish or update a platform skill catalog entry via GitOps (admin only) | Write |
-| `mctl_deprecate_platform_skill` | Mark a platform skill as deprecated via GitOps (admin only) | Write |
-
-## mctl-agents pipeline controls
-
-> **Admin-only.** All tools in this section require membership in the `admins` group.
-> Calls from non-admin users return `403 Forbidden`.
->
-> _Version note: available as of mctl-api 4.15.0 (commit `016b3c8`) and 4.16.0 (`f41590e`).
-> version-status: unverified — confirm against production before relying on this page._
-
-The mctl platform runs a daily autonomous R&D pipeline (`mctl-agents`) that scans sibling
-repos for changes, identifies documentation gaps, and writes spec proposals — one cycle per
-service (researcher → analyst → spec-writer). A Tier 2 implementer can also convert accepted
-proposals into pull requests automatically.
-
-The seven tools below let platform admins drive this pipeline on demand from any MCP-capable
-client (e.g. Claude Desktop, Claude Code).
-
-### Tool summary
-
-| Tool | Purpose | Returns | Type |
-|---|---|---|---|
-| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` | Write |
-| `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` | Write |
-| `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` | Write |
-| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` | Read |
-| `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` | Destructive |
-| `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` | Destructive |
-| `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` | Write |
-
----
-
-### `mctl_trigger_agents_run`
-
-Triggers a full mctl-agents run: every service-agent (researcher → analyst → spec-writer
-in parallel) followed by the mentor weekly digest. Equivalent to the daily 06:00 UTC cron,
-but on demand.
-
-**Parameters:** none
-
-**Cost / duration:** ~$10 against Claude subscription quota; ~15 minutes.
-
-**Result:** A `chore(agents)` commit lands in `mctl-gitops` main under
-`platform-gitops/agents-state/` with new inbox files, proposals, and updated `.status.yaml`
-entries.
-
-**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` to track progress.
-
-```
-mctl_trigger_agents_run()
-# → { "workflow_name": "mctl-agents-daily-abc12" }
-```
-
----
-
-### `mctl_trigger_mentor_only`
-
-Runs only the mentor sub-agent, which reads all service inbox files from the past week and
-produces a cross-service digest. Lighter than the full run.
-
-**Parameters:** none
-
-**Cost / duration:** ~$2, ~5 minutes.
-
-**Returns:** `workflow_name`
-
----
-
-### `mctl_trigger_single_service`
-
-Runs the researcher → analyst → spec-writer cycle for a single service only.
-Useful for spot-checking one repo after a significant release.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
-
-**Cost / duration:** ~$2–5, ~5–10 minutes.
-
-**Returns:** `workflow_name`
-
-**Example:**
-
-```
-mctl_trigger_single_service(service="mctl-docs")
-# → { "workflow_name": "mctl-agents-single-xyz99" }
-```
-
----
-
-### `mctl_list_recent_agent_runs`
-
-Returns up to 10 recent mctl-agents pipeline runs from the audit log, enriched with the
-run mode and target service so you don't need to parse the workflow name.
-
-**Parameters:** none
-
-**Returns:** JSON object `{ "items": [...], "count": N }` where each item has:
-
-| Field | Description |
-|---|---|
-| `workflowName` | Argo workflow name (use for status polling) |
-| `operation` | Operation name (`mctl-agents-run`, `mctl-agents-implement`, …) |
-| `mode` | Run mode (`full`, `mentor-only`, `single-service`) |
-| `service` | Target service (empty for full/mentor runs) |
-| `status` | Last known status (`running`, `succeeded`, `failed`) |
-| `user` | Admin user ID who triggered the run |
-| `timestamp` | ISO8601 start time |
-| `riskLevel` | `high` for all mctl-agents triggers |
-| `message` | Short status message |
-
----
-
-### `mctl_trigger_implementer`
-
-Triggers Tier 2 implementer agents. The implementer scans
-`platform-gitops/agents-state/<service>/proposals/<slug>/.status.yaml` for entries with
-`status: accepted`. For each accepted proposal it:
-
-1. Clones the matching `mctlhq/<service>` repo.
-2. Runs the per-service implementer sub-agent to make the change.
-3. Pushes a `feat/agents-<slug>` branch and opens a PR.
-4. Updates `.status.yaml` to `status: implemented` with the PR URL.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `service` | string (enum) | no | Filter to one service. Leave empty to process all services. Same enum as `mctl_trigger_single_service`. |
-| `slug` | string | no | Filter to one proposal slug (across services unless `service` is also set). |
-| `force` | `"true"` \| `"false"` | no | Retry proposals stuck in `in-progress` (e.g. from a crashed run). Default `"false"`. |
-
-**Cost / duration:** ~$3 per proposal; 1–10 minutes per proposal.
-
-**Returns:** `workflow_name`
-
-**Example — implement one specific proposal:**
-
-```
-mctl_trigger_implementer(service="mctl-docs", slug="mcp-agents-tools")
-# → { "workflow_name": "mctl-agents-implement-abc34" }
-```
-
----
-
-### `mctl_trigger_shepherd`
-
-Triggers the Tier 3 PR shepherd. The shepherd scans every open PR opened by the
-implementer (`feat/agents-*` branches in `mctlhq/mctl-*` repos) and advances each one
-toward merge:
-
-1. Reads the latest Codex review state for the PR.
-2. If P1/P2 findings are present, runs the per-service implementer sub-agent to push a
-   fix-up commit addressing the feedback.
-3. If the review is clean and CI is green, merges the PR with `--merge --delete-branch`
-   and flips the proposal's `.status.yaml` to `status: merged`.
-4. If the proposal is unsalvageable (repeated review failures, or Codex flags a hard
-   blocker), it closes the PR and flips the status to `status: rejected`.
-
-For services where the merge-approval gate is enabled, step 3 additionally waits
-for an explicit human approval of the exact PR head before the shepherd merges it.
-An approval never carries over to a newer head: a push asks again.
-
-The shepherd also runs autonomously on a `30 */2 * * *` UTC cron, so on-demand triggers
-are mainly for "I just merged a fix, advance the queue now" cases.
-
-**Parameters:** none
-
-**Cost / duration:** ~$1–5 per active PR; 2–15 minutes total per run.
-
-**Concurrency:** Contends on the `mctl-gitops-main-writes` Argo mutex with the
-implementer and other gitops-writing workflows, so two runs cannot overlap.
-
-**Returns:** `workflow_name`
-
-```
-mctl_trigger_shepherd()
-# → { "workflow_name": "mctl-agents-shepherd-xyz78" }
-```
-
----
-
-### `mctl_trigger_issue`
-
-Triggers the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven
-proposal. Given an issue URL under the `mctlhq` org, the investigator reads the issue,
-clones the target repo read-only to ground the design in real code, and writes
-`requirements.md` / `design.md` / `tasks.md` plus a `.status.yaml` (`status: proposed`)
-under `platform-gitops/agents-state/<service>/proposals/<slug>/`. It then comments the
-proposal link back on the issue.
-
-The proposal stops at `status: proposed` and awaits human approval — review the spec and
-flip `.status.yaml` to `accepted` before the Tier 2 implementer
-(`mctl_trigger_implementer`) picks it up. No PR is opened by this step, which is why the
-tool is annotated Write rather than Destructive.
-
-**Parameters:**
-
-| Name | Required | Description |
-|---|---|---|
-| `issue_url` | yes | Full GitHub issue URL under the mctlhq org, e.g. `https://github.com/mctlhq/mctl-telegram/issues/123` |
-
-**Cost / duration:** ~$3 against Claude subscription quota; ~5–10 minutes.
-
-**Result:** a new proposal directory committed to `mctl-gitops` main, plus a comment on
-the issue.
-
-**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` or
-`mctl_list_recent_agent_runs` to track progress.
-
-### Status polling
-
-All trigger tools return a `workflow_name`. Poll for progress with:
-
-```
-mctl_get_workflow_status(workflow_name="mctl-agents-daily-abc12")
-```
-
-Or check the last few runs at any time:
-
-```
-mctl_list_recent_agent_runs()
-```
-
-Results also appear as `chore(agents)` commits in the `mctl-gitops` repository under
-`platform-gitops/agents-state/`.
-
----
-
-## Tool Annotations
-
-Tools are annotated with behavior hints for AI clients:
-
-- **Read** (`readOnly: true`) — safe to call without side effects
-- **Write** — modifies resources, requires confirmation
-- **Destructive** (`destructive: true`) — deletes resources, requires explicit confirmation
+Use each tool's current schema for service filters and execution bounds.
+Proposals and PRs follow the platform review/approval gates; approval belongs to
+the current proposal or commit and must not be assumed from an earlier run.
+Pipeline duration and model cost depend on the work and configured runner.

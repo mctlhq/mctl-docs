@@ -1,4 +1,4 @@
-import DefaultTheme from 'vitepress/theme'
+import DefaultTheme from 'vitepress/theme-without-fonts'
 import { onContentUpdated } from 'vitepress'
 import './vitepress-bridge.css'
 import './custom.css'

@@ -61,24 +61,11 @@
 
 .VPHero .hex-logo {
   color: var(--accent);
-  filter: drop-shadow(0 0 28px color-mix(in srgb, var(--accent) 45%, transparent));
+
 }
 
 .VPHero {
   position: relative;
-}
-
-.VPHero::before {
-  content: '';
-  position: absolute;
-  top: -20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: -1;
 }
 
 /* Hero header: 800 weight, -0.5px spacing */
@@ -98,26 +85,61 @@
 
 /* ── Nav ── */
 
+/* Match the landing shell on home and article pages, including sidebar mode. */
 .VPNavBar {
-  background-color: color-mix(in srgb, var(--surface-bg) 80%, transparent) !important;
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important;
+  background: var(--site-header-bg, rgba(10, 11, 13, 0.8)) !important;
+  backdrop-filter: blur(var(--site-header-blur, 12px));
+  border-bottom: 1px solid var(--site-header-border, var(--surface-line));
 }
 
-.VPNavBar .title {
-  color: var(--surface-fg) !important;
+.VPNavBar .wrapper,
+.VPNavBar.has-sidebar .wrapper {
+  padding: 0 var(--site-gutter, 20px) !important;
 }
 
-/* Nav links — muted, accent on hover */
-.VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink {
+.VPNavBar .container,
+.VPNavBar.has-sidebar .container {
+  max-width: var(--site-content-width, 1400px) !important;
+}
+
+.VPNavBar.has-sidebar .container > .title {
+  position: static;
+  width: auto;
+  padding: 0;
+}
+
+.VPNavBar.has-sidebar .content {
+  padding: 0 !important;
+  min-width: 0;
+}
+
+.VPNavBar .content-body {
+  background: transparent !important;
+}
+
+.VPNavBar .divider,
+.VPNavBarTitle.has-sidebar .title {
+  border-bottom: 0;
+}
+
+.VPNavBar .divider { display: none; }
+
+.VPNavBarMenuLink,
+.VPNavBarMenuGroup .button {
   color: var(--surface-fg-muted);
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  font-family: var(--font-display, 'Onest', system-ui, sans-serif);
+  font-size: var(--site-nav-size, 0.95rem);
+  font-weight: var(--site-nav-weight, 500);
 }
 
-.VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPLink:hover {
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuLink.active {
   color: var(--accent);
+}
+
+@media (min-width: 1400px) {
+  .VPNavBar .wrapper,
+  .VPNavBar.has-sidebar .wrapper { padding: 0 !important; }
 }
 
 /* ── Mobile nav screen ── */
@@ -157,10 +179,11 @@
 
 /* Brand mark — matches mctl-web LogoDefault */
 .brand-mark {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: var(--site-wordmark-size, 24px);
+  font-weight: var(--site-wordmark-weight, 800);
   color: var(--surface-fg);
-  letter-spacing: 2px;
+  letter-spacing: var(--site-wordmark-tracking, 2px);
+  line-height: 1;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -168,7 +191,7 @@
 
 .brand-mark__m {
   color: var(--accent);
-  margin-right: 2px;
+  margin-right: var(--site-wordmark-accent-gap, 2px);
 }
 
 .brand-mark__ctl {
@@ -179,7 +202,7 @@
 
 .VPSidebar {
   background-color: var(--surface-bg) !important;
-  border-right: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important;
+  border-right: 1px solid var(--surface-line) !important;
 }
 
 .VPContent {
@@ -201,7 +224,7 @@
 
 .VPFeature {
   background-color: var(--surface-card) !important;
-  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent) !important;
+  border: 1px solid var(--surface-line) !important;
   border-radius: 16px !important;
   transition: all 0.3s ease;
 }
@@ -209,7 +232,7 @@
 .VPFeature:hover {
   border-color: var(--accent) !important;
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: var(--shadow-md);
 }
 
 .VPFeature .title {
@@ -235,14 +258,14 @@
 /* ── Buttons ── */
 
 .VPButton {
-  border-radius: 6px !important;
-  font-weight: 600;
-  font-family: var(--font-mono);
+  border-radius: 4px !important;
+  font-weight: 500;
+  font-family: var(--font-display);
   transition: all 0.3s ease;
 }
 
 .VPButton.brand:hover {
-  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 50%, transparent);
+  box-shadow: none;
 }
 
 .VPButton.alt {
@@ -254,7 +277,7 @@
 .VPButton.alt:hover {
   border-color: var(--accent) !important;
   background-color: color-mix(in srgb, var(--accent) 10%, transparent) !important;
-  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: none;
 }
 
 /* ── Tables ── */
@@ -618,7 +641,7 @@ div[class*='language-'] {
 .docs-footer {
   padding: 3rem 0;
   background: color-mix(in srgb, var(--surface-elevated) 85%, transparent);
-  border-top: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-top: 1px solid var(--surface-line);
 }
 
 .docs-footer__content {
@@ -657,4 +680,25 @@ div[class*='language-'] {
 .docs-footer__copy {
   font-size: 0.8rem;
   color: var(--surface-fg-muted);
+}
+
+/* Home texture stays outside the reading surface. */
+.VPHome {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.VPHome .VPHero .container,
+.VPHome .VPFeatures .container {
+  max-width: var(--site-content-width, 1400px) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

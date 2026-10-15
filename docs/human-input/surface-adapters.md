@@ -2,14 +2,8 @@
 
 A surface is any place a human sees a pending question and types an answer: Telegram, the Portal, a GitHub comment, an MCP client. This guide describes how a surface integrates with the mctl-api read model and response endpoint.
 
-::: warning Status
-The endpoints below are merged in mctl-api ([mctl-api#261](https://github.com/mctlhq/mctl-api/issues/261)) and ship with release PR [mctl-api#340](https://github.com/mctlhq/mctl-api/pull/340). Until that release is deployed they are not available on `api.mctl.ai`.
-
-No surface adapter exists yet:
-
-- **Telegram**: [mctl-telegram#571](https://github.com/mctlhq/mctl-telegram/issues/571), blocked.
-- **Portal**: [mctl-portal#124](https://github.com/mctlhq/mctl-portal/issues/124), blocked. The Execution Canvas it builds on ([mctl-portal#111](https://github.com/mctlhq/mctl-portal/issues/111)) does not exist yet, and the portal calls mctl-api with a service token only, which cannot answer (see [Identity](#identity)).
-- **GitHub comment, MCP client**: no adapter exists, and mctl-api exposes no MCP tool for human input.
+::: info Implementation status (source audit: 2026-10-15)
+The request producer, Temporal consumer, response API and surface relay are implemented. The investigator seals model-authored drafts and consumes accepted answers; the GitOps investigate template declares the continuation parameter. Telegram has an adapter, and Portal has backend routes for human input. Availability in a particular installation depends on its deployed versions, surface credentials and identity links; this source audit does not establish live rollout status.
 :::
 
 ## Surfaces consume, never own, state
@@ -34,7 +28,7 @@ mctl-api decides who may see and who may answer from how the caller authenticate
 | Surface principal (`surface:telegram`, `surface:portal`) relaying through a verified link | As the linked human | As the linked human, if their `github:<login>` is in `actor_refs`. See [Surface Identity and Relay](/human-input/surface-identity) |
 | Anyone else | No: the request is reported as `404` | No |
 
-The consequence for adapter design: a surface submits each answer either with the answering human's own GitHub-verified credential, or through its own surface principal relaying for a human who has linked their surface identity ([Surface Identity and Relay](/human-input/surface-identity), merged in [mctl-api#350](https://github.com/mctlhq/mctl-api/issues/350), not yet released). The respondent is recorded as `github:<login>`, taken from authentication. The request body has no respondent field and unknown fields are rejected.
+The consequence for adapter design: a surface submits each answer either with the answering human's own GitHub-verified credential, or through its own surface principal relaying for a human who has linked their surface identity ([Surface Identity and Relay](/human-input/surface-identity)). The respondent is recorded as `github:<login>`, taken from authentication. The request body has no respondent field and unknown fields are rejected.
 
 ## Endpoints
 
@@ -169,4 +163,4 @@ There is no `410 Gone`; expiry is reported as `409` with state `expired`.
 - [Semantics](/human-input/semantics)
 - [Surface Identity and Relay](/human-input/surface-identity)
 - [REST API](/api/)
-- OpenAPI: [api.mctl.ai/openapi.yaml](https://api.mctl.ai/openapi.yaml) (includes these endpoints once mctl-api#340 is released)
+- OpenAPI: [api.mctl.ai/openapi.yaml](https://api.mctl.ai/openapi.yaml)

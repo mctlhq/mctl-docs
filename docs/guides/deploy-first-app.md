@@ -18,7 +18,7 @@ To use the MCP path, connect your AI client first: [Connecting to MCTL MCP](/mcp
 ## Before you begin
 
 - A GitHub account with push access to your application repository.
-- An MCTL tenant. If you do not have one yet, create one at
+- A provisioned MCTL tenant with working platform sign-in and developer access. If you do not have one yet, request one at
   [mctl.ai](https://mctl.ai) or follow the instructions in the
   [Quick Start](/getting-started/) guide.
 - An AI client connected to MCTL via MCP if you intend to use the MCP path.
@@ -52,8 +52,7 @@ If you need to create one:
 Create a new tenant called my-team
 ```
 
-This calls `mctl_create_tenant` and provisions a namespace, RBAC policies,
-and resource quotas. See [Tenant Management](/guides/tenants) for details.
+This calls `mctl_create_tenant` and submits asynchronous provisioning. Human sign-in and access to platform UIs must also be configured. See [Tenant Management](/guides/tenants) for details.
 
 ---
 
@@ -232,7 +231,7 @@ Parameters:
 | `dockerfile_path` | Optional. Path to the Dockerfile relative to the repo root. Defaults to `"Dockerfile"` (repo root). Set this for monorepos, e.g. `"apps/api/Dockerfile"` |
 | `health_check_path` | Optional. Path used for both liveness and readiness probes. When omitted, liveness uses `/healthz` and readiness uses `/readyz`. Set this to use one endpoint for both, e.g. `"/healthz"` or `"/api/health"` |
 
-The tool returns an operation ID. MCTL submits an Argo Workflow in the
+The tool returns a workflow name. MCTL submits an Argo Workflow in the
 background — proceed to Step 7 to track it.
 
 For a complete CI setup that auto-deploys on every push to `main`, see
@@ -252,10 +251,9 @@ What is the status of the deploy workflow for my-service?
 ```
 
 This calls `mctl_get_workflow_status` with the workflow name returned in
-Step 6. A `Succeeded` status means the service is running.
+Step 6. After workflow completion, check `mctl_get_service_status` for Synced/Healthy and verify the application endpoint.
 
-You can also browse all workflows for your team at
-[workflows.mctl.ai](https://workflows.mctl.ai).
+If your operator has granted separate Argo Workflows UI access, you can also browse workflows at [workflows.mctl.ai](https://workflows.mctl.ai).
 
 ::: tip
 If the workflow fails, check the logs at [workflows.mctl.ai](https://workflows.mctl.ai)
@@ -288,9 +286,7 @@ only changes the Kubernetes liveness/readiness probes; it can't rewrite the
 image's own `HEALTHCHECK`, so an app exposing only the custom path will still
 fail Docker's own health check even though the platform reports it healthy.)
 
-You should receive `200 {"ok": true}`. If the health check fails and the
-workflow reported `Succeeded`, wait 30 seconds for DNS propagation and
-retry.
+Expect HTTP 200; the response body depends on your application. If it fails, inspect service health, probe configuration, ingress and DNS rather than assuming workflow completion proves readiness.
 
 ---
 
@@ -320,8 +316,7 @@ client. Common next steps:
 
 - **Deploy a new version** — push a new Git tag and ask your assistant to
   deploy it, or set up the CI auto-deploy job from [Scaffolding](/guides/scaffolding).
-- **Scale** — ask your assistant to scale `my-service` to a different
-  replica count.
+- **Autoscale** — configure HPA bounds and the CPU threshold; see [Scaling](/guides/scaling).
 - **Roll back** — ask your assistant to roll back `my-service` to a
   previous tag.
 - **View logs** — ask your assistant to show recent logs for `my-service`.
