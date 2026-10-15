@@ -23,8 +23,16 @@ async function renderMermaidDiagrams() {
     if (!encoded) continue
 
     const source = decodeURIComponent(encoded)
-    const { svg } = await renderMermaidSvg(source, `inline-${index++}`)
-    node.innerHTML = svg
+    try {
+      const { svg } = await renderMermaidSvg(source, `inline-${index++}`)
+      node.innerHTML = svg
+    } catch (error) {
+      const fallback = document.createElement('pre')
+      fallback.textContent = source
+      node.replaceChildren(fallback)
+      console.error('Could not render Mermaid diagram', error)
+      continue
+    }
     node.dataset.rendered = 'true'
     node.dataset.mermaidReady = 'true'
 

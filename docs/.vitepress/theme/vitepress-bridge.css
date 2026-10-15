@@ -16,26 +16,26 @@
   --vp-layout-max-width: calc(var(--site-content-width, 1400px) + 64px);
   --vp-nav-bg-color: var(--surface-bg, #0a0b0d);
   /* Brand → accent */
-  --vp-c-brand-1: var(--accent);
-  --vp-c-brand-2: var(--accent-highlight);
-  --vp-c-brand-3: var(--accent-highlight);
-  --vp-c-brand-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --vp-c-brand-1: var(--accent, #e25a3c);
+  --vp-c-brand-2: var(--accent-highlight, #ff8a6a);
+  --vp-c-brand-3: var(--accent-highlight, #ff8a6a);
+  --vp-c-brand-soft: color-mix(in srgb, var(--accent, #e25a3c) 14%, transparent);
 
   /* Backgrounds → surface */
-  --vp-c-bg: var(--surface-bg);
-  --vp-c-bg-alt: var(--surface-elevated);
-  --vp-c-bg-elv: var(--surface-elevated);
-  --vp-c-bg-soft: var(--surface-card);
+  --vp-c-bg: var(--surface-bg, #0a0b0d);
+  --vp-c-bg-alt: var(--surface-elevated, #0f1114);
+  --vp-c-bg-elv: var(--surface-elevated, #0f1114);
+  --vp-c-bg-soft: var(--surface-card, #15181d);
 
   /* Text → surface fg */
-  --vp-c-text-1: var(--surface-fg);
-  --vp-c-text-2: var(--surface-fg-muted);
-  --vp-c-text-3: var(--surface-fg-subtle);
+  --vp-c-text-1: var(--surface-fg, #e6e7e9);
+  --vp-c-text-2: var(--surface-fg-muted, #a4a8ae);
+  --vp-c-text-3: var(--surface-fg-subtle, #6b7079);
 
   /* Borders → surface line */
-  --vp-c-divider: var(--surface-line);
-  --vp-c-border: var(--surface-line-strong);
-  --vp-c-gutter: var(--surface-line);
+  --vp-c-divider: var(--surface-line, #1f242b);
+  --vp-c-border: var(--surface-line-strong, #2a313a);
+  --vp-c-gutter: var(--surface-line, #1f242b);
 
   /* Fonts — Onest for UI, JetBrains Mono for code.
    * Fallbacks stay inside var() so a blocked/slow CDN cannot invalidate
@@ -44,18 +44,18 @@
   --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
 
   /* Status */
-  --vp-c-warning-1: var(--status-warn);
-  --vp-c-warning-2: color-mix(in srgb, var(--status-warn) 70%, transparent);
-  --vp-c-warning-soft: color-mix(in srgb, var(--status-warn) 10%, transparent);
-  --vp-c-danger-1: var(--status-bad);
-  --vp-c-danger-2: color-mix(in srgb, var(--status-bad) 70%, transparent);
-  --vp-c-danger-soft: color-mix(in srgb, var(--status-bad) 10%, transparent);
-  --vp-c-tip-1: var(--accent);
-  --vp-c-tip-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+  --vp-c-warning-1: var(--status-warn, #f5a524);
+  --vp-c-warning-2: color-mix(in srgb, var(--status-warn, #f5a524) 70%, transparent);
+  --vp-c-warning-soft: color-mix(in srgb, var(--status-warn, #f5a524) 10%, transparent);
+  --vp-c-danger-1: var(--status-bad, #ff6b6b);
+  --vp-c-danger-2: color-mix(in srgb, var(--status-bad, #ff6b6b) 70%, transparent);
+  --vp-c-danger-soft: color-mix(in srgb, var(--status-bad, #ff6b6b) 10%, transparent);
+  --vp-c-tip-1: var(--accent, #e25a3c);
+  --vp-c-tip-soft: color-mix(in srgb, var(--accent, #e25a3c) 10%, transparent);
 
   /* Code blocks */
-  --vp-code-bg: var(--surface-card);
-  --vp-code-color: var(--syntax-string);
-  --vp-code-block-bg: var(--surface-card);
-  --vp-code-block-divider-color: var(--surface-line);
+  --vp-code-bg: var(--surface-card, #15181d);
+  --vp-code-color: var(--syntax-string, #c4a35a);
+  --vp-code-block-bg: var(--surface-card, #15181d);
+  --vp-code-block-divider-color: var(--surface-line, #1f242b);
 }

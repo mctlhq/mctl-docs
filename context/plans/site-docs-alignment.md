@@ -145,3 +145,17 @@ Browser matrix and final PR review results are recorded after verification.
   and downstream merges remain blocked; no audit exception or bypass applied.
 - Local previews use local generated 0.6.0 assets through a temporary server;
   committed consumer URLs remain pinned to the production versioned CDN.
+
+### Review hardening (2026-10-16)
+
+- Added explicit dark scoping and focus-ring recomputation in the design system.
+  Browser verification with Storybook's root switched to light confirms the
+  dark panel stays dark and the light panel stays light.
+- Consumers retain pinned 0.6.0 token values as declaration fallbacks, so a CDN
+  failure preserves the shared appearance. Input text has an explicit 16px
+  minimum to prevent iOS focus zoom. Normal rendering still uses shared tokens.
+- Mermaid has palette/font fallbacks and displays source if rendering fails;
+  supporting nodes retain a distinct muted style.
+- Deliberate local CDN 503 test: docs still render the architecture SVG and
+  Onest 32px/40px title; web keeps its fluid hero, opaque field backgrounds,
+  visible borders and 16px input text. Both production builds pass.
