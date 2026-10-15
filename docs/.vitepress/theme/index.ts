@@ -47,11 +47,12 @@ async function renderMermaidDiagrams() {
         continue
       }
 
-      if (!guardedMermaidHosts.has(host)) continue
-
       link.addEventListener('click', (event) => {
-        event.preventDefault()
+        // Public reference links navigate normally; operational hosts ask first.
+        // Neither kind should also trigger the parent diagram's expand action.
         event.stopPropagation()
+        if (!guardedMermaidHosts.has(host)) return
+        event.preventDefault()
         window.dispatchEvent(new CustomEvent('mctl:confirm-mermaid-link', { detail: { href } }))
       })
     }
@@ -63,6 +64,7 @@ async function renderMermaidDiagrams() {
       window.dispatchEvent(new CustomEvent('mctl:open-mermaid', { detail: { source } }))
     }
     node.onkeydown = (event) => {
+      if (event.target !== node) return
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         window.dispatchEvent(new CustomEvent('mctl:open-mermaid', { detail: { source } }))

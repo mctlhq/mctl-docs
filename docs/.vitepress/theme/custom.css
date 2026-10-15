@@ -318,22 +318,22 @@
     radial-gradient(circle at top, color-mix(in srgb, var(--accent, #e25a3c) 8%, transparent), transparent 45%),
     var(--surface-card, #15181d);
   overflow-x: auto;
-  cursor: zoom-in;
+  cursor: default;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
-.vp-doc .mermaid-diagram:hover,
-.vp-doc .mermaid-diagram:focus-visible {
+.vp-doc .mermaid-diagram[data-mermaid-ready]:hover,
+.vp-doc .mermaid-diagram[data-mermaid-ready]:focus-visible {
   border-color: color-mix(in srgb, var(--accent, #e25a3c) 45%, transparent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent, #e25a3c) 12%, transparent), var(--shadow-overlay, 0 16px 48px rgba(0, 0, 0, 0.48));
   outline: none;
   transform: translateY(-2px);
 }
 
-.vp-doc .mermaid-diagram::after {
+.vp-doc .mermaid-diagram[data-mermaid-ready]::after {
   content: 'Click to expand';
   display: block;
   margin-top: 0.75rem;
@@ -547,7 +547,7 @@
     padding: 3.5rem 1rem 1rem;
   }
 
-  .vp-doc .mermaid-diagram::after {
+  .vp-doc .mermaid-diagram[data-mermaid-ready]::after {
     text-align: left;
   }
 
@@ -752,4 +752,8 @@ div[class*='language-'] {
 .mermaid-overlay__diagram .muted > :is(rect, polygon, path) {
   fill: var(--surface-elevated, #0f1114) !important;
   stroke: var(--surface-line-strong, #2a313a) !important;
+}
+
+.vp-doc .mermaid-diagram[data-mermaid-ready] {
+  cursor: zoom-in;
 }
