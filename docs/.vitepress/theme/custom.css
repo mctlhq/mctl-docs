@@ -124,16 +124,16 @@
 
 .VPNavBar .divider { display: none; }
 
-.VPNavBarMenuLink,
-.VPNavBarMenuGroup .button {
+.VPNavBar .VPNavBarMenuLink,
+.VPNavBar .VPNavBarMenuGroup .button {
   color: var(--surface-fg-muted);
   font-family: var(--font-display, 'Onest', system-ui, sans-serif);
   font-size: var(--site-nav-size, 0.95rem);
   font-weight: var(--site-nav-weight, 500);
 }
 
-.VPNavBarMenuLink:hover,
-.VPNavBarMenuLink.active {
+.VPNavBar .VPNavBarMenuLink:hover,
+.VPNavBar .VPNavBarMenuLink.active {
   color: var(--accent);
 }
 
