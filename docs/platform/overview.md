@@ -27,7 +27,7 @@ MCTL abstracts the complexity behind a unified control plane:
 2. **The API or portal processes it** — validates access and submits the relevant workflow
 3. **The workflow runs** — builds/provisions resources and commits service configuration to `mctl-gitops`
 4. **ArgoCD syncs** — detects the diff and applies it to the cluster
-5. **Operation completes** — you can track progress via the operation ID
+5. **Operation completes** — you can track progress via the returned workflow name
 
 Workflow-backed writes return a workflow name. Reads and registry updates can complete synchronously; their responses and persistence differ by operation.
 

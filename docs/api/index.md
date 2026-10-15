@@ -518,7 +518,7 @@ Execute a platform operation. Submits an Argo Workflow and returns a workflow na
 
 ## Human Input
 
-The read model and response endpoint for durable agent clarification (mctl-api#261). They are available once mctl-api 4.51.0 (release PR mctl-api#340) is deployed. Semantics, the full outcome table and who may answer are in the [surface adapter guide](/human-input/surface-adapters).
+The read model and response endpoint for durable agent clarification (mctl-api#261). The endpoints are implemented in the audited API source; availability depends on the deployed version and configuration. Semantics, the full outcome table and who may answer are in the [surface adapter guide](/human-input/surface-adapters).
 
 ### `GET /api/v1/human-input`
 

@@ -6,9 +6,6 @@ MCTL uses GitOps for declared service configuration. Workflows also perform prov
 
 ```mermaid
 graph TB
-    classDef core fill:#102234,stroke:#00f5ff,color:#ffffff,stroke-width:2px
-    classDef delivery fill:#11281f,stroke:#34d399,color:#f8fafc,stroke-width:2px
-    classDef muted fill:#101827,stroke:#475569,color:#e6edf3,stroke-width:1.2px
 
     subgraph Clients
         direction LR

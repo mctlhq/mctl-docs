@@ -61,7 +61,6 @@
 
 .VPHero .hex-logo {
   color: var(--accent);
-
 }
 
 .VPHero {
@@ -70,12 +69,12 @@
 
 /* Hero header: 800 weight, -0.5px spacing */
 .VPHero .name {
-  font-weight: 800;
+  font-weight: var(--mctl-typography-font-weight-extrabold);
   letter-spacing: -0.5px;
 }
 
 .VPHero .text {
-  font-weight: 800;
+  font-weight: var(--mctl-typography-font-weight-extrabold);
   color: var(--surface-fg);
 }
 
@@ -109,6 +108,7 @@
 }
 
 .VPNavBar.has-sidebar .content {
+  position: static;
   padding: 0 !important;
   min-width: 0;
 }
@@ -137,7 +137,7 @@
   color: var(--accent);
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1440px) {
   .VPNavBar .wrapper,
   .VPNavBar.has-sidebar .wrapper { padding: 0 !important; }
 }
@@ -150,8 +150,8 @@
 
 .VPNavScreenMenuLink {
   color: var(--surface-fg-muted) !important;
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
+  font-size: var(--text-label-size)!important;
+  font-weight: var(--mctl-typography-font-weight-medium) !important;
   border-bottom: none !important;
   padding: 14px 0 !important;
   transition: color 0.3s ease !important;
@@ -164,8 +164,8 @@
 /* Mobile menu group titles & links */
 .VPNavScreenMenuGroup .title {
   color: var(--surface-fg-muted) !important;
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
+  font-size: var(--text-label-size)!important;
+  font-weight: var(--mctl-typography-font-weight-medium) !important;
   border-bottom: none !important;
 }
 
@@ -237,7 +237,7 @@
 
 .VPFeature .title {
   color: var(--surface-fg) !important;
-  font-weight: 700;
+  font-weight: var(--mctl-typography-font-weight-bold);
 }
 
 .VPFeature .details {
@@ -259,7 +259,7 @@
 
 .VPButton {
   border-radius: 4px !important;
-  font-weight: 500;
+  font-weight: var(--mctl-typography-font-weight-medium);
   font-family: var(--font-display);
   transition: all 0.3s ease;
 }
@@ -297,7 +297,7 @@
 
 .vp-doc th {
   color: var(--surface-fg);
-  font-weight: 600;
+  font-weight: var(--mctl-typography-font-weight-semibold);
   background-color: color-mix(in srgb, var(--accent) 6%, transparent);
   border-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
@@ -328,7 +328,7 @@
 .vp-doc .mermaid-diagram:hover,
 .vp-doc .mermaid-diagram:focus-visible {
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent), 0 20px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent), var(--shadow-overlay);
   outline: none;
   transform: translateY(-2px);
 }
@@ -338,7 +338,7 @@
   display: block;
   margin-top: 0.75rem;
   color: var(--surface-fg-subtle);
-  font-size: 0.78rem;
+  font-size: var(--text-caption-size);
   letter-spacing: 0.02em;
   text-align: right;
 }
@@ -352,7 +352,7 @@
 
 .vp-doc .mermaid-diagram :is(.node rect, .node polygon, .node path, .node circle) {
   stroke-width: 1.5px;
-  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.28));
+  filter: none;
 }
 
 .vp-doc .mermaid-diagram .cluster rect {
@@ -373,7 +373,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: color-mix(in srgb, var(--surface-bg) 84%, transparent);
+  background: var(--overlay-scrim);
   backdrop-filter: blur(18px);
 }
 
@@ -387,7 +387,7 @@
     radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 42%),
     var(--surface-card);
   box-shadow:
-    0 40px 120px rgba(0, 0, 0, 0.55),
+    var(--shadow-overlay),
     0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
@@ -436,7 +436,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: color-mix(in srgb, var(--surface-bg) 84%, transparent);
+  background: var(--overlay-scrim);
   backdrop-filter: blur(16px);
 }
 
@@ -448,7 +448,7 @@
     radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 50%),
     var(--surface-card);
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.52),
+    var(--shadow-overlay),
     0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
   padding: 1.5rem;
 }
@@ -456,7 +456,7 @@
 .mermaid-link-confirm__eyebrow {
   margin: 0 0 0.5rem;
   color: var(--accent);
-  font-size: 0.8rem;
+  font-size: var(--text-caption-size);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -464,7 +464,7 @@
 .mermaid-link-confirm__title {
   margin: 0 0 0.85rem;
   color: var(--surface-fg);
-  font-size: 1.5rem;
+  font-size: var(--text-title-size);
   line-height: 1.1;
 }
 
@@ -600,31 +600,31 @@ div[class*='language-'] {
 
 .vp-doc h1 {
   color: var(--surface-fg);
-  font-weight: 800;
+  font-weight: var(--mctl-typography-font-weight-extrabold);
 }
 
 .vp-doc h2 {
   color: var(--surface-fg);
-  font-weight: 700;
+  font-weight: var(--mctl-typography-font-weight-bold);
   border-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .vp-doc h3 {
   color: var(--surface-fg);
-  font-weight: 600;
+  font-weight: var(--mctl-typography-font-weight-semibold);
 }
 
 /* ── Nav logo text ── */
 
 .VPNavBarTitle .title {
-  font-weight: 800 !important;
+  font-weight: var(--mctl-typography-font-weight-extrabold) !important;
   letter-spacing: 2px;
 }
 
 /* ── Hero brand ── */
 
 .hero-brand {
-  font-weight: 800;
+  font-weight: var(--mctl-typography-font-weight-extrabold);
   letter-spacing: 2px;
 }
 
@@ -656,7 +656,7 @@ div[class*='language-'] {
 }
 
 .docs-footer__logo .brand-mark {
-  font-size: 1.25rem;
+  font-size: var(--mctl-typography-font-size-xl);
 }
 
 .docs-footer__links {
@@ -678,15 +678,15 @@ div[class*='language-'] {
 }
 
 .docs-footer__copy {
-  font-size: 0.8rem;
+  font-size: var(--text-caption-size);
   color: var(--surface-fg-muted);
 }
 
 /* Home texture stays outside the reading surface. */
 .VPHome {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    linear-gradient(var(--site-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--site-grid-line) 1px, transparent 1px);
   background-size: 56px 56px;
 }
 
@@ -701,4 +701,48 @@ div[class*='language-'] {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Shared public text roles; document line length and VitePress structure stay intact. */
+.VPHero .name, .VPHero .text {
+  font-size: var(--text-docs-hero-size);
+  line-height: var(--text-docs-hero-leading);
+  font-weight: var(--text-docs-hero-weight);
+  letter-spacing: var(--text-docs-hero-tracking);
+}
+.VPHero .tagline {
+  font-size: var(--text-subtitle-size);
+  line-height: var(--text-subtitle-leading);
+}
+.vp-doc {
+  font-size: var(--text-prose-size);
+  line-height: var(--text-prose-leading);
+}
+.vp-doc p, .vp-doc li { line-height: var(--text-prose-leading); }
+.vp-doc h1 {
+  font-size: var(--text-prose-title-size);
+  line-height: var(--text-prose-title-leading);
+  font-weight: var(--text-prose-title-weight);
+}
+.vp-doc h2 {
+  font-size: var(--text-prose-section-size);
+  line-height: var(--text-prose-section-leading);
+  font-weight: var(--text-prose-section-weight);
+}
+.vp-doc h3 {
+  font-size: var(--text-prose-subsection-size);
+  line-height: var(--text-prose-subsection-leading);
+  font-weight: var(--text-prose-subsection-weight);
+}
+
+/* Mermaid semantic groups share the active palette, including expanded diagrams. */
+.mermaid-diagram .core > :is(rect, polygon, path),
+.mermaid-overlay__diagram .core > :is(rect, polygon, path) {
+  fill: var(--surface-card) !important;
+  stroke: var(--accent) !important;
+}
+.mermaid-diagram .delivery > :is(rect, polygon, path),
+.mermaid-overlay__diagram .delivery > :is(rect, polygon, path) {
+  fill: var(--surface-card) !important;
+  stroke: var(--status-ok) !important;
 }

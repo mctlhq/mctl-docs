@@ -96,3 +96,52 @@ rollouts. No destructive examples were executed.
   the audit gate was not weakened. Consumers must not merge before 0.6.0 CSS
   is published. Live post-deploy validation is pending that prerequisite.
 
+
+## Full foundations pass (2026-10-15)
+
+User approved extending the design system as the shared base for both public
+sites. Changes extend the unreleased 0.6.0 contract; published 0.5.0 bytes remain
+untouched. Existing product/editorial text recipes and compact MNav remain
+compatible. Public site shells are demonstrated separately in Storybook.
+
+- Added public text roles (marketing, UI, code and reading), the missing 800
+  weight, control/disabled colors, status tints, overlay and grid semantics.
+- Applied the shared scale across landing components, privacy/docs routes,
+  VitePress overrides and MCP setup. Prose stays 16px/28px with 32/24/20px
+  headings. Engine-specific spacing and navigation remain adapter concerns.
+- Replaced remaining legacy blue form/header backgrounds, unrelated feedback
+  colors and literal shadows. Color literals remain only as matching CDN
+  fallbacks, browser theme metadata, alpha masks or third-party logo artwork.
+- Mermaid reads concrete colors and font values from the loaded semantic CSS;
+  architecture groups use semantic accent/status colors. Examples that teach
+  explicit diagram styling retain their authored colors.
+- Added Foundations/Public Sites with dark/light scoped examples, and extended
+  Foundations/Typography with all public roles. The 1400–1439px gutter gap is
+  removed in both adapters.
+- Addressed documentation review: remaining workflow-name/storage overclaims,
+  meaningful MCP descriptions with per-tool source line anchors, stale API
+  human-input rollout statement and LLM index wording.
+- Dependency patch updates remove fast-uri, brace-expansion, source-map-js and
+  Vue renderer advisories. Audit still reports braces and sprintf-js without
+  patched releases, postcss-selector-parser requiring a major upgrade, and a
+  low-severity esbuild advisory. No policy exceptions were introduced.
+
+Validation: token/type/CSS builds, lint, typecheck, Storybook build, Nuxt generate,
+VitePress build and local page/anchor scan (34 pages, zero errors). Public token
+reference scan resolves all actual declarations (excluding explanatory comments).
+Browser matrix and final PR review results are recorded after verification.
+
+### Verification follow-up (2026-10-16)
+
+- Browser checks: home pages at 375, 768, 1440 and 1920px; no horizontal
+  document overflow, shared 80px headers. Privacy and legacy docs routes also
+  fit 375px. Mobile navigation opens; documentation search returns results;
+  Mermaid expansion opens a labelled dialog and closes correctly.
+- Scoped Storybook dark/light examples resolve their own background and header
+  colors. Reading text computes to Onest 16px/28px. Documentation hero spans
+  compute to Onest 800, 56px/64.4px on desktop.
+- Version/license checks pass. Latest dependency audit: one high (braces), two
+  moderate (sprintf-js, postcss-selector-parser), one low (esbuild). Publication
+  and downstream merges remain blocked; no audit exception or bypass applied.
+- Local previews use local generated 0.6.0 assets through a temporary server;
+  committed consumer URLs remain pinned to the production versioned CDN.

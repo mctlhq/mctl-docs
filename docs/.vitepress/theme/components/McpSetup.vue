@@ -261,20 +261,20 @@ const tabs = [
 
 .auth-card h3 {
   margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+  font-size: var(--mctl-typography-font-size-lg);
   color: var(--surface-fg);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 .auth-desc {
-  font-size: 0.85rem;
+  font-size: var(--text-small-size);
   color: var(--surface-fg-muted);
   line-height: 1.5;
   margin: 0 0 0.75rem;
 }
 
 .auth-hint {
-  font-size: 0.78rem;
+  font-size: var(--text-caption-size);
   color: var(--surface-fg-subtle);
   line-height: 1.5;
   margin: 0 0 1rem;
@@ -285,7 +285,7 @@ const tabs = [
 }
 
 .auth-notice {
-  font-size: 0.8rem;
+  font-size: var(--text-caption-size);
   line-height: 1.5;
   color: var(--surface-fg);
   border-left: 2px solid var(--accent);
@@ -315,8 +315,8 @@ const tabs = [
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--surface-fg-subtle);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro-size);
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
@@ -336,7 +336,7 @@ const tabs = [
 }
 
 .config-path {
-  font-size: 0.82rem;
+  font-size: var(--text-caption-size);
   color: var(--surface-fg-muted);
   margin: 0 0 0.75rem;
   line-height: 1.4;
@@ -346,12 +346,12 @@ const tabs = [
   background: color-mix(in srgb, var(--accent) 8%, transparent);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
-  font-size: 0.78rem;
+  font-size: var(--text-caption-size);
   color: var(--accent);
 }
 
 .config-note {
-  font-size: 0.78rem;
+  font-size: var(--text-caption-size);
   color: var(--surface-fg-subtle);
   margin: 0.75rem 0 0;
   line-height: 1.5;
@@ -365,7 +365,7 @@ const tabs = [
   background: color-mix(in srgb, var(--accent) 8%, transparent);
   padding: 0.1rem 0.3rem;
   border-radius: 3px;
-  font-size: 0.75rem;
+  font-size: var(--text-micro-size);
   color: var(--accent);
 }
 
@@ -382,13 +382,13 @@ const tabs = [
   background: var(--surface-bg);
   border: 1px solid var(--surface-line);
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: var(--text-caption-size);
 }
 
 .val-label {
   display: block;
   color: var(--surface-fg-subtle);
-  font-size: 0.7rem;
+  font-size: var(--text-micro-size);
   margin-bottom: 0.3rem;
 }
 
@@ -401,8 +401,8 @@ const tabs = [
 .val-value-row code {
   flex: 1;
   color: var(--surface-fg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption-size);
   background: none;
   padding: 0;
   overflow: hidden;
@@ -413,7 +413,7 @@ const tabs = [
 .val-value-row .muted {
   flex: 1;
   color: var(--surface-fg-muted);
-  font-size: 0.78rem;
+  font-size: var(--text-caption-size);
 }
 
 /* ── Code blocks ── */
@@ -429,8 +429,8 @@ const tabs = [
   margin: 0;
   padding: 1rem;
   overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption-size);
   line-height: 1.6;
   color: var(--surface-fg);
   white-space: pre;
@@ -443,8 +443,8 @@ const tabs = [
   border: 1px solid var(--surface-line);
   border-radius: 4px;
   color: var(--surface-fg-subtle);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro-size);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, border-color 0.15s;

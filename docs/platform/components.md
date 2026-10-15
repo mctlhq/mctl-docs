@@ -39,7 +39,7 @@ organization.
 
 ## mctl-gitops
 
-**GitOps repository** — the single source of truth for all infrastructure.
+**GitOps repository** — the source of declared service and platform configuration.
 
 - ArgoCD watches this repo and syncs cluster state
 - Contains Helm values, Kustomize overlays, and raw manifests
