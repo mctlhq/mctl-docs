@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.1.49](https://github.com/mctlhq/mctl-docs/compare/0.1.48...0.1.49) (2026-10-16)
+
+
+### Features
+
+* adopt shared typography and finish source audit ([bfa3551](https://github.com/mctlhq/mctl-docs/commit/bfa3551a46c450495af80a9a1c1cc3ecebcd1029))
+* align docs styling and refresh platform documentation ([b46e0a6](https://github.com/mctlhq/mctl-docs/commit/b46e0a6953bafe4dcd6d7d8010cf2bf1db11ff24))
+* align shared foundations and audit platform documentation ([74d60cb](https://github.com/mctlhq/mctl-docs/commit/74d60cbb5e4f13a0194046515f72793f46af5c3f))
+
+
+### Bug Fixes
+
+* apply shared navigation typography over theme defaults ([e1bf0a6](https://github.com/mctlhq/mctl-docs/commit/e1bf0a6bce9e02728b2f90e57baddb454e1ec197))
+* retain documentation and diagrams during CDN failures ([a65be6e](https://github.com/mctlhq/mctl-docs/commit/a65be6e729643f7b0f077b5be34e59001db24442))
+* separate diagram link navigation from expansion ([2780704](https://github.com/mctlhq/mctl-docs/commit/2780704987b24b0d49533a3b0ac957595103f355))
+
+
+### Documentation
+
+* clarify rollback recovery boundaries ([54e1f8d](https://github.com/mctlhq/mctl-docs/commit/54e1f8dd8bef2b5630b7fc4ea17efca954170bb5))
+* clarify workflow state versus request file cleanup ([7cb61da](https://github.com/mctlhq/mctl-docs/commit/7cb61da4e06fc0f4905cec26e954a6a03765e5f5))
+* classify every DevLoop trace attribute by cardinality ([3a9bf47](https://github.com/mctlhq/mctl-docs/commit/3a9bf4747ae91ce3b583a6e700cec1d97deb5eaa))
+* **telemetry:** reserve the DevLoop execution-trace attributes ([d829f3d](https://github.com/mctlhq/mctl-docs/commit/d829f3d02239b54cce79affa79491e541178faa6))
+* **telemetry:** reserve the DevLoop execution-trace attributes ([bd1ddb4](https://github.com/mctlhq/mctl-docs/commit/bd1ddb467313db9c6520da58595644fc96c7cac5))
+
 ## [0.1.48](https://github.com/mctlhq/mctl-docs/compare/0.1.47...0.1.48) (2026-10-10)
 
 
