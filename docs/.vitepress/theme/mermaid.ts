@@ -16,7 +16,7 @@ function mermaidThemeVariables() {
     background: bg, mainBkg: card, secondBkg: elevated, tertiaryColor: elevated,
     primaryColor: card, primaryTextColor: fg, primaryBorderColor: accent,
     lineColor: token('--surface-fg-muted', '#a4a8ae'), textColor: fg,
-    fontFamily: token('--font-mono', "'JetBrains Mono', ui-monospace, monospace"), fontSize: token('--text-code-size', '14px'),
+    fontFamily: token('--font-mono', "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace"), fontSize: token('--text-code-size', '14px'),
     clusterBkg: elevated, clusterBorder: line, titleColor: fg,
     edgeLabelBackground: bg, actorBkg: card, actorBorder: accent,
     actorTextColor: fg, actorLineColor: line, signalColor: accent,

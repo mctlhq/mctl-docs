@@ -275,7 +275,7 @@ const tabs = [
 
 .auth-hint {
   font-size: var(--text-caption-size, 13px);
-  color: var(--surface-fg-subtle, #6b7079);
+  color: var(--surface-fg-subtle, #7d828b);
   line-height: 1.5;
   margin: 0 0 1rem;
 }
@@ -314,7 +314,7 @@ const tabs = [
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--surface-fg-subtle, #6b7079);
+  color: var(--surface-fg-subtle, #7d828b);
   font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
   font-size: var(--text-micro-size, 12px);
   cursor: pointer;
@@ -352,7 +352,7 @@ const tabs = [
 
 .config-note {
   font-size: var(--text-caption-size, 13px);
-  color: var(--surface-fg-subtle, #6b7079);
+  color: var(--surface-fg-subtle, #7d828b);
   margin: 0.75rem 0 0;
   line-height: 1.5;
 }
@@ -387,7 +387,7 @@ const tabs = [
 
 .val-label {
   display: block;
-  color: var(--surface-fg-subtle, #6b7079);
+  color: var(--surface-fg-subtle, #7d828b);
   font-size: var(--text-micro-size, 12px);
   margin-bottom: 0.3rem;
 }
@@ -442,7 +442,7 @@ const tabs = [
   background: transparent;
   border: 1px solid var(--surface-line, #1f242b);
   border-radius: 4px;
-  color: var(--surface-fg-subtle, #6b7079);
+  color: var(--surface-fg-subtle, #7d828b);
   font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
   font-size: var(--text-micro-size, 12px);
   cursor: pointer;
