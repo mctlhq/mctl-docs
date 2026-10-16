@@ -739,6 +739,12 @@ div[class*='language-'] {
 }
 
 /* Mermaid semantic groups share the active palette, including expanded diagrams. */
+.mermaid-diagram .core > :is(rect, polygon, path),
+.mermaid-overlay__diagram .core > :is(rect, polygon, path) {
+  fill: var(--surface-card, #15181d) !important;
+  stroke: var(--accent, #e25a3c) !important;
+}
+
 .mermaid-diagram .delivery > :is(rect, polygon, path),
 .mermaid-overlay__diagram .delivery > :is(rect, polygon, path) {
   fill: var(--surface-card, #15181d) !important;
