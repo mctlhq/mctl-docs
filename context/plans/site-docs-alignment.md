@@ -181,7 +181,7 @@ Browser matrix and final PR review results are recorded after verification.
 - Prior responsive and interaction checks remain recorded above. Remaining P3
   cleanup and adoption of design 0.7.0 are follow-ups, not release blockers.
 
-### 0.7.0 follow-up (2026-10-16, in progress)
+### 0.7.0 follow-up (2026-10-16, completed)
 
 Adopt published immutable 0.7.0 CSS in both consumers, including fallback
 contrast colors. Unify Mermaid link handling across inline and expanded SVGs;
@@ -199,3 +199,14 @@ internal links/anchors. Browser checks cover both consumers at 375/768/1440/1920
 without horizontal overflow, mobile menus, docs search results, expanded
 Mermaid link confirmation and closing both dialogs. Published 0.7.0 CSS and
 prose assets match the design repository byte-for-byte.
+
+Release verification:
+
+- Web #145 and docs #149 merged after current-head reviews. Docs #149's P2
+  was fixed in `2a89801`: restore the core Mermaid group in inline and
+  expanded diagrams. Claude reported no P1/P2/P3; all CI checks passed.
+- Release PRs web #146 and docs #148 merged. Published tags are web `7.7.1`
+  and docs `0.1.50`, both consuming immutable design `0.7.0` assets.
+- Centralized release-deploy runs `38906587446` (web) and `38907392057`
+  (docs) succeeded. Production pages load the versioned 0.7.0 CSS; the
+  architecture page's published CSS contains both core-group selectors.
