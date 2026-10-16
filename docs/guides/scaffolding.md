@@ -19,6 +19,38 @@ Implement both without authentication, or pass `health_check_path="/healthz"`
 at onboarding if your app exposes only `/healthz`. A Dockerfile `HEALTHCHECK`
 does not configure Kubernetes probes.
 
+## Container requirements
+
+Every service runs with a restricted security context. Build the image so
+it works under these rules:
+
+| Requirement | Why |
+| --- | --- |
+| Run as a **numeric** non-root user: `USER 10001:10001`, not `USER app` | Kubernetes can only check that a container is not root when the user is a number. With a user name it cannot verify, so once non-root is enforced the pod never starts (`CreateContainerConfigError`). |
+| Listen on a port above 1024 (`8080`, `8000`, `8787`) | A non-root process cannot bind ports below 1024. |
+| Write only to `/tmp` at runtime | The root filesystem becomes read-only. `/tmp` is a writable empty directory that is wiped on every restart, so keep durable data in a [database](/guides/databases) or object storage. |
+| Need no extra privileges | All Linux capabilities are dropped and privilege escalation is blocked, so `sudo`, `su`, `gosu` and setuid binaries do not work. Do anything that needs root at build time, in `RUN` steps. |
+
+Today every service already runs without capabilities, without privilege
+escalation and under the `RuntimeDefault` seccomp profile. Non-root and a
+read-only root filesystem are being rolled out: platform services already
+run that way, and it will become the default for every service. An image
+that follows the table works both now and after the switch. All templates
+below follow it.
+
+If a library writes a cache under `$HOME` at runtime, point it at `/tmp`,
+for example with `ENV XDG_CACHE_HOME=/tmp/.cache`.
+
+Check an image locally before onboarding. The first command must print a
+number other than `0`, and the container must start and answer its health
+check under the second:
+
+```bash
+docker image inspect -f '{{.Config.User}}' my-image
+docker run --rm -p 8080:8080 --read-only --tmpfs /tmp \
+  --cap-drop ALL --security-opt no-new-privileges my-image
+```
+
 ## Pick a template by language
 
 | Repo contains | Template |
@@ -45,9 +77,9 @@ RUN npm ci --omit=dev
 
 COPY . .
 
-RUN addgroup -S app && adduser -S -G app app && chown -R app:app /app
+RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app
 
-USER app
+USER 10001:10001
 
 EXPOSE 8787
 
@@ -85,9 +117,9 @@ WORKDIR /app
 COPY --from=builder /root/.local /home/app/.local
 COPY . .
 
-RUN useradd -m app && chown -R app:app /app
+RUN useradd -u 10001 -U -M -d /home/app app
 
-USER app
+USER 10001:10001
 ENV PATH=/home/app/.local/bin:$PATH \
     PORT=8000
 
@@ -119,8 +151,8 @@ RUN CGO_ENABLED=0 go build -ldflags='-s -w' -o /app/server ./cmd/server
 FROM alpine:3.20
 RUN apk add --no-cache tini ca-certificates
 COPY --from=builder /app/server /app/server
-RUN addgroup -S app && adduser -S -G app app
-USER app
+RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app
+USER 10001:10001
 ENV PORT=8080
 EXPOSE 8080
 
@@ -143,18 +175,19 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginx:1.27-alpine
-RUN apk add --no-cache tini
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD wget -qO- http://127.0.0.1:8080/ || exit 1
-
-ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["nginx", "-g", "daemon off;"]
 ```
+
+`nginxinc/nginx-unprivileged` runs as user `101` and keeps its pid file and
+temporary files in `/tmp`, so it meets the
+[container requirements](#container-requirements). The official `nginx`
+image starts as root and does not.
 
 Minimal `nginx.conf` next to your Dockerfile:
 

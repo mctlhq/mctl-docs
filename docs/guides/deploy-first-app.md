@@ -75,8 +75,10 @@ code, and return to this guide.
 By default MCTL builds your container image from a `Dockerfile` at the
 repository root. A minimal Node.js example is shown below. For other
 runtimes (Python, Go, static SPA) see [Scaffolding](/guides/scaffolding).
+The image must run as a numeric non-root user and write only to `/tmp`; see
+[Container requirements](/guides/scaffolding#container-requirements).
 
-::: tip Monorepo or non-root Dockerfile
+::: tip Monorepo or Dockerfile outside the repository root
 If your Dockerfile lives somewhere other than the repository root (for
 example a monorepo with the app under `apps/api/Dockerfile`), pass
 `dockerfile_path` when you onboard the service in Step 6 — see the
@@ -100,9 +102,9 @@ RUN npm ci --omit=dev
 
 COPY . .
 
-RUN addgroup -S app && adduser -S -G app app && chown -R app:app /app
+RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app
 
-USER app
+USER 10001:10001
 
 EXPOSE 8787
 
