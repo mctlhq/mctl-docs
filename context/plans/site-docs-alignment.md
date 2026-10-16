@@ -220,7 +220,9 @@ These checks follow the completed design release; they do not change its status.
   resolved tree and the moderate audit passes without GHSA exceptions. Build,
   lint, typecheck, component tests and Storybook pass. A published-declaration
   consumer check rejects invalid component props; replacing declarations with
-  `any` deliberately fails that check. Merge/release verification is pending.
+  `any` deliberately fails that check. PR #93 merged as `e4e7969` after current-head approval with no P1/P2;
+  continuous Storybook deployment is being verified. No package version bump
+  is required for this build-tool-only fix.
 - Live OAuth: the current Codex/ChatGPT MCTL connection successfully calls
   `mctl_whoami` as `mashkovd`. Reconnecting the existing Claude connector reaches
   the ZITADEL callback but is refused because its identity owns a separate
@@ -236,6 +238,9 @@ These checks follow the completed design release; they do not change its status.
   Production intentionally keeps it disabled: both instances serve the same
   linked operator, and enabling both would duplicate Saved Messages questions.
   That boundary was confirmed from the preview values and retained after review.
+  Direct live API relay checks return HTTP 200 for both linked Telegram and
+  Portal actors (`count: 0` pending requests); the same Telegram surface token
+  without an actor is correctly refused with HTTP 403.
 - Telemetry: the live Collector exports to the evaluation Tempo backend.
   Synthetic trace `6f466393cdb00be8225a9404fd9c6502` was submitted over OTLP
   and retrieved from Tempo: `gen_ai.usage.input_tokens` stays integer `17`,
