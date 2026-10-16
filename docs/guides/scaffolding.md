@@ -117,7 +117,7 @@ WORKDIR /app
 COPY --from=builder /root/.local /home/app/.local
 COPY . .
 
-RUN useradd -u 10001 -U -M -d /home/app app
+RUN groupadd -g 10001 app && useradd -u 10001 -g app -M -d /home/app app
 
 USER 10001:10001
 ENV PATH=/home/app/.local/bin:$PATH \
