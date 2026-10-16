@@ -1,7 +1,8 @@
 # Site and documentation alignment
 
 Status: released and production-verified on 2026-10-16.
-Earlier blocker notes below are historical; see the release record at the end.
+Earlier blocker notes below are historical; see the release records and latest
+production recheck below.
 
 ## Outcome
 
@@ -268,3 +269,26 @@ correlation of a new organic DevLoop started after the control-worker rollout.
 Do not open or label a dummy issue solely to manufacture workflow evidence.
 Additional MCP clients remain untested; the current connection and a Claude
 callback attempt are the only live client evidence from this follow-up.
+
+### Production recheck (2026-10-16)
+
+The visual alignment work, 0.7.0 adoption and Mermaid link follow-up are complete.
+This recheck supersedes session notes that still describe deployment or the
+sprintf-js dependency exception as pending.
+
+- The live MCTL service-status API and direct ArgoCD reads both report
+  `admins-mctl-web` and `admins-mctl-docs` as `Synced / Healthy`.
+  Current configured image tags are web `7.8.0` and docs `0.1.50`; the earlier
+  web `7.7.1` release record above remains historical.
+- HTTPS requests to `https://mctl.ai/`, `https://docs.mctl.ai/` and
+  `https://docs.mctl.ai/platform/architecture` succeed. Both home pages
+  reference `https://ui.mctl.ai/0.7.0/mctl.css`; docs also references
+  `https://ui.mctl.ai/0.7.0/prose.css`. Both public CSS responses match
+  `mctl-design` main (`e4e7969`) byte-for-byte.
+- Design PR #93 is merged. Its removal of sprintf-js and the build-audit
+  exception is recorded under functional follow-up verification above;
+  there is no remaining sprintf-js task for this initiative.
+- This pass rechecks deployment status and served assets. Responsive layouts,
+  search and Mermaid interaction checks are the earlier recorded browser
+  evidence, not newly repeated browser tests. The separate OAuth and organic
+  tracing acceptance boundaries above remain outside visual alignment.
