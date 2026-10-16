@@ -13,7 +13,7 @@
           Close
         </button>
         <div class="mermaid-overlay__content">
-          <div v-if="svg" class="mermaid-overlay__diagram" v-html="svg" />
+          <div v-if="svg" ref="diagram" class="mermaid-overlay__diagram" v-html="svg" />
           <pre v-else>{{ fallbackSource }}</pre>
         </div>
       </div>
@@ -22,13 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { renderMermaidSvg } from '../mermaid'
+import { wireMermaidLinks } from '../mermaid-links'
 
 type MermaidOpenDetail = {
   source: string
 }
 
+const diagram = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
 const svg = ref('')
 const fallbackSource = ref('')
@@ -43,6 +45,8 @@ async function openDiagram(detail: MermaidOpenDetail) {
     console.error('Could not render expanded Mermaid diagram', error)
   }
   isOpen.value = true
+  await nextTick()
+  if (diagram.value) wireMermaidLinks(diagram.value)
 }
 
 function close() {

@@ -1,6 +1,6 @@
 /*
  * Maps VitePress CSS variables to MCTL design token variables (--surface-*,
- * --accent, --font-*) provided by https://ui.mctl.ai/0.6.0/mctl.css, which is
+ * --accent, --font-*) provided by https://ui.mctl.ai/0.7.0/mctl.css, which is
  * loaded in docs/.vitepress/config.ts before this file.
  *
  * This file replaces the duplicate :root color block that was previously in
@@ -13,7 +13,7 @@
 
 :root {
   --vp-nav-height: var(--site-header-height, 80px);
-  --vp-layout-max-width: calc(var(--site-content-width, 1400px) + 64px);
+  --vp-layout-max-width: 1440px;
   --vp-nav-bg-color: var(--surface-bg, #0a0b0d);
   /* Brand → accent */
   --vp-c-brand-1: var(--accent, #e25a3c);
@@ -30,7 +30,7 @@
   /* Text → surface fg */
   --vp-c-text-1: var(--surface-fg, #e6e7e9);
   --vp-c-text-2: var(--surface-fg-muted, #a4a8ae);
-  --vp-c-text-3: var(--surface-fg-subtle, #6b7079);
+  --vp-c-text-3: var(--surface-fg-subtle, #7d828b);
 
   /* Borders → surface line */
   --vp-c-divider: var(--surface-line, #1f242b);
@@ -40,8 +40,8 @@
   /* Fonts — Onest for UI, JetBrains Mono for code.
    * Fallbacks stay inside var() so a blocked/slow CDN cannot invalidate
    * the whole font-family declaration (IACVT). */
-  --vp-font-family-base: var(--font-display, 'Onest', ui-sans-serif, system-ui, sans-serif);
-  --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  --vp-font-family-base: var(--font-display, 'Onest', system-ui, -apple-system, sans-serif);
+  --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
 
   /* Status */
   --vp-c-warning-1: var(--status-warn, #f5a524);

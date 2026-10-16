@@ -12,7 +12,7 @@ commerce operations use their own stores and do not all produce Git commits.
 
 ## Registered tools
 
-| Tool | Purpose | Hint |
+| Tool | Purpose | Annotations |
 |---|---|---|
 | `mctl_whoami` | Check your current authentication status on the mctl platform. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L351) | Read |
 | `mctl_list_tenants` | List all team workspaces on the platform with their resource quotas and member counts. Requires admin access. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L391) | Read |

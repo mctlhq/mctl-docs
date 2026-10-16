@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vitepress dev docs",
     "generate:llms": "bun run scripts/generate-llms-full.ts",
-    "build": "bun run generate:llms && vitepress build docs",
-    "preview": "vitepress preview docs"
+    "build": "bun run test && bun run generate:llms && vitepress build docs",
+    "preview": "vitepress preview docs",
+    "test": "bun test ./docs/.vitepress/theme/mermaid-links.test.ts"
   },
   "devDependencies": {
     "mermaid": "^11.13.0",

@@ -180,3 +180,22 @@ Browser matrix and final PR review results are recorded after verification.
   text rgb(230,231,233) and accent rgb(226,90,60). Neither home page overflows.
 - Prior responsive and interaction checks remain recorded above. Remaining P3
   cleanup and adoption of design 0.7.0 are follow-ups, not release blockers.
+
+### 0.7.0 follow-up (2026-10-16, in progress)
+
+Adopt published immutable 0.7.0 CSS in both consumers, including fallback
+contrast colors. Unify Mermaid link handling across inline and expanded SVGs;
+cover relative and malformed URLs without triggering expansion. Consolidate
+font fallbacks, remove redundant styling and glows, and make container gutters
+independent of the desktop breakpoint. Retain the shared prose-title fallback
+of 32px intentionally: it matches the role rather than the old page-specific
+clamp. Repeated human-input availability notices remain on standalone pages
+so direct readers see the limitation. Validate builds, link handling, mobile
+navigation/search, diagrams and the published release before closing.
+
+Local validation: both production builds pass; four link-handler tests pass
+and run as part of the docs build; 34 generated HTML pages have zero broken
+internal links/anchors. Browser checks cover both consumers at 375/768/1440/1920
+without horizontal overflow, mobile menus, docs search results, expanded
+Mermaid link confirmation and closing both dialogs. Published 0.7.0 CSS and
+prose assets match the design repository byte-for-byte.

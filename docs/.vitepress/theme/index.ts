@@ -6,7 +6,7 @@ import Layout from './Layout.vue'
 import McpSetup from './components/McpSetup.vue'
 import { renderMermaidSvg } from './mermaid'
 
-const guardedMermaidHosts = new Set(['app.mctl.ai', 'workflows.mctl.ai', 'ops.mctl.ai'])
+import { wireMermaidLinks } from './mermaid-links'
 
 async function renderMermaidDiagrams() {
   if (typeof document === 'undefined') return
@@ -36,26 +36,7 @@ async function renderMermaidDiagrams() {
     node.dataset.rendered = 'true'
     node.dataset.mermaidReady = 'true'
 
-    for (const link of node.querySelectorAll<SVGAElement>('a')) {
-      const href = link.getAttribute('href')
-      if (!href) continue
-
-      let host = ''
-      try {
-        host = new URL(href).hostname
-      } catch {
-        continue
-      }
-
-      link.addEventListener('click', (event) => {
-        // Public reference links navigate normally; operational hosts ask first.
-        // Neither kind should also trigger the parent diagram's expand action.
-        event.stopPropagation()
-        if (!guardedMermaidHosts.has(host)) return
-        event.preventDefault()
-        window.dispatchEvent(new CustomEvent('mctl:confirm-mermaid-link', { detail: { href } }))
-      })
-    }
+    wireMermaidLinks(node)
 
     node.tabIndex = 0
     node.setAttribute('role', 'button')

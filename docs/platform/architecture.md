@@ -6,7 +6,6 @@ MCTL uses GitOps for declared service configuration. Workflows also perform prov
 
 ```mermaid
 graph TB
-
     subgraph Clients
         direction LR
         clientClaude["Claude / Cursor / VS Code"]

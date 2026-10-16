@@ -28,7 +28,6 @@ Database credentials are automatically injected into your service as environment
 | `DB_USER` | Database username |
 | `DB_PASSWORD` | Database password |
 
-
 ## Supported Databases
 
 The provisioning operation supports PostgreSQL on the platform's shared CNPG cluster.
