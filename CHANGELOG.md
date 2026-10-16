@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.50](https://github.com/mctlhq/mctl-docs/compare/0.1.49...0.1.50) (2026-10-16)
+
+
+### Bug Fixes
+
+* adopt design 0.7 and unify diagram link behavior ([5671ae8](https://github.com/mctlhq/mctl-docs/commit/5671ae8705a696b822b8b47c616b71754b2c9923))
+* adopt design 0.7 and unify diagram link behavior ([4f54dcf](https://github.com/mctlhq/mctl-docs/commit/4f54dcf8a5591a64f66f1569989fdfaaaf843780))
+* restore control-plane diagram styling ([2a89801](https://github.com/mctlhq/mctl-docs/commit/2a89801cfdccb1fb496b38a15fc46692a7ee2d96))
+
+
+### Documentation
+
+* record site alignment release verification ([4f9bd9b](https://github.com/mctlhq/mctl-docs/commit/4f9bd9b7d00bee4e7feedd663b1501f8d12b5f12))
+* record site alignment release verification ([6102b2d](https://github.com/mctlhq/mctl-docs/commit/6102b2d1c9043446936138d1586192a7c3390764))
+
 ## [0.1.49](https://github.com/mctlhq/mctl-docs/compare/0.1.48...0.1.49) (2026-10-16)
 
 
