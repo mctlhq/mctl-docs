@@ -210,3 +210,61 @@ Release verification:
 - Centralized release-deploy runs `38906587446` (web) and `38907392057`
   (docs) succeeded. Production pages load the versioned 0.7.0 CSS; the
   architecture page's published CSS contains both core-group selectors.
+
+## Functional follow-up verification (2026-10-16)
+
+These checks follow the completed design release; they do not change its status.
+
+- Dependency audit: design PR #93 replaces `vite-plugin-dts` / API Extractor
+  with `vue-tsc` and `rollup-plugin-dts`. `sprintf-js` is absent from the
+  resolved tree and the moderate audit passes without GHSA exceptions. Build,
+  lint, typecheck, component tests and Storybook pass. A published-declaration
+  consumer check rejects invalid component props; replacing declarations with
+  `any` deliberately fails that check. PR #93 merged as `e4e7969` after current-head approval with no P1/P2;
+  continuous Storybook deployment passed (central deploy run `38911887922`).
+  ArgoCD is Synced/Healthy on image `e4e7969780e3`. No package version bump
+  is required for this build-tool-only fix.
+- Live OAuth: the current Codex/ChatGPT MCTL connection successfully calls
+  `mctl_whoami` as `mashkovd`. Reconnecting the existing Claude connector reaches
+  the ZITADEL callback but is refused because its identity owns a separate
+  principal. Source principal `prn_01M51RRWSHH3VR3W4RTYY9238K` and existing
+  `mashkovd` principal `prn_01M39HRB7JRXZ2PHW5VVB695YZ` are both active human
+  principals. No merge was performed. The documented admin merge moves live
+  identities and disables the source, so the account owner must decide and a
+  human admin must perform it. Other named clients have not been exercised.
+- Human input: API 4.90.0, Portal 4.21.0 and Telegram 0.79.5 are deployed.
+  Both API surface-token references are set; the database contains one active
+  link for each of Telegram and Portal, plus one accepted human-input delivery.
+  Telegram preview enables `HUMAN_INPUT_ENABLED` and is Synced/Healthy.
+  Production intentionally keeps it disabled: both instances serve the same
+  linked operator, and enabling both would duplicate Saved Messages questions.
+  That boundary was confirmed from the preview values and retained after review.
+  Direct live API relay checks return HTTP 200 for both linked Telegram and
+  Portal actors (`count: 0` pending requests); the same Telegram surface token
+  without an actor is correctly refused with HTTP 403.
+- Telemetry: the live Collector exports to the evaluation Tempo backend.
+  Synthetic trace `6f466393cdb00be8225a9404fd9c6502` was submitted over OTLP
+  and retrieved from Tempo: `gen_ai.usage.input_tokens` stays integer `17`,
+  `mcp.tool.arguments` becomes `****`, cluster/environment attributes are added.
+  Execution workers already enable bounded DevLoop tracing, while the control
+  worker did not. PR #1911 merged as `99ff823b5` and completed that wiring.
+  The control worker rolled out successfully and is Synced/Healthy; runtime
+  env confirms OTLP HTTP/protobuf, `MCTL_TRACE_WORKFLOW_TYPES=DevLoopWorkflow`
+  and `MCTL_TRACE_ARGO_PARAM=true`. Both live CWFTs declare
+  `traceparent`, require a sampled parent and configure OTLP; the live API
+  operation registry declares `traceparent`. A recent organic trace contains activity/Argo spans. Its unrestricted lookup
+  timed out on old R2 block reads; a time-bounded full-backend lookup succeeded
+  with eight spans. Synthetic export establishes pipeline/redaction behavior,
+  not complete organic DevLoop end-to-end correlation. The synthetic trace
+  was subsequently retrieved with `mode=blocks` and a bounded time window,
+  proving the R2-persisted copy also retains the integer and masked payload.
+
+### Remaining acceptance boundaries
+
+The build-audit exception, live surface relay/rollout check and persisted
+Collector export are verified. Two checks remain explicit: successful Claude
+OAuth after the owner-approved human-admin principal merge, and complete
+correlation of a new organic DevLoop started after the control-worker rollout.
+Do not open or label a dummy issue solely to manufacture workflow evidence.
+Additional MCP clients remain untested; the current connection and a Claude
+callback attempt are the only live client evidence from this follow-up.
