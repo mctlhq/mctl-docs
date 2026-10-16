@@ -1,6 +1,7 @@
 # Site and documentation alignment
 
-Status: implementation in progress. Reviewed: 2026-10-15.
+Status: released and production-verified on 2026-10-16.
+Earlier blocker notes below are historical; see the release record at the end.
 
 ## Outcome
 
@@ -159,3 +160,23 @@ Browser matrix and final PR review results are recorded after verification.
 - Deliberate local CDN 503 test: docs still render the architecture SVG and
   Onest 32px/40px title; web keeps its fluid hero, opaque field backgrounds,
   visible borders and 16px input text. Both production builds pass.
+
+### Release record (2026-10-16)
+
+- Design #91 removed the Tailwind 3 / old selector-parser dependency paths and
+  documented a maintainer-approved build-only sprintf-js audit exception.
+  Design #89 then merged with green CI. Follow-up #90 published design 0.7.0;
+  this initiative intentionally retains its reviewed immutable 0.6.0 contract.
+- All three implementation PRs passed current-head review with no open P1/P2.
+  Web #143 and docs #146 merged; release PRs web #141 and docs #143 also passed
+  CI and review before merging. Tags: web 7.7.0 and docs 0.1.49.
+- Centralized release-deploy runs 38876119333 (web) and 38876079976 (docs)
+  succeeded. Both services report Synced / Healthy at the released image tags.
+- The three public 0.6.0 CSS assets match origin/main byte-for-byte. Live pages
+  at mctl.ai and docs.mctl.ai load versioned 0.6.0 CSS and Onest 800.
+- Production browser comparison at 1728px: both headers are 80px tall, with
+  identical neutral background at 80% opacity. Both wordmarks measure
+  78.046875 x 24px at x=164, y=27.5, use Onest 800 24px/24px with 2px tracking,
+  text rgb(230,231,233) and accent rgb(226,90,60). Neither home page overflows.
+- Prior responsive and interaction checks remain recorded above. Remaining P3
+  cleanup and adoption of design 0.7.0 are follow-ups, not release blockers.
