@@ -39,4 +39,4 @@ Common scenarios:
 - Application crashes after a new deployment
 - Performance degradation detected
 - A faulty image release (configuration-only failures require a configuration fix)
-- The mctl-agent may also trigger automatic rollbacks based on alerts
+- Use the configured incident workflow and approval policy for agent-proposed remediation; do not assume every alert automatically rolls back a service

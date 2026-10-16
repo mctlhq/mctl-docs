@@ -22,7 +22,7 @@ mctl_create_preview
   image_tag:      1.4.2
 ```
 
-The preview is live within ~2 minutes (Helm install + pod start).
+Wait for workflow completion and check preview health before opening the URL.
 
 ### 2. Build from a branch, then deploy
 
@@ -44,7 +44,7 @@ mctl_create_preview
 `image_tag` is auto-generated as `preview-{branch}-{timestamp}` — you do not need to specify it.
 `dockerfile_path` defaults to `Dockerfile`; override if your Dockerfile is elsewhere.
 
-Total time: ~5–10 minutes (build) + ~2 minutes (deploy).
+Build and rollout duration depend on the repository and available resources.
 
 ## Preview URL
 
@@ -136,11 +136,9 @@ Platform paths (`platform/*`, e.g. GHCR pull creds, shared MinIO) stay on the cl
 SecretStore. NetworkPolicy in `{team}-preview` allow-lists platform namespaces only;
 preview pods cannot reach the production tenant namespace.
 
-## GitHub PR previews (mctl-web pattern)
+## GitHub PR previews (repository-specific integration)
 
-For repositories with `preview-create.yml` in `.github/workflows/`, previews are created
-automatically on every PR open/push — no manual `mctl_create_preview` call needed. The workflow
-builds the image and commits a `values.yaml` to mctl-gitops directly.
+A repository can implement PR previews in its own CI. Inspect that repository's configured triggers, cleanup policy and deployment workflow before relying on automatic previews; this is not enabled for every service.
 
 Use `mctl_create_preview` with `git_ref` for services that do **not** have their own CI pipeline
 (the common case for tenant services onboarded via the platform).

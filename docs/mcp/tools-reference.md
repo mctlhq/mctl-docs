@@ -1,35 +1,113 @@
 # MCP Tools Reference
 
-The MCTL MCP server exposes 58 tools for managing your infrastructure. Each tool is annotated as **read-only**, **write**, or **destructive**.
+The catalog below was checked against the registered tools in
+[`mctl-api` at `b8203cf`](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go).
+The deployed version and your permissions determine the tools you can discover
+and call. Use MCP `tools/list` for the current input schemas and annotations;
+a catalog entry is not a grant of access. See [Authorization](/security/authorization).
 
-## Identity
+Workflow-backed tools return submission information; poll the returned workflow
+name and inspect service health separately. Registry, identity, incident and
+commerce operations use their own stores and do not all produce Git commits.
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_whoami` | Check authentication status, user ID, team memberships, admin status, and accessible namespaces | Read |
+## Registered tools
 
-## Tenants
+| Tool | Purpose | Hint |
+|---|---|---|
+| `mctl_whoami` | Check your current authentication status on the mctl platform. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L351) | Read |
+| `mctl_list_tenants` | List all team workspaces on the platform with their resource quotas and member counts. Requires admin access. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L391) | Read |
+| `mctl_get_tenant` | Get details of a specific team workspace: members, quotas, and services (same rows as mctl_list_services). If servicesComplete is false, ArgoCD could not be read and services deployed outside the catalogue are missing from the list. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L965) | Read |
+| `mctl_list_services` | List the services of a team: catalogue services and every ArgoCD application deployed into the team's namespace. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L410) | Read |
+| `mctl_get_service_status` | Get detailed status of a service including ArgoCD sync state, health status, and service configuration. Use this to check if a service is healthy and up-to-date. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L446) | Read |
+| `mctl_get_service_config` | Get full configuration of a service from the GitOps repo: image tag, host, port, component type, and database status. Use this when you need full details beyond what list_services provides. Secrets are not returned as plaintext; inspect the response visibility rules before sharing configuration. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L992) | Read |
+| `mctl_list_workflows` | List recent Argo Workflow runs for a team. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1941) | Read |
+| `mctl_get_workflow_status` | Get status and logs of an Argo Workflow run. Use this after triggering an operation (deploy, create tenant, etc.) to check if it completed successfully. Also works for cron-driven runs (mctl-agents-issue-poll, -implement, -run, -shepherd, ...) that never appear in the audit log — admins get a live Kubernetes lookup as a fallback. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L481) | Read |
+| `mctl_get_resource_usage` | Get resource quota usage for a team workspace: CPU, memory, pods used vs allocated. Use this to check if a team is running low on resources. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L508) | Read |
+| `mctl_list_recent_operations` | List the most recent platform operations from the audit log (up to 50 entries). Shows who ran what operation, when, and what workflow was triggered. Useful for reviewing recent activity before making changes. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1027) | Read |
+| `mctl_list_operations` | List all available platform operations with their parameters, risk levels, and descriptions. Use this to discover what actions are available on the platform. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1972) | Read |
+| `mctl_get_operation` | Get detailed schema of a specific platform operation: all parameters with types, defaults, validation patterns, and risk level. Use this to understand exactly what an operation requires before executing it. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1991) | Read |
+| `mctl_list_repos` | List GitHub repositories available to a team for deployment. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1129) | Read |
+| `mctl_grant_repo_access` | Generate a GitHub App installation URL to grant the platform access to a repository. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1163) | Write |
+| `mctl_get_service_logs` | Fetch recent log lines for a service from Loki. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1820) | Read |
+| `mctl_get_workflow_logs` | Fetch Argo Workflow step logs from the workflow log archive. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1879) | Read |
+| `mctl_list_previews` | List active preview environments for a team. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2067) | Read |
+| `mctl_scale_service` | Scale a service by updating its autoscaling configuration. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2018) | Write |
+| `mctl_deploy_service` | Deploy a service to the platform. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L537) | Write |
+| `mctl_list_platform_skills` | List platform-wide skills available to the current user after visibility, status, and tenant binding filters. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L766) | Read |
+| `mctl_read_platform_skill` | Read a platform-wide skill from the GitOps catalog if the current user has access. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L783) | Read |
+| `mctl_list_tenant_skill_bindings` | List platform skill bindings for tenants. Admins see all bindings; tenant members see their own. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L802) | Read |
+| `mctl_enable_tenant_skill` | Admin-only. Enable an active tenant-visible platform skill for a tenant through a GitOps workflow. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L819) | Write |
+| `mctl_disable_tenant_skill` | Admin-only. Disable a platform skill for a tenant through a GitOps workflow. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L842) | Destructive |
+| `mctl_publish_platform_skill` | Admin-only. Publish or update a platform-wide skill through a GitOps workflow. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L865) | Write |
+| `mctl_deprecate_platform_skill` | Admin-only. Mark a platform-wide skill deprecated through a GitOps workflow. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L906) | Destructive |
+| `mctl_create_tenant` | Create a new team workspace on the platform. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L697) | Write |
+| `mctl_provision_database` | Provision a PostgreSQL database on the shared CNPG cluster. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L926) | Write |
+| `mctl_retire_service` | DESTRUCTIVE: Remove a service from the platform permanently. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1046) | Destructive |
+| `mctl_delete_tenant` | DESTRUCTIVE: Delete a team workspace and all its platform resources permanently. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1089) | Destructive |
+| `mctl_sync_repos` | Discover and register GitHub repositories for a team. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1239) | Write |
+| `mctl_rollback_service` | Roll back a service to a previously deployed image tag. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1674) | Destructive |
+| `mctl_create_preview` | Deploy an ephemeral preview environment for a service. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1720) | Write |
+| `mctl_delete_preview` | Remove a preview environment and all its Kubernetes resources immediately. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1779) | Destructive |
+| `mctl_add_custom_domain` | Register a custom domain for a service. This step ONLY registers — it does NOT touch ingress or DNS yet, and does NOT trigger the add-custom-domain workflow. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1318) | Write |
+| `mctl_remove_custom_domain` | Remove a custom domain from a service. If the domain is registered in mctl-api's domain registry (added via mctl_add_custom_domain), this deletes that registry row — DELETE /api/v1/domains/{id} — which itself triggers the remove-custom-domain workflow to clean up the ingress host and TLS certificate entry before the row disappears. If the hostname is not found in the registry (e.g. a legacy domain added before the registry existed), this falls back to triggering the remove-custom-domain workflow directly, same as before. The auto-generated {team}-{service}.{platform_domain} domain is not affected either way. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1387) | Destructive |
+| `mctl_list_domains` | List custom domains for a team or specific service. Shows domain, auto-generated domain ({team}-{service}.{platform_domain}), status (pending/verified/active), and verification timestamp. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1285) | Read |
+| `mctl_verify_domain` | Check if a custom domain's DNS is correctly configured, and — on success — trigger the add-custom-domain workflow (ingress update + TLS certificate). Verifies the TXT ownership challenge (_mctl-challenge.&lt;domain>) that mctl_add_custom_domain returned; also accepts an unproxied CNAME straight to {team}-{service}.{platform_domain} as a fast path. TXT is checked first because Cloudflare and similar proxies rewrite A/CNAME answers but never the TXT record. This is the step that starts the workflow — mctl_add_custom_domain itself only registers and does not trigger it, since the challenge this call verifies cannot exist before that registration returns. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1497) | Write |
+| `mctl_erpact_list_sites` | ERPact-specific and provisional (mctl-api#486): list tenant erpact's sites, with each one's lifecycle status (creating, active). Visible to and callable by tenant erpact's owners and platform admins only. A failed read of the deployer is reported as an error, never as an empty list. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1602) | Read |
+| `mctl_erpact_create_site` | ERPact-specific and provisional (mctl-api#486): create a new site for tenant erpact. Requires the owner role on tenant erpact; only works for tenant erpact. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1621) | Write |
+| `mctl_erpact_site_status` | ERPact-specific and provisional (mctl-api#486): the lifecycle status of one tenant-erpact site (creating, active), for following up on mctl_erpact_create_site. Visible to and callable by tenant erpact's owners and platform admins only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L1650) | Read |
+| `mctl_list_incidents` | List platform incidents (alerts from AlertManager, GitHub Actions failures, polling). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2109) | Read |
+| `mctl_get_incident` | Get full details of an incident including evidence, analysis, and PR information. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2174) | Read |
+| `mctl_incident_summary` | Get aggregate counts of active incidents by status, severity, and type. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2216) | Read |
+| `mctl_acknowledge_incident` | Mark an incident as acknowledged/reviewed. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2237) | Write |
+| `mctl_resolve_incident` | Mark an incident as resolved. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2268) | Write |
+| `mctl_trigger_agents_run` | Trigger a full mctl-agents run — every service-agent (researcher → analyst → spec-writer in parallel) followed by the mentor weekly digest. Same as the weekly Saturday 00:00 UTC cron, on demand. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2502) | Write |
+| `mctl_trigger_mentor_only` | Trigger mentor only — re-aggregates the existing per-service proposals into a fresh weekly digest. Skips the expensive service-agent runs. Useful after manually triaging proposals when you want the digest to reflect updated state. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2526) | Write |
+| `mctl_trigger_single_service` | Trigger one service-agent only (no mentor). Useful after a large change in a specific repo when you want fresh proposals for that service without paying for a full pipeline run. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2550) | Write |
+| `mctl_trigger_incident_responder` | Trigger the incident responder: diagnose TypeGeneric incidents stuck in status=analyzing (older than 30 minutes) and write auto-accepted proposals for the Tier 2 implementer, then resolve the incident. Same as the every-30-minute cron (15,45 * * * * UTC), on demand. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2580) | Write |
+| `mctl_trigger_implementer` | Trigger Tier 2 implementer for at most one accepted proposal. Before any model call it queries GitHub for the deterministic feat/agents-&lt;slug> branch and canonical PR. Existing open/merged/closed results are reconciled without spending model quota. Only when no prior result exists does it run the sub-agent, push the branch, and open a PR. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2604) | Destructive |
+| `mctl_trigger_shepherd` | Trigger Tier 3 PR shepherd to drive an existing implementer-PR through codex review fix loops to merge. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2640) | Destructive |
+| `mctl_trigger_reconcile` | Reconcile pass: read canonical GitHub PR state for every non-terminal proposal and project it onto platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml (merged PR -> merged, closed-unmerged -> rejected, conflicted open PR -> needs-triage). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2685) | Destructive |
+| `mctl_trigger_approve` | Approve one proposal: flip platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml from proposed to accepted via a gitops commit, recording the approver identity. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2783) | Destructive |
+| `mctl_trigger_issue` | Trigger the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven proposal. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2829) | Write |
+| `mctl_approve_dev_loop` | Send the durable Temporal "approve" signal to an EXISTING DevLoopWorkflow execution. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2881) | Write |
+| `mctl_abandon_dev_loop` | Gracefully end an EXISTING DevLoopWorkflow execution by sending its durable Temporal "abandon" signal (mctl-agents#420). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2922) | Destructive |
+| `mctl_get_dev_loop` | Read-only liveness check for a DevLoopWorkflow: is there a live loop for this issue, and is it still running? [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2968) | Read |
+| `mctl_get_lifecycle_ownership` | Read the lifecycle ownership store (ADR-010): who is responsible for an entity phase, whether that owner is still alive, and whether the store agrees with the old DevLoopWorkflow liveness check. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle.go#L116) | Read |
+| `mctl_inspect_lifecycle_conflict` | Read-only evidence for a lifecycle ownership recovery decision: the stored row, the derived view (status, held, dead/stuck/handoff-stalled with the liveness/progress bounds the status was measured against), the legacy DevLoopWorkflow answer, the divergence class between the two, recent transitions, and the EXACT precondition values (expected_owner_type/id, expected_epoch, expected_version, expected_last_seen_at) a follow-up recovery call must send verbatim. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go#L67) | Read |
+| `mctl_request_lifecycle_reconcile` | Mutates the lifecycle ownership store. Performs exactly one transition: appends a reconcile-requested event for one entity phase. It changes NO ownership column -- owner, epoch and state are untouched -- so it never takes a claim from anybody and confers no GitHub merge or approval authority. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go#L107) | Write |
+| `mctl_fence_lifecycle_claim` | DESTRUCTIVE: mutates the lifecycle ownership store. Performs exactly one transition: releases (fences) a claim whose owner the server re-derives as DEAD -- re-checked server-side under the store's own advisory lock, so a caller may not assert death, only ask for the question to be re-asked; refused with a 409 if the owner is still alive. Installs NO successor: the row moves to "released" with its fencing epoch incremented by the database (never by a caller-supplied value), and the fenced owner stays named on the row for forensics. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go#L171) | Destructive |
+| `mctl_request_lifecycle_handoff` | DESTRUCTIVE: mutates the lifecycle ownership store. Performs exactly one transition: starts a handoff off an owner the server re-derives as STUCK -- alive, but has effected no progress within its phase's bound -- toward the named to_owner. Refused with a 409 on a healthy owner (not licensed), a dead one (use mctl_fence_lifecycle_claim instead -- handing off a dead claim just produces a second stuck machine), or one already handing off (use mctl_retry_lifecycle_handoff instead of layering a second handoff on top). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go#L244) | Destructive |
+| `mctl_retry_lifecycle_handoff` | Mutates the lifecycle ownership store. Performs exactly one transition: re-arms the clocks (handoff_started_at AND last_seen_at) of a handoff the server re-derives as STALLED -- started, and never completed within the phase's liveness bound -- for the SAME target. Refused if the row is not handing off at all, or if the handoff is still within its bound (not yet stalled). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle_recovery.go#L330) | Write |
+| `mctl_list_recent_agent_runs` | List the most recent mctl-agents triggers (up to 10): scheduled cron runs and operator-initiated submissions, merged and sorted newest-first. Each item includes operation, mode, service (for single-service runs), status, who triggered it (user id or "cron"), timestamp, and a "source" field of "cron" or "operator" so the caller can distinguish autonomous schedule firings from manual triggers. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3015) | Read |
+| `mctl_get_epic_status` | Status of one roadmap epic (an EpicDefinition in mctlhq/.github), from the published RoadmapPublication: the epic's lifecycle, title and goal, its manifest path and digest, the RoadmapReadySet (every work item's state — complete, ready, blocked or unknown — with typed blockers and the issue it is bound to) and the RoadmapHealth (allRequired completion and drift diagnostics), both exactly as published. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap.go#L36) | Read |
+| `mctl_get_ready_work_items` | Roadmap work items that are ready to start now, from the published RoadmapPublication: for one epic, or for every epic whose lifecycle is "active" when no epic is given. Each item is the published ready-set entry (id, required, repository/issue, phase, dependsOn), grouped under its epic with the manifest it came from. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap.go#L61) | Read |
+| `mctl_plan_epic_wave` | Plan "start the next wave for this epic" without starting anything: the exact ready work items of one roadmap epic that a wave would start, from the published RoadmapPublication. Each selected item carries its issue and the exact DevLoop workflow id it would get; ready items that cannot be started (not bound to an exact issue) are listed as refused, never dropped. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap_wave.go#L34) | Read |
+| `mctl_start_epic_wave` | Start a wave planned with mctl_plan_epic_wave: one DevLoopWorkflow per selected work item, with the exact workflow ids the plan named. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/roadmap_wave.go#L68) | Write |
+| `mctl_get_work_item` | One canonical WorkItem: state, state_version, tenant, origin surface, latest_execution and latest_snapshot. state_version is the value mctl_request_work_item_execution expects. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go#L53) | Read |
+| `mctl_list_work_item_executions` | Every execution attached to one WorkItem, oldest first, with the engine and engine_ref the platform recorded and the surface that requested it. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go#L73) | Read |
+| `mctl_list_work_item_snapshots` | The immutable ContextSnapshots sealed for one WorkItem, or one of them in full when snapshot_id is given. A resumed execution seals a NEW snapshot that names the one it resumed from; a sealed snapshot never changes. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go#L93) | Read |
+| `mctl_list_work_item_execution_requests` | Execution requests made for one WorkItem, or one of them when request_id is given: kind, state (pending, claimed, fulfilled, rejected), requested_by, surface and, once fulfilled, the execution_id the platform created. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go#L124) | Read |
+| `mctl_request_work_item_execution` | Asks the platform to start or resume one WorkItem. It records an execution REQUEST and nothing else: the execution platform claims it, runs it and attaches the new execution and its ContextSnapshot to the SAME WorkItem. The request names no engine, run or execution id; those are the platform's. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/workitems.go#L155) | Write |
+| `mctl_get_commerce_budget` | The commerce budget balance of one tenant: available_minor, reserved_minor, committed_minor, pending_liability_minor, currency and funds_mode. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/commerce.go#L84) | Read |
+| `mctl_list_commerce_invocations` | Lists one tenant's commerce invocations, optionally filtered by capability, phase and period. Never returns arguments, results or payment proofs. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/commerce.go#L104) | Read |
+| `mctl_get_commerce_receipt` | The receipt of one commerce invocation: terms, quote digest, price, the five facts (execution outcome, usage, charge, payment, settlement), phase, timestamps and the approval/policy decision reference. Never returns arguments, results, payment proofs or idempotency keys. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/commerce.go#L150) | Read |
+| `mctl_trigger_portal_server_auth_apply` | Dispatch mctl-gitops' cloudflare-apply.yml on infrastructure/cloudflare/portal: apply the committed OAuth registration of the Cloudflare MCP portal's upstream servers (issuer/authorization/token/revocation endpoints, client registration, and the scope the portal requests). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2744) | Write |
+| `mctl_create_agent` | Register a new agent definition in the agent registry (e.g. issue-investigator, implementer, shepherd). Required once per agent before any version can be published for it. Idempotent to call again with the same name is not guaranteed — check mctl_list_agent_versions first if unsure whether it already exists. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3036) | Write |
+| `mctl_publish_agent_version` | Publish an immutable version of an agent to the registry. The agent must already have a definition (mctl_create_agent). A published version can then be promoted to an environment with mctl_promote_agent. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3068) | Write |
+| `mctl_list_agent_versions` | List every published version of an mctl-agents agent (e.g. issue-investigator, implementer, shepherd), newest first. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3121) | Read |
+| `mctl_resolve_agent` | Resolve which version of an agent is currently released to an environment. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3149) | Read |
+| `mctl_promote_agent` | Promote a published agent version to an environment (production or shadow). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3221) | Destructive |
+| `mctl_rollback_agent` | Roll an agent's release in an environment back to the version it had immediately before the current one. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3307) | Destructive |
+| `mctl_list_agent_executions` | List durable execution records from DevLoopWorkflow runs (dev-workflow control plane, plan phase 4): which agent version actually ran, on which Argo workflow, with what result. Unlike mctl_list_recent_agent_runs (which reflects live/recently-completed Argo state and expires with the workflow object's TTL), these records persist independent of Argo. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3269) | Read |
+| `mctl_publish_agent_definition_version` | Publish an immutable v1alpha2 AgentDefinition version: the full definition spec, its source manifest provenance (repo/path/gitSha/contentHash), and the ExecutionProfile compatibility range it declares. The agent must already have a definition (mctl_create_agent). (agent_name, version) is a once-only key — republishing the same pair is rejected with a conflict. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3357) | Write |
+| `mctl_publish_agent_profile_version` | Publish an immutable ExecutionProfile version: its full policy spec, provenance, and required policy-ceiling fields. Profile names are a global key space, not namespaced per agent. (profile_name, version) is a once-only key. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3421) | Write |
+| `mctl_set_agent_version_lifecycle` | Transition a published AgentDefinition or ExecutionProfile version to deprecated or disabled. Only published -> deprecated, published -> disabled and deprecated -> disabled are valid; any other transition is rejected. The immutable spec is left untouched — only the lifecycle state, actor and reason change. A disabled version can no longer be bound (or restored by rollback). Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3489) | Destructive |
+| `mctl_bind_agent_release` | Append a new ReleaseBinding revision binding a compatible AgentDefinition version and ExecutionProfile version to (agent, environment). Append-only: this never overwrites, it always adds a new revision, and the active binding for a pair is always the highest revision. Rejected with 422 if the profile version does not satisfy the definition's declared compatibility range, if either version is deprecated/disabled, or if binding_source is compatibility-fixture (non-promotable — use registry). Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3548) | Destructive |
+| `mctl_rollback_agent_binding` | Roll (agent, environment) back to an exact prior ReleaseBinding revision. Appends a new revision that copies the target revision's definition/profile pair and sets rollbackOf to the revision it restored — never a guess at "one step back". Rejected with 422 if the target revision's definition or profile version has since become disabled. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3627) | Destructive |
+| `mctl_list_agents` | List every registered agent in the registry: owner, v1 version count, v1alpha2 definition-version count, and the active v1alpha2 binding revision per environment. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3674) | Read |
+| `mctl_get_agent` | Get one agent's full catalog entry: owner, every v1 version and v1alpha2 definition version (with per-version lifecycle), and the active v1alpha2 binding per environment. Admin-only. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L3691) | Read |
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_tenants` | List all team workspaces with resource quotas and member counts (admin only) | Read |
-| `mctl_get_tenant` | Get workspace details: members, quotas, and deployed services | Read |
-| `mctl_create_tenant` | Create a new workspace with namespace, resource quotas, network policies, Vault scope, ArgoCD RBAC, and SSO access | Write |
-| `mctl_delete_tenant` | Permanently delete a workspace and all its resources. Retires all services first | Destructive |
-
-## Services
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_services` | List deployed services showing name, team, image tag, host, and database status. Optional team filter | Read |
-| `mctl_get_service_status` | Get ArgoCD sync state, health status, and service configuration | Read |
-| `mctl_get_service_config` | Get full configuration from GitOps: image tag, host, port, component type, database status | Read |
-| `mctl_get_service_logs` | Fetch recent log lines from Loki, sorted by timestamp (most recent first) | Read |
-| `mctl_get_resource_usage` | Get resource quota usage: CPU, memory, pods used vs allocated | Read |
-| `mctl_deploy_service` | Deploy a service. Actions: "onboard" (first-time), "deploy" (update version), "update-config" (change env/secrets) — see [details below](#mctl-deploy-service) | Write |
-| `mctl_scale_service` | Update autoscaling: enable/disable HPA, set min/max replicas and CPU threshold | Write |
-| `mctl_rollback_service` | Roll back to a previously deployed image tag via GitOps | Write |
-| `mctl_retire_service` | Permanently remove a service: deletes GitOps manifests, Vault secrets, ArgoCD app, and K8s resources | Destructive |
+## Deployment parameters
 
 ### `mctl_deploy_service`
 
@@ -90,325 +168,18 @@ mctl_deploy_service(
 
 ---
 
-## Operations & Workflows
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_operations` | List all available platform operations with parameters, risk levels, and descriptions | Read |
-| `mctl_get_operation` | Get detailed schema of an operation: parameters, types, defaults, validation, risk level | Read |
-| `mctl_list_recent_operations` | List most recent platform operations from audit log (up to 50 entries) | Read |
-| `mctl_list_workflows` | List recent Argo Workflow runs for a team. Admins see all namespaces | Read |
-| `mctl_get_workflow_status` | Get status and logs of an Argo Workflow run | Read |
-| `mctl_get_workflow_logs` | Fetch Argo Workflow step logs from the workflow log archive, including runs whose Argo object has already been garbage-collected | Read |
+## Tool annotations
 
-## Incidents
+`readOnlyHint`, `destructiveHint` and `idempotentHint` describe tool behavior.
+They are hints to clients, not authorization checks or a guarantee that a client
+will request confirmation. The API enforces membership, roles and operation policy.
+Platform pipeline tools are admin-only. Tenant and owner restrictions still apply
+even when a client exposes a tool in its interface.
 
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_incidents` | List incidents (AlertManager alerts, GitHub Actions failures, polling). Filter by team, service, status, severity | Read |
-| `mctl_get_incident` | Get full incident details including evidence, analysis, and PR info. Accepts full ID or 8-char prefix | Read |
-| `mctl_incident_summary` | Get aggregate counts of active incidents by status, severity, and type | Read |
-| `mctl_acknowledge_incident` | Mark an incident as acknowledged. Records current user as acknowledger | Write |
-| `mctl_resolve_incident` | Mark an incident as resolved with optional reason | Write |
-| `mctl_trigger_incident_responder` | Run the incident responder on demand: diagnose generic incidents left in `analyzing` for over 30 minutes, write auto-accepted proposals for the Tier 2 implementer, then resolve. Same work as the scheduled run | Write |
+## Agent pipelines
 
-## Domains
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_domains` | List custom domains for a team or service. Shows status (pending/verified/active) | Read |
-| `mctl_verify_domain` | Check if a domain's CNAME record points to the expected target | Read |
-| `mctl_add_custom_domain` | Add a custom domain to a deployed service. Triggers DNS verification and TLS provisioning | Write |
-| `mctl_remove_custom_domain` | Remove a custom domain from a service. Auto-generated domain is not affected | Destructive |
-
-## Databases
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_provision_database` | Provision PostgreSQL on shared CNPG cluster. Creates database/role, stores credentials in Vault and K8s Secret | Write |
-
-## Preview Environments
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_previews` | List active previews with health status, sync state, and namespace | Read |
-| `mctl_create_preview` | Deploy ephemeral preview from existing image tag. Auto-deleted after TTL (default: 24h) | Write |
-| `mctl_delete_preview` | Remove a preview environment and all its K8s resources immediately | Destructive |
-
-## Repositories
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_repos` | List GitHub repos available to a team. Admins see org + personal repos | Read |
-| `mctl_grant_repo_access` | Generate GitHub App installation URL to grant platform access to a repo | Write |
-| `mctl_sync_repos` | Discover and register GitHub repos from App installations for a team | Write |
-
-## Agent Registry
-
-Version control for the mctl-agents fleet: an agent definition is registered
-once, versions are published against it, and a version is released to an
-environment (`production` or `shadow`). All admin-only.
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_create_agent` | Register a new agent definition (e.g. `issue-investigator`, `implementer`, `shepherd`). Required once per agent before any version can be published | Write |
-| `mctl_publish_agent_version` | Publish an immutable version of an agent. The agent definition must already exist | Write |
-| `mctl_promote_agent` | Release a published version to an environment (`production` or `shadow`) | Write |
-| `mctl_rollback_agent` | Roll an environment's release back to the version it had immediately before the current one | Write |
-| `mctl_resolve_agent` | Resolve which version is currently released to an environment | Read |
-| `mctl_list_agent_versions` | List every published version of an agent, newest first | Read |
-| `mctl_list_agent_executions` | List durable execution records from DevLoopWorkflow runs: which agent version ran, on which Argo workflow, with what result | Read |
-
-`mctl_list_agent_executions` and `mctl_list_recent_agent_runs` answer different
-questions. The former reads persisted records that outlive the Argo workflow
-object; the latter reflects live and recently-completed Argo state and expires
-with that object's TTL.
-
-## Platform Skills
-
-| Tool | Description | Type |
-|------|-------------|------|
-| `mctl_list_platform_skills` | List the platform-wide skill catalog, filtered to what the caller can see | Read |
-| `mctl_read_platform_skill` | Read a single platform skill's metadata and raw SKILL.md content | Read |
-| `mctl_list_tenant_skill_bindings` | List which platform skills are enabled for which tenants | Read |
-| `mctl_enable_tenant_skill` | Enable a platform skill for a tenant via GitOps (admin only) | Write |
-| `mctl_disable_tenant_skill` | Disable a platform skill for a tenant via GitOps (admin only) | Write |
-| `mctl_publish_platform_skill` | Publish or update a platform skill catalog entry via GitOps (admin only) | Write |
-| `mctl_deprecate_platform_skill` | Mark a platform skill as deprecated via GitOps (admin only) | Write |
-
-## mctl-agents pipeline controls
-
-> **Admin-only.** All tools in this section require membership in the `admins` group.
-> Calls from non-admin users return `403 Forbidden`.
->
-> _Version note: available as of mctl-api 4.15.0 (commit `016b3c8`) and 4.16.0 (`f41590e`).
-> version-status: unverified — confirm against production before relying on this page._
-
-The mctl platform runs a daily autonomous R&D pipeline (`mctl-agents`) that scans sibling
-repos for changes, identifies documentation gaps, and writes spec proposals — one cycle per
-service (researcher → analyst → spec-writer). A Tier 2 implementer can also convert accepted
-proposals into pull requests automatically.
-
-The seven tools below let platform admins drive this pipeline on demand from any MCP-capable
-client (e.g. Claude Desktop, Claude Code).
-
-### Tool summary
-
-| Tool | Purpose | Returns | Type |
-|---|---|---|---|
-| `mctl_trigger_agents_run` | Full pipeline — all service-agents + mentor digest | `workflow_name` | Write |
-| `mctl_trigger_mentor_only` | Mentor weekly digest only | `workflow_name` | Write |
-| `mctl_trigger_single_service` | One service-agent cycle | `workflow_name` | Write |
-| `mctl_list_recent_agent_runs` | List ≤10 recent pipeline runs from audit log | `{ "items": [...], "count": N }` | Read |
-| `mctl_trigger_implementer` | Tier 2: open PRs for accepted proposals | `workflow_name` | Destructive |
-| `mctl_trigger_shepherd` | Tier 3: drive open implementer PRs through review and merge | `workflow_name` | Destructive |
-| `mctl_trigger_issue` | Turn a GitHub issue (mctlhq org) into a spec-driven proposal via the issue-investigator | `workflow_name` | Write |
-
----
-
-### `mctl_trigger_agents_run`
-
-Triggers a full mctl-agents run: every service-agent (researcher → analyst → spec-writer
-in parallel) followed by the mentor weekly digest. Equivalent to the daily 06:00 UTC cron,
-but on demand.
-
-**Parameters:** none
-
-**Cost / duration:** ~$10 against Claude subscription quota; ~15 minutes.
-
-**Result:** A `chore(agents)` commit lands in `mctl-gitops` main under
-`platform-gitops/agents-state/` with new inbox files, proposals, and updated `.status.yaml`
-entries.
-
-**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` to track progress.
-
-```
-mctl_trigger_agents_run()
-# → { "workflow_name": "mctl-agents-daily-abc12" }
-```
-
----
-
-### `mctl_trigger_mentor_only`
-
-Runs only the mentor sub-agent, which reads all service inbox files from the past week and
-produces a cross-service digest. Lighter than the full run.
-
-**Parameters:** none
-
-**Cost / duration:** ~$2, ~5 minutes.
-
-**Returns:** `workflow_name`
-
----
-
-### `mctl_trigger_single_service`
-
-Runs the researcher → analyst → spec-writer cycle for a single service only.
-Useful for spot-checking one repo after a significant release.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `service` | string (enum) | yes | One of: `mctl-web`, `mctl-docs`, `mctl-api`, `mctl-portal`, `mctl-agent`, `mctl-gitops` |
-
-**Cost / duration:** ~$2–5, ~5–10 minutes.
-
-**Returns:** `workflow_name`
-
-**Example:**
-
-```
-mctl_trigger_single_service(service="mctl-docs")
-# → { "workflow_name": "mctl-agents-single-xyz99" }
-```
-
----
-
-### `mctl_list_recent_agent_runs`
-
-Returns up to 10 recent mctl-agents pipeline runs from the audit log, enriched with the
-run mode and target service so you don't need to parse the workflow name.
-
-**Parameters:** none
-
-**Returns:** JSON object `{ "items": [...], "count": N }` where each item has:
-
-| Field | Description |
-|---|---|
-| `workflowName` | Argo workflow name (use for status polling) |
-| `operation` | Operation name (`mctl-agents-run`, `mctl-agents-implement`, …) |
-| `mode` | Run mode (`full`, `mentor-only`, `single-service`) |
-| `service` | Target service (empty for full/mentor runs) |
-| `status` | Last known status (`running`, `succeeded`, `failed`) |
-| `user` | Admin user ID who triggered the run |
-| `timestamp` | ISO8601 start time |
-| `riskLevel` | `high` for all mctl-agents triggers |
-| `message` | Short status message |
-
----
-
-### `mctl_trigger_implementer`
-
-Triggers Tier 2 implementer agents. The implementer scans
-`platform-gitops/agents-state/<service>/proposals/<slug>/.status.yaml` for entries with
-`status: accepted`. For each accepted proposal it:
-
-1. Clones the matching `mctlhq/<service>` repo.
-2. Runs the per-service implementer sub-agent to make the change.
-3. Pushes a `feat/agents-<slug>` branch and opens a PR.
-4. Updates `.status.yaml` to `status: implemented` with the PR URL.
-
-**Parameters:**
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `service` | string (enum) | no | Filter to one service. Leave empty to process all services. Same enum as `mctl_trigger_single_service`. |
-| `slug` | string | no | Filter to one proposal slug (across services unless `service` is also set). |
-| `force` | `"true"` \| `"false"` | no | Retry proposals stuck in `in-progress` (e.g. from a crashed run). Default `"false"`. |
-
-**Cost / duration:** ~$3 per proposal; 1–10 minutes per proposal.
-
-**Returns:** `workflow_name`
-
-**Example — implement one specific proposal:**
-
-```
-mctl_trigger_implementer(service="mctl-docs", slug="mcp-agents-tools")
-# → { "workflow_name": "mctl-agents-implement-abc34" }
-```
-
----
-
-### `mctl_trigger_shepherd`
-
-Triggers the Tier 3 PR shepherd. The shepherd scans every open PR opened by the
-implementer (`feat/agents-*` branches in `mctlhq/mctl-*` repos) and advances each one
-toward merge:
-
-1. Reads the latest Codex review state for the PR.
-2. If P1/P2 findings are present, runs the per-service implementer sub-agent to push a
-   fix-up commit addressing the feedback.
-3. If the review is clean and CI is green, merges the PR with `--merge --delete-branch`
-   and flips the proposal's `.status.yaml` to `status: merged`.
-4. If the proposal is unsalvageable (repeated review failures, or Codex flags a hard
-   blocker), it closes the PR and flips the status to `status: rejected`.
-
-For services where the merge-approval gate is enabled, step 3 additionally waits
-for an explicit human approval of the exact PR head before the shepherd merges it.
-An approval never carries over to a newer head: a push asks again.
-
-The shepherd also runs autonomously on a `30 */2 * * *` UTC cron, so on-demand triggers
-are mainly for "I just merged a fix, advance the queue now" cases.
-
-**Parameters:** none
-
-**Cost / duration:** ~$1–5 per active PR; 2–15 minutes total per run.
-
-**Concurrency:** Contends on the `mctl-gitops-main-writes` Argo mutex with the
-implementer and other gitops-writing workflows, so two runs cannot overlap.
-
-**Returns:** `workflow_name`
-
-```
-mctl_trigger_shepherd()
-# → { "workflow_name": "mctl-agents-shepherd-xyz78" }
-```
-
----
-
-### `mctl_trigger_issue`
-
-Triggers the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven
-proposal. Given an issue URL under the `mctlhq` org, the investigator reads the issue,
-clones the target repo read-only to ground the design in real code, and writes
-`requirements.md` / `design.md` / `tasks.md` plus a `.status.yaml` (`status: proposed`)
-under `platform-gitops/agents-state/<service>/proposals/<slug>/`. It then comments the
-proposal link back on the issue.
-
-The proposal stops at `status: proposed` and awaits human approval — review the spec and
-flip `.status.yaml` to `accepted` before the Tier 2 implementer
-(`mctl_trigger_implementer`) picks it up. No PR is opened by this step, which is why the
-tool is annotated Write rather than Destructive.
-
-**Parameters:**
-
-| Name | Required | Description |
-|---|---|---|
-| `issue_url` | yes | Full GitHub issue URL under the mctlhq org, e.g. `https://github.com/mctlhq/mctl-telegram/issues/123` |
-
-**Cost / duration:** ~$3 against Claude subscription quota; ~5–10 minutes.
-
-**Result:** a new proposal directory committed to `mctl-gitops` main, plus a comment on
-the issue.
-
-**Returns:** `workflow_name` string — use with `mctl_get_workflow_status` or
-`mctl_list_recent_agent_runs` to track progress.
-
-### Status polling
-
-All trigger tools return a `workflow_name`. Poll for progress with:
-
-```
-mctl_get_workflow_status(workflow_name="mctl-agents-daily-abc12")
-```
-
-Or check the last few runs at any time:
-
-```
-mctl_list_recent_agent_runs()
-```
-
-Results also appear as `chore(agents)` commits in the `mctl-gitops` repository under
-`platform-gitops/agents-state/`.
-
----
-
-## Tool Annotations
-
-Tools are annotated with behavior hints for AI clients:
-
-- **Read** (`readOnly: true`) — safe to call without side effects
-- **Write** — modifies resources, requires confirmation
-- **Destructive** (`destructive: true`) — deletes resources, requires explicit confirmation
+Use each tool's current schema for service filters and execution bounds.
+Proposals and PRs follow the platform review/approval gates; approval belongs to
+the current proposal or commit and must not be assumed from an earlier run.
+Pipeline duration and model cost depend on the work and configured runner.

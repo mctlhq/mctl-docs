@@ -27,8 +27,12 @@ Database credentials are automatically injected into your service as environment
 | `DB_NAME` | Database name |
 | `DB_USER` | Database username |
 | `DB_PASSWORD` | Database password |
-| `DATABASE_URL` | Full connection string |
+
 
 ## Supported Databases
 
 The provisioning operation supports PostgreSQL on the platform's shared CNPG cluster.
+
+The generated database secret exposes the `DB_*` variables above. If your app
+requires `DATABASE_URL`, configure it explicitly; it is not guaranteed by the
+provisioning template.

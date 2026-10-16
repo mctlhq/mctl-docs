@@ -14,6 +14,7 @@
         </button>
         <div class="mermaid-overlay__content">
           <div v-if="svg" class="mermaid-overlay__diagram" v-html="svg" />
+          <pre v-else>{{ fallbackSource }}</pre>
         </div>
       </div>
     </div>
@@ -30,10 +31,17 @@ type MermaidOpenDetail = {
 
 const isOpen = ref(false)
 const svg = ref('')
+const fallbackSource = ref('')
 
 async function openDiagram(detail: MermaidOpenDetail) {
-  const rendered = await renderMermaidSvg(detail.source, 'overlay')
-  svg.value = rendered.svg
+  svg.value = ''
+  fallbackSource.value = detail.source
+  try {
+    const rendered = await renderMermaidSvg(detail.source, 'overlay')
+    svg.value = rendered.svg
+  } catch (error) {
+    console.error('Could not render expanded Mermaid diagram', error)
+  }
   isOpen.value = true
 }
 

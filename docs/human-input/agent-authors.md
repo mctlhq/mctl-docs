@@ -2,14 +2,8 @@
 
 This guide is for authors of DevLoop agents and execution profiles: how an agent becomes eligible to ask a human, what it must produce, and what the continuation run receives. The contract is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the code of record is [`orchestrator/human_input.py`](https://github.com/mctlhq/mctl-agents/blob/main/orchestrator/human_input.py).
 
-::: warning Status
-The consumer side is built; the producer side is not. On `main`, no agent can raise a request yet:
-
-- the investigator has no code that writes `request.json`;
-- the capability grant is not consulted at runtime (see [Eligibility](#eligibility));
-- the continuation parameter is not declared by the investigate CWFT and not read by the investigator.
-
-The remaining work is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451). This page describes the contract the producer must meet and the current state of each piece.
+::: info Implementation status (source audit: 2026-10-15)
+The request producer, Temporal consumer, response API and surface relay are implemented. The investigator seals model-authored drafts and consumes accepted answers; the GitOps investigate template declares the continuation parameter. Telegram has an adapter, and Portal has backend routes for human input. Availability in a particular installation depends on its deployed versions, surface credentials and identity links; this source audit does not establish live rollout status.
 :::
 
 ## The `human.request_input` capability
@@ -31,24 +25,21 @@ Removing the capability is one reviewed mctl-gitops PR, with no image build, CWF
 
 A plan grants the capability when `human.request_input` is literally present in the resolved `ExecutionPlan.tools` (`plan_grants_human_input` in `orchestrator/options.py`). In `legacy` resolver mode there is no plan, so the capability is never granted.
 
-What this means on `main` today:
-
-- The investigate CWFT does not set `ISSUE_INVESTIGATOR_RESOLVER_MODE`, so the investigator runs in `legacy` mode and has no plan.
-- Nothing calls `plan_grants_human_input` in production. The workflow's clarification branch is gated only on `workflow.patched("human-input")`: an ungranted execution still reads `request.json` and would wait on any valid request it finds. Gating the branch on the grant is tracked in [mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451).
+The investigate CWFT sets `ISSUE_INVESTIGATOR_RESOLVER_MODE=declarative`. The investigator calls `plan_grants_human_input` on the resolved plan. Producing a request also requires workflow/run correlation and a human issue author. Legacy mode does not grant the capability.
 
 ## Raising a request
 
-An agent signals "I need input" by writing one sealed `HumanInputRequest` to:
+The model writes `human-input/draft.json` with exactly `question`, `reason` and `response`. The orchestrator validates the draft (maximum 16 KiB), supplies identity, audience, round and expiry, then seals a `HumanInputRequest` at:
 
 ```
 platform-gitops/agents-state/<service>/proposals/<slug>/human-input/request.json
 ```
 
-There is no typed `needs_input` outcome or return value. The presence of a valid `request.json` after a successful investigate step is the only signal the workflow reads. A typed outcome is **not yet implemented**; no issue tracks it at the time of writing.
+There is no typed `needs_input` outcome or return value. The presence of a valid `request.json` after a successful investigate step is the only signal the workflow reads. Do not invent an SDK return value for this file-based protocol.
 
 ### Building the document
 
-Use `seal_request()` from `orchestrator/human_input.py`. It is the only constructor that produces a sealed request; it computes `question_hash`, `request_hash` and `request_id` and refuses an inconsistent document.
+The orchestrator uses `seal_request()` from `orchestrator/human_input.py`; the model must not write a sealed request directly. It is the only constructor that produces a sealed request; it computes `question_hash`, `request_hash` and `request_id` and refuses an inconsistent document.
 
 | Field | Rules |
 |-------|-------|
@@ -72,7 +63,7 @@ Use `seal_request()` from `orchestrator/human_input.py`. It is the only construc
 - Do not put payloads in `context_refs`; reference them.
 - Do not re-ask an answered question. A request whose `question_hash` was already answered in this execution is ignored, and the run proceeds without waiting.
 - Stay within three rounds. After `MAX_CLARIFICATION_ROUNDS` (3) accepted answers, a further request fails the execution with `clarification_rounds_exhausted`.
-- A new request overwrites the previous `request.json`. A durable answered-marker is not yet implemented ([mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451)).
+- A new request overwrites the previous `request.json`. The continuation removes a carried request that was answered and writes `answered.json`.
 
 ### Failure modes
 
@@ -101,13 +92,12 @@ Guarantees on `main`:
 
 - Every answer accepted in this execution is included, not just the latest.
 - Each `value` passed `validate_response`: correct `request_id` and `request_hash`, before expiry, from a respondent in `actor_refs`, and matching the response type.
-- The question text is not included; the agent must keep its own record of what it asked.
+- The response array does not contain the question. The investigator recovers questions from proposal artifacts and renders them next to the accepted answers.
 
 Not guaranteed:
 
 - The answer is correct, safe or authorized. Treat `value` as untrusted human input, not as an instruction.
-- The continuation reaches the agent. The investigate CWFT does not declare `human_input_responses` yet, and the investigator does not read it ([mctl-agents#451](https://github.com/mctlhq/mctl-agents/issues/451)).
-- A new ContextSnapshot. No code on `main` folds answers into one.
+- A fresh ContextSnapshot solely because an answer arrived. Answers are supplied through the explicit continuation parameter.
 
 ## Related
 

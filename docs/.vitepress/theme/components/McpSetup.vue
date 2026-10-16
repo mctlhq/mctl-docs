@@ -253,50 +253,50 @@ const tabs = [
 
 /* ── Auth card ── */
 .auth-card {
-  background: var(--surface-card);
-  border: 1.5px solid var(--surface-line);
+  background: var(--surface-card, #15181d);
+  border: 1.5px solid var(--surface-line, #1f242b);
   border-radius: 12px;
   padding: 1.5rem;
 }
 
 .auth-card h3 {
   margin: 0 0 0.5rem;
-  font-size: 1.1rem;
-  color: var(--surface-fg);
-  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--mctl-typography-font-size-lg, 18px);
+  color: var(--surface-fg, #e6e7e9);
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
 }
 
 .auth-desc {
-  font-size: 0.85rem;
-  color: var(--surface-fg-muted);
+  font-size: var(--text-small-size, 14px);
+  color: var(--surface-fg-muted, #a4a8ae);
   line-height: 1.5;
   margin: 0 0 0.75rem;
 }
 
 .auth-hint {
-  font-size: 0.78rem;
-  color: var(--surface-fg-subtle);
+  font-size: var(--text-caption-size, 13px);
+  color: var(--surface-fg-subtle, #6b7079);
   line-height: 1.5;
   margin: 0 0 1rem;
 }
 
 .auth-hint a {
-  color: var(--accent);
+  color: var(--accent, #e25a3c);
 }
 
 .auth-notice {
-  font-size: 0.8rem;
+  font-size: var(--text-caption-size, 13px);
   line-height: 1.5;
-  color: var(--surface-fg);
-  border-left: 2px solid var(--accent);
+  color: var(--surface-fg, #e6e7e9);
+  border-left: 2px solid var(--accent, #e25a3c);
   padding-left: 0.6rem;
   margin: 0 0 0.75rem;
 }
 
 /* ── Config panel ── */
 .config-panel {
-  background: var(--surface-card);
-  border: 1.5px solid var(--surface-line);
+  background: var(--surface-card, #15181d);
+  border: 1.5px solid var(--surface-line, #1f242b);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -305,7 +305,7 @@ const tabs = [
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  border-bottom: 1px solid var(--surface-line);
+  border-bottom: 1px solid var(--surface-line, #1f242b);
   padding: 0;
 }
 
@@ -314,21 +314,21 @@ const tabs = [
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--surface-fg-subtle);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  color: var(--surface-fg-subtle, #6b7079);
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--text-micro-size, 12px);
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 }
 
 .tab-btn:hover {
-  color: var(--surface-fg-muted);
+  color: var(--surface-fg-muted, #a4a8ae);
 }
 
 .tab-btn.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  color: var(--accent, #e25a3c);
+  border-bottom-color: var(--accent, #e25a3c);
 }
 
 .tab-content {
@@ -336,37 +336,37 @@ const tabs = [
 }
 
 .config-path {
-  font-size: 0.82rem;
-  color: var(--surface-fg-muted);
+  font-size: var(--text-caption-size, 13px);
+  color: var(--surface-fg-muted, #a4a8ae);
   margin: 0 0 0.75rem;
   line-height: 1.4;
 }
 
 .config-path code {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  background: color-mix(in srgb, var(--accent, #e25a3c) 8%, transparent);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
-  font-size: 0.78rem;
-  color: var(--accent);
+  font-size: var(--text-caption-size, 13px);
+  color: var(--accent, #e25a3c);
 }
 
 .config-note {
-  font-size: 0.78rem;
-  color: var(--surface-fg-subtle);
+  font-size: var(--text-caption-size, 13px);
+  color: var(--surface-fg-subtle, #6b7079);
   margin: 0.75rem 0 0;
   line-height: 1.5;
 }
 
 .config-note strong {
-  color: var(--surface-fg);
+  color: var(--surface-fg, #e6e7e9);
 }
 
 .config-note code {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  background: color-mix(in srgb, var(--accent, #e25a3c) 8%, transparent);
   padding: 0.1rem 0.3rem;
   border-radius: 3px;
-  font-size: 0.75rem;
-  color: var(--accent);
+  font-size: var(--text-micro-size, 12px);
+  color: var(--accent, #e25a3c);
 }
 
 /* ── Connector values (Claude.ai) ── */
@@ -379,16 +379,16 @@ const tabs = [
 
 .val-block {
   padding: 0.5rem 0.75rem;
-  background: var(--surface-bg);
-  border: 1px solid var(--surface-line);
+  background: var(--surface-bg, #0a0b0d);
+  border: 1px solid var(--surface-line, #1f242b);
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: var(--text-caption-size, 13px);
 }
 
 .val-label {
   display: block;
-  color: var(--surface-fg-subtle);
-  font-size: 0.7rem;
+  color: var(--surface-fg-subtle, #6b7079);
+  font-size: var(--text-micro-size, 12px);
   margin-bottom: 0.3rem;
 }
 
@@ -400,9 +400,9 @@ const tabs = [
 
 .val-value-row code {
   flex: 1;
-  color: var(--surface-fg);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  color: var(--surface-fg, #e6e7e9);
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--text-caption-size, 13px);
   background: none;
   padding: 0;
   overflow: hidden;
@@ -412,15 +412,15 @@ const tabs = [
 
 .val-value-row .muted {
   flex: 1;
-  color: var(--surface-fg-muted);
-  font-size: 0.78rem;
+  color: var(--surface-fg-muted, #a4a8ae);
+  font-size: var(--text-caption-size, 13px);
 }
 
 /* ── Code blocks ── */
 .code-block-wrap {
   position: relative;
-  background: var(--surface-bg);
-  border: 1px solid var(--surface-line);
+  background: var(--surface-bg, #0a0b0d);
+  border: 1px solid var(--surface-line, #1f242b);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -429,10 +429,10 @@ const tabs = [
   margin: 0;
   padding: 1rem;
   overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--text-caption-size, 13px);
   line-height: 1.6;
-  color: var(--surface-fg);
+  color: var(--surface-fg, #e6e7e9);
   white-space: pre;
 }
 
@@ -440,24 +440,24 @@ const tabs = [
 .btn-copy {
   padding: 0.25rem 0.6rem;
   background: transparent;
-  border: 1px solid var(--surface-line);
+  border: 1px solid var(--surface-line, #1f242b);
   border-radius: 4px;
-  color: var(--surface-fg-subtle);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  color: var(--surface-fg-subtle, #6b7079);
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--text-micro-size, 12px);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, border-color 0.15s;
 }
 
 .btn-copy:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent, #e25a3c);
+  border-color: var(--accent, #e25a3c);
 }
 
 .btn-copy.copied {
-  color: var(--status-ok);
-  border-color: var(--status-ok);
+  color: var(--status-ok, #7cf2a4);
+  border-color: var(--status-ok, #7cf2a4);
 }
 
 .code-block-wrap .btn-copy {

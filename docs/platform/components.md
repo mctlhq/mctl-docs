@@ -1,6 +1,6 @@
 # Components
 
-The core MCTL platform consists of six components, each in its own repository.
+The core MCTL platform includes the following components, each in its own repository.
 This page covers the core platform only, not every repository in the `mctlhq`
 organization.
 
@@ -12,7 +12,7 @@ organization.
 - Authenticates via MCTL sign-in (OAuth JWT)
 - Submits Argo Workflows for write operations
 - Tracks async operations and their status
-- Exposes 58 MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
+- Exposes permission-scoped MCP tools via Streamable HTTP at `api.mctl.ai/mcp`
 
 | | |
 |---|---|
@@ -23,10 +23,10 @@ organization.
 
 ## mctl-web
 
-**Landing page + MCP connector + documentation** — the public face of MCTL.
+**Landing page and access request form** — the public face of MCTL.
 
 - Landing page at `mctl.ai`
-- MCP OAuth connector at `mctl.ai/mcp`
+- Platform MCP endpoint and OAuth are served by `mctl-api` at `api.mctl.ai/mcp`
 - Tenant self-service creation form
 - Cloudflare Worker for OAuth flows
 
@@ -39,12 +39,12 @@ organization.
 
 ## mctl-gitops
 
-**GitOps repository** — the single source of truth for all infrastructure.
+**GitOps repository** — the source of declared service and platform configuration.
 
 - ArgoCD watches this repo and syncs cluster state
 - Contains Helm values, Kustomize overlays, and raw manifests
 - Tenant namespaces, services, and platform config all live here
-- Every change to infrastructure is a Git commit
+- Declared infrastructure changes are tracked in Git; workflow execution and registry state have separate stores
 
 | | |
 |---|---|
@@ -100,3 +100,10 @@ organization.
 |---|---|
 | **Language** | Python |
 | **Repo** | [mctlhq/mctl-agents](https://github.com/mctlhq/mctl-agents) |
+
+## mctl-docs and mctl-design
+
+`mctl-docs` publishes the VitePress documentation at [docs.mctl.ai](https://docs.mctl.ai).
+`mctl-design` owns shared colors, typography, site layout tokens and versioned
+CSS at [ui.mctl.ai](https://ui.mctl.ai). The Nuxt landing and VitePress docs consume
+the same pinned design release.

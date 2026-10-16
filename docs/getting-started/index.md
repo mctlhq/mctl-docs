@@ -1,182 +1,74 @@
 # Getting Started
 
-This guide takes you from zero to a running service on MCTL in under 10 minutes. No Kubernetes experience required.
-
-::: tip Portal alternative
-Prefer a graphical interface? The [MCTL Portal](https://app.mctl.ai) at `app.mctl.ai` provides
-a Backstage-powered service catalog and dashboard for the same operations. The MCP and Portal
-interfaces are complementary — you can switch between them at any time.
-:::
+Start with an accessible workspace, connect an MCP client, then onboard your
+application from a GitHub repository. Provisioning and sign-in access are separate
+steps; submitting a request does not mean a workspace is ready.
 
 ## Prerequisites
 
-- A GitHub account
-- An AI client that supports MCP (Claude.ai, Claude Code, Cursor, or VS Code)
+- A GitHub account and a repository containing your application and Dockerfile
+- An MCTL sign-in account with access to a provisioned workspace
+- An MCP client with Streamable HTTP and OAuth support
 
-## Step 1: Sign in and create a tenant
+## Step 1: Request a workspace and confirm access
 
-Visit [mctl.ai](https://mctl.ai) and click **Sign in with GitHub**. After authenticating, you'll see the tenant creation form.
+Visit [mctl.ai](https://mctl.ai/#request-access), sign in with GitHub for the
+request form, and submit your team details. Wait for provisioning and confirm
+platform sign-in with your operator. The website's GitHub session does not by
+itself establish an account at [auth.mctl.ai](https://auth.mctl.ai) or grant
+access to the portal, ArgoCD, Argo Workflows, Vault or kubectl.
 
-Enter your team name and description, then submit. MCTL will automatically provision:
-
-- A Kubernetes namespace for your team
-- RBAC policies and network isolation
-- Resource quotas (2 CPU, 4Gi memory, 20 pods by default)
-- Vault secrets scope
-- SSO access via your GitHub identity
-
-You'll receive a welcome email with your tenant details.
-
-::: tip
-Tenant names become Kubernetes namespace names. Use lowercase letters, numbers, and hyphens only (e.g. `backend-team`, `data-squad`).
-:::
+A tenant provides a namespace, resource quotas, network policies and a Vault
+scope for workloads. Human access to individual platform tools is granted
+separately. See the [first-user checklist](/guides/first-user-checklist).
 
 ## Step 2: Connect your AI client
 
-### Claude.ai (recommended)
+Use `https://api.mctl.ai/mcp` in your client's MCP server settings and complete
+MCTL sign-in in the browser. Do not paste a personal token into the config.
 
-The fastest way to connect:
-
-1. Open the [Connecting](/mcp/connecting) page in these docs
-2. Click **Connect with Claude.ai**
-3. Authorize the OAuth connection
-4. Start a new conversation in Claude.ai
-
-### Claude Code
+For Claude Code:
 
 ```bash
-claude mcp add mctl --transport http https://api.mctl.ai/mcp \
-  -H "Authorization: Bearer YOUR_TOKEN"
+claude mcp add mctl --transport http https://api.mctl.ai/mcp
 ```
 
-Get your token at the [Connecting](/mcp/connecting) page after signing in.
-
-### Cursor / VS Code
-
-See [Connecting](/mcp/connecting) for configuration snippets for all supported AI clients.
+Complete the client's OAuth sign-in when prompted. See [Connecting](/mcp/connecting)
+for the supported client configurations.
 
 ## Step 3: Verify your connection
 
-Ask your AI assistant:
+Ask your assistant:
 
-```
+```text
 Who am I on MCTL?
-```
-
-You should see your GitHub username, organization, and the tenant you just created.
-
-```
 Show me details of my-team
 ```
 
-Replace `my-team` with the namespace reported by `mctl_whoami`. This uses
-`mctl_get_tenant` to confirm access; listing all tenants requires platform admin access.
+`mctl_whoami` reports your identity and accessible namespaces. Replace `my-team`
+with one of those namespaces; `mctl_get_tenant` checks access to that workspace.
+Listing every tenant requires platform admin access. Writes also require the
+appropriate [tenant role](/security/authorization).
 
-## Step 4: Deploy your first service
+## Step 4: Onboard your first service
 
-Tell your AI assistant to deploy a service. You need a container image — if you don't have one, you can use a public image:
+Follow [Deploy your first app](/guides/deploy-first-app) to grant repository access,
+sync repositories and prepare a Git tag and Dockerfile. Then ask:
 
-```
-Deploy hello-world from ghcr.io/mctlhq/hello-world:latest to my-team
-```
-
-Replace `my-team` with your actual tenant name.
-
-MCTL will:
-1. Validate your access to the tenant
-2. Create service manifests in the GitOps repository
-3. Submit an Argo Workflow to build and deploy
-4. Return an operation ID
-
-### Track the deployment
-
-```
-What's the status of that deployment?
+```text
+Onboard hello-world from repo myorg/hello-world tag 1.0.0 port 8080 for my-team
 ```
 
-Or use the operation ID directly:
+Use your own repository and tag. `mctl_deploy_service` submits an Argo Workflow;
+it is not an arbitrary container-image import tool. Keep the returned workflow
+name, poll `mctl_get_workflow_status`, then inspect `mctl_get_service_status`.
+Confirm ArgoCD is Synced and Healthy and test the returned service host.
+A submitted request or a completed build alone does not prove the service is ready.
 
-```
-Show me the status of workflow deploy-service-abc12
-```
+## Next steps
 
-### Verify the service is running
-
-```
-Show me the status of hello-world in my-team
-```
-
-You should see:
-- **Sync status**: Synced
-- **Health**: Healthy
-- **Host**: `hello-world.mctl.ai` (or your custom domain)
-
-### Check the logs
-
-```
-Show me logs for hello-world in my-team
-```
-
-## Step 5: Explore more capabilities
-
-Now that your first service is running, try these:
-
-### Scale your service
-
-```
-Scale hello-world to 3 replicas in my-team
-```
-
-### Check resource usage
-
-```
-What's the resource usage for my-team?
-```
-
-### Add a custom domain
-
-```
-Add domain api.example.com to hello-world in my-team
-```
-
-### Create a preview environment
-
-```
-Create a preview of hello-world with tag pr-42 in my-team
-```
-
-### View incidents
-
-```
-Are there any open incidents?
-```
-
-## What's next?
-
-| Topic | Description |
-|-------|-------------|
-| [Platform Overview](/platform/overview) | How MCTL works under the hood |
-| [Architecture](/platform/architecture) | Component diagram and data flow |
-| [Service Deployment](/guides/services) | Advanced deployment options |
-| [Custom Domains](/guides/domains) | Configure DNS and TLS |
-| [Databases](/guides/databases) | Provision PostgreSQL databases |
-| [MCP Tools Reference](/mcp/tools-reference) | All 70 available tools |
-| [REST API](/api/) | Direct API access for scripts and CI/CD |
-| [Troubleshooting](/reference/troubleshooting) | Common issues and solutions |
-
-## Architecture at a glance
-
-```
-You (AI / API / Portal)
-  |
-  v
-mctl-api  ------>  Argo Workflows  ------>  mctl-gitops
-                                                |
-                                                v
-                                             ArgoCD
-                                                |
-                                                v
-                                           Kubernetes
-```
-
-Every change flows through Git. ArgoCD ensures the cluster matches the desired state. See [GitOps Workflows](/guides/gitops-workflows) for details.
+- [Service deployment](/guides/services), [scaffolding and CI](/guides/scaffolding)
+- [Autoscaling](/guides/scaling), [rollbacks](/guides/rollbacks), [previews](/guides/previews)
+- [Custom domains](/guides/domains), [databases](/guides/databases)
+- [MCP tools](/mcp/tools-reference), [REST API](/api/)
+- [Architecture](/platform/architecture), [troubleshooting](/reference/troubleshooting)

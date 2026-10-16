@@ -9,7 +9,7 @@
 | **GitOps** | Operating model where Git is the single source of truth for infrastructure |
 | **MCP** | Model Context Protocol — open standard for connecting AI to external tools |
 | **Namespace** | Kubernetes isolation boundary, one per tenant |
-| **Operation** | An async task (deploy, scale, rollback) tracked by ID |
+| **Operation** | A platform action; workflow-backed actions such as deploy, scale and rollback return a workflow name |
 | **PKCE** | Proof Key for Code Exchange — OAuth 2.0 extension for public clients |
 | **Preview Environment** | Temporary deployment for testing a branch or pull request |
 | **RBAC** | Role-Based Access Control |

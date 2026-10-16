@@ -16,8 +16,8 @@ export default defineConfig({
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { rel: 'preconnect', href: 'https://ui.mctl.ai' }],
     ['link', { href: 'https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap', rel: 'stylesheet' }],
-    ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/mctl.css' }],
-    ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/prose.css' }],
+    ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.6.0/mctl.css' }],
+    ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.6.0/prose.css' }],
     ['meta', { name: 'theme-color', content: '#0a0b0d' }],
   ],
 

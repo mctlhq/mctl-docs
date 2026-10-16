@@ -10,7 +10,7 @@ Tenants are the primary isolation boundary in MCTL. Each tenant gets its own Kub
 "Create a new tenant called backend-team"
 ```
 
-This calls the `mctl_create_tenant` tool, which:
+This calls the `mctl_create_tenant` tool, which submits a workflow that:
 1. Creates a namespace in the cluster
 2. Sets up RBAC roles and bindings
 3. Configures resource quotas and limit ranges
@@ -18,7 +18,7 @@ This calls the `mctl_create_tenant` tool, which:
 
 ### Via Self-Service Form
 
-Visit [mctl.ai](https://mctl.ai) and use the tenant creation form. You'll need to authenticate with GitHub first.
+Visit [mctl.ai](https://mctl.ai/#request-access) and submit a workspace request after GitHub sign-in. Confirm provisioning and MCTL sign-in with your operator before using it; the request session does not itself grant platform UI access.
 
 ## List Tenants
 
@@ -46,7 +46,7 @@ curl -H "Authorization: Bearer $TOKEN" https://api.mctl.ai/api/v1/tenants
 "What services are running in production?"
 ```
 
-This returns the tenant's services, resource usage, domains, and recent operations.
+This returns tenant configuration and services. Use the resource, domain and operations tools separately for those views.
 
 ## Delete a Tenant
 
@@ -58,7 +58,7 @@ Deleting a tenant removes the namespace and all its resources. This action canno
 "Delete the test-env tenant"
 ```
 
-The `mctl_delete_tenant` tool will:
+The `mctl_delete_tenant` tool requires the tenant owner role (or platform admin) and submits a workflow to:
 1. Remove all services in the tenant
 2. Delete the namespace and all resources
 3. Clean up RBAC bindings and catalog entries
@@ -69,13 +69,12 @@ Tenant namespaces use the team name directly (no prefix). For example, a tenant 
 
 ## Resource Quotas
 
-Each tenant has default resource quotas that can be adjusted:
+Defaults depend on the provisioning entry point. The operations API currently supplies the following defaults; existing tenant values and portal requests may override them. Inspect the actual workspace quota before sizing a workload:
 
 | Resource | Default |
 |----------|---------|
-| CPU requests | 2 cores |
-| CPU limits | 4 cores |
-| Memory requests | 4Gi |
-| Memory limits | 8Gi |
-| Pods | 20 |
-| Services | 10 |
+| CPU requests | 500m |
+| CPU limits | 3 cores |
+| Memory requests | 1280Mi |
+| Memory limits | 4Gi |
+| Pods | 10 |

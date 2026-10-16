@@ -1,4 +1,4 @@
-import DefaultTheme from 'vitepress/theme'
+import DefaultTheme from 'vitepress/theme-without-fonts'
 import { onContentUpdated } from 'vitepress'
 import './vitepress-bridge.css'
 import './custom.css'
@@ -23,8 +23,16 @@ async function renderMermaidDiagrams() {
     if (!encoded) continue
 
     const source = decodeURIComponent(encoded)
-    const { svg } = await renderMermaidSvg(source, `inline-${index++}`)
-    node.innerHTML = svg
+    try {
+      const { svg } = await renderMermaidSvg(source, `inline-${index++}`)
+      node.innerHTML = svg
+    } catch (error) {
+      const fallback = document.createElement('pre')
+      fallback.textContent = source
+      node.replaceChildren(fallback)
+      console.error('Could not render Mermaid diagram', error)
+      continue
+    }
     node.dataset.rendered = 'true'
     node.dataset.mermaidReady = 'true'
 
@@ -39,11 +47,12 @@ async function renderMermaidDiagrams() {
         continue
       }
 
-      if (!guardedMermaidHosts.has(host)) continue
-
       link.addEventListener('click', (event) => {
-        event.preventDefault()
+        // Public reference links navigate normally; operational hosts ask first.
+        // Neither kind should also trigger the parent diagram's expand action.
         event.stopPropagation()
+        if (!guardedMermaidHosts.has(host)) return
+        event.preventDefault()
         window.dispatchEvent(new CustomEvent('mctl:confirm-mermaid-link', { detail: { href } }))
       })
     }
@@ -55,6 +64,7 @@ async function renderMermaidDiagrams() {
       window.dispatchEvent(new CustomEvent('mctl:open-mermaid', { detail: { source } }))
     }
     node.onkeydown = (event) => {
+      if (event.target !== node) return
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         window.dispatchEvent(new CustomEvent('mctl:open-mermaid', { detail: { source } }))

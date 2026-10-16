@@ -2,8 +2,8 @@
 
 A surface such as the Telegram bot or the portal backend authenticates to mctl-api as a machine. An answer to a human-input request, like a work-item change, must be attributed to the **human** behind the surface. Surface identity links do this without handing any surface a general "act as anyone" credential.
 
-::: warning Status
-Merged in mctl-api ([mctl-api#350](https://github.com/mctlhq/mctl-api/issues/350): [#358](https://github.com/mctlhq/mctl-api/pull/358), [#359](https://github.com/mctlhq/mctl-api/pull/359)), not yet released or deployed. Nothing is available on `api.mctl.ai` until the next mctl-api release is deployed with the surface tokens configured. No surface uses it yet: the Telegram and portal adapters adopt it in their own repositories.
+::: info Implementation status (source audit: 2026-10-15)
+The request producer, Temporal consumer, response API and surface relay are implemented. The investigator seals model-authored drafts and consumes accepted answers; the GitOps investigate template declares the continuation parameter. Telegram has an adapter, and Portal has backend routes for human input. Availability in a particular installation depends on its deployed versions, surface credentials and identity links; this source audit does not establish live rollout status.
 :::
 
 ## Principals

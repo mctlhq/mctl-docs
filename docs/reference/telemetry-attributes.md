@@ -8,17 +8,9 @@ is only useful if a DevLoop span, an agent diagnosis span and an MCP tool span
 can be joined on the same keys, and that only happens if the keys are agreed
 before the producers are written.
 
-**Status of each attribute is stated explicitly.** An attribute is either
-`shipped` — the emitting code is in production, with the source named — or
-`reserved` — this catalog fixes the name, but no code sets it anywhere. Nothing
-here is aspirational without being labelled as such.
+**Status describes the catalog contract, not a live deployment check.** `shipped` identifies the named implementation; `reserved` retains a name without claiming production export. The mctl-agents tracing implementation can export when its OTLP configuration and rollout gates enable it. The Telegram audit helper attaches attributes to an existing span. Verify the deployed producer and collector before assuming an attribute is queryable.
 
-One caveat that `shipped` does not cover: no MCTL service has a tracer, exporter
-or propagator installed yet — that is the epic's own remaining work. The shipped
-attributes are written onto a span only when one already exists in the context,
-so today they are code that would emit rather than data in a backend. `shipped`
-means the name is settled and renaming it costs a migration; it does not mean
-anything is queryable yet.
+Source audit: 2026-10-15, against mctl-agents `7189793`, mctl-telegram `c23f388` and mctl-gitops `0274faa02`. This audit does not promote reserved attributes or assert production trace availability.
 
 ## Ownership
 
@@ -269,7 +261,7 @@ computed from the token counts downstream, not emitted as an attribute.
 | `gen_ai.usage.input_tokens` | int | reserved | Token count in. Exempted from redaction — see the tip below. |
 | `gen_ai.usage.output_tokens` | int | reserved | Token count out. Exempted from redaction — see the tip below. |
 
-All five are `reserved`: no MCTL service emits `gen_ai.*` today.
+These five retain `reserved` catalog status. The mctl-agents tracing code contains GenAI instrumentation; actual export depends on its runtime configuration and rollout gates.
 
 ::: tip Token counts survive the Collector as integers
 The credential pattern reproduced below matches any key containing `token`.

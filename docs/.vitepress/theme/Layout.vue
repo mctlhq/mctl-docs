@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vitepress'
-import DefaultTheme from 'vitepress/theme'
+import DefaultTheme from 'vitepress/theme-without-fonts'
 import BrandMark from './components/BrandMark.vue'
 import HexLogo from './components/HexLogo.vue'
 import DocsFooter from './components/DocsFooter.vue'

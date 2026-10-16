@@ -1,14 +1,11 @@
 # Architecture
 
-MCTL follows a GitOps architecture where every infrastructure change flows through Git.
+MCTL uses GitOps for declared service configuration. Workflows also perform provisioning, while identity, incidents and domain registration use dedicated stores.
 
 ## System Diagram
 
 ```mermaid
 graph TB
-    classDef core fill:#102234,stroke:#00f5ff,color:#ffffff,stroke-width:2px
-    classDef delivery fill:#11281f,stroke:#34d399,color:#f8fafc,stroke-width:2px
-    classDef muted fill:#101827,stroke:#475569,color:#e6edf3,stroke-width:1.2px
 
     subgraph Clients
         direction LR
@@ -20,7 +17,7 @@ graph TB
     subgraph "Control Plane"
         direction TB
         controlMcp["MCP Server\nStreamable HTTP"]
-        controlApi["Developer Portal\napp.mctl.ai\naccepts requests + returns status"]
+        controlApi["mctl-api\napi.mctl.ai\nREST and MCP control plane"]
         subgraph controlAutomation["Automation"]
             direction LR
             controlAgent["mctl-agent\ntickets + skills + dispatch"]
@@ -48,6 +45,7 @@ graph TB
 
     clientClaude -->|MCP Protocol| controlMcp
     clientPortal -->|REST| controlApi
+    clientPortal -->|Portal workflows| controlWorkflows
     clientApi -->|REST| controlApi
     controlMcp --> controlApi
 
@@ -65,20 +63,20 @@ graph TB
 
     clusterAlerts -. alerts .-> controlAgent
 
-    click controlApi href "https://app.mctl.ai" "Open app.mctl.ai"
+    click controlApi href "https://api.mctl.ai/docs" "Open API documentation"
     click controlWorkflows href "https://workflows.mctl.ai" "Open workflows.mctl.ai"
     click gitopsArgo href "https://ops.mctl.ai" "Open ops.mctl.ai"
 ```
 
 ## Request Flow
 
-### MCP Request
+### Workflow-backed MCP Request
 
 1. AI client sends a tool call via Streamable HTTP to `api.mctl.ai/mcp`
 2. `mctl-api` authenticates the request (OAuth JWT from MCTL sign-in)
 3. The handler validates input and checks RBAC for the tenant
 4. `mctl-api` submits an Argo Workflow for the requested operation
-5. An operation ID is returned immediately
+5. A workflow name is returned after submission
 6. The workflow commits the desired state to `mctl-gitops`
 7. ArgoCD detects the change and syncs the cluster
 8. The client polls `mctl-api` for workflow execution status and deployment sync/health

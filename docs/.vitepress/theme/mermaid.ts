@@ -3,37 +3,28 @@ import mermaid from 'mermaid'
 let mermaidInitialized = false
 let renderSequence = 0
 
-const mermaidThemeVariables = {
-  background: '#0d111d',
-  mainBkg: '#101827',
-  secondBkg: '#121c2c',
-  tertiaryColor: '#0b1220',
-  primaryColor: '#132238',
-  primaryTextColor: '#f8fafc',
-  primaryBorderColor: '#00f5ff',
-  lineColor: '#7dd3fc',
-  textColor: '#e6edf3',
-  fontFamily: 'JetBrains Mono, monospace',
-  fontSize: '15px',
-  clusterBkg: '#0f1726',
-  clusterBorder: '#164e63',
-  titleColor: '#ffffff',
-  edgeLabelBackground: '#050816',
-  actorBkg: '#101827',
-  actorBorder: '#00f5ff',
-  actorTextColor: '#f8fafc',
-  actorLineColor: '#164e63',
-  signalColor: '#7dd3fc',
-  signalTextColor: '#f8fafc',
-  labelBoxBkgColor: '#050816',
-  labelBoxBorderColor: '#164e63',
-  labelTextColor: '#e6edf3',
-  noteBkgColor: '#132238',
-  noteBorderColor: '#00f5ff',
-  noteTextColor: '#e6edf3',
-  activationBorderColor: '#00f5ff',
-  activationBkgColor: '#0f2b36',
-  sequenceNumberColor: '#050816',
+function mermaidThemeVariables() {
+  const styles = getComputedStyle(document.documentElement)
+  const token = (name: string, fallback: string) => styles.getPropertyValue(name).trim() || fallback
+  const bg = token('--surface-bg', '#0a0b0d')
+  const card = token('--surface-card', '#15181d')
+  const elevated = token('--surface-elevated', '#0f1114')
+  const fg = token('--surface-fg', '#e6e7e9')
+  const accent = token('--accent', '#e25a3c')
+  const line = token('--surface-line-strong', '#2a313a')
+  return {
+    background: bg, mainBkg: card, secondBkg: elevated, tertiaryColor: elevated,
+    primaryColor: card, primaryTextColor: fg, primaryBorderColor: accent,
+    lineColor: token('--surface-fg-muted', '#a4a8ae'), textColor: fg,
+    fontFamily: token('--font-mono', "'JetBrains Mono', ui-monospace, monospace"), fontSize: token('--text-code-size', '14px'),
+    clusterBkg: elevated, clusterBorder: line, titleColor: fg,
+    edgeLabelBackground: bg, actorBkg: card, actorBorder: accent,
+    actorTextColor: fg, actorLineColor: line, signalColor: accent,
+    signalTextColor: fg, labelBoxBkgColor: bg, labelBoxBorderColor: line,
+    labelTextColor: fg, noteBkgColor: elevated, noteBorderColor: accent,
+    noteTextColor: fg, activationBorderColor: accent, activationBkgColor: card,
+    sequenceNumberColor: bg,
+  }
 }
 
 export function ensureMermaidInitialized() {
@@ -43,7 +34,7 @@ export function ensureMermaidInitialized() {
     startOnLoad: false,
     theme: 'base',
     securityLevel: 'loose',
-    themeVariables: mermaidThemeVariables,
+    themeVariables: mermaidThemeVariables(),
     flowchart: {
       curve: 'basis',
       useMaxWidth: true,
