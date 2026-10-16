@@ -221,7 +221,8 @@ These checks follow the completed design release; they do not change its status.
   lint, typecheck, component tests and Storybook pass. A published-declaration
   consumer check rejects invalid component props; replacing declarations with
   `any` deliberately fails that check. PR #93 merged as `e4e7969` after current-head approval with no P1/P2;
-  continuous Storybook deployment is being verified. No package version bump
+  continuous Storybook deployment is being verified (central deploy run
+  `38911887922`). No package version bump
   is required for this build-tool-only fix.
 - Live OAuth: the current Codex/ChatGPT MCTL connection successfully calls
   `mctl_whoami` as `mashkovd`. Reconnecting the existing Claude connector reaches
@@ -251,4 +252,6 @@ These checks follow the completed design release; they do not change its status.
   operation registry declares `traceparent`. A recent organic trace contains activity/Argo spans. Its unrestricted lookup
   timed out on old R2 block reads; a time-bounded full-backend lookup succeeded
   with eight spans. Synthetic export establishes pipeline/redaction behavior,
-  not complete organic DevLoop end-to-end correlation.
+  not complete organic DevLoop end-to-end correlation. The synthetic trace
+  was subsequently retrieved with `mode=blocks` and a bounded time window,
+  proving the R2-persisted copy also retains the integer and masked payload.
