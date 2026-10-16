@@ -232,8 +232,10 @@ These checks follow the completed design release; they do not change its status.
 - Human input: API 4.90.0, Portal 4.21.0 and Telegram 0.79.5 are deployed.
   Both API surface-token references are set; the database contains one active
   link for each of Telegram and Portal, plus one accepted human-input delivery.
-  Telegram preview enables `HUMAN_INPUT_ENABLED`; production did not. GitOps
-  PR #1911 enables production's existing adapter. Rollout verification pending.
+  Telegram preview enables `HUMAN_INPUT_ENABLED` and is Synced/Healthy.
+  Production intentionally keeps it disabled: both instances serve the same
+  linked operator, and enabling both would duplicate Saved Messages questions.
+  That boundary was confirmed from the preview values and retained after review.
 - Telemetry: the live Collector exports to the evaluation Tempo backend.
   Synthetic trace `6f466393cdb00be8225a9404fd9c6502` was submitted over OTLP
   and retrieved from Tempo: `gen_ai.usage.input_tokens` stays integer `17`,
@@ -241,5 +243,7 @@ These checks follow the completed design release; they do not change its status.
   Execution workers already enable bounded DevLoop tracing, while the control
   worker did not. PR #1911 completes that wiring. Both live CWFTs declare
   `traceparent`, require a sampled parent and configure OTLP; the live API
-  operation registry declares `traceparent`. Synthetic export establishes
-  pipeline/redaction behavior, not organic DevLoop end-to-end correlation.
+  operation registry declares `traceparent`. A recent organic trace contains activity/Argo spans. Its unrestricted lookup
+  timed out on old R2 block reads; a time-bounded full-backend lookup succeeded
+  with eight spans. Synthetic export establishes pipeline/redaction behavior,
+  not complete organic DevLoop end-to-end correlation.
