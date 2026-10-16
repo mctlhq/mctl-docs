@@ -75,6 +75,7 @@ export default defineConfig({
           { text: 'Preview Environments', link: '/guides/previews' },
           { text: 'Scaling', link: '/guides/scaling' },
           { text: 'Rollbacks', link: '/guides/rollbacks' },
+          { text: 'kubectl Access', link: '/guides/kubectl' },
         ],
       },
       {
