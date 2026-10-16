@@ -210,3 +210,36 @@ Release verification:
 - Centralized release-deploy runs `38906587446` (web) and `38907392057`
   (docs) succeeded. Production pages load the versioned 0.7.0 CSS; the
   architecture page's published CSS contains both core-group selectors.
+
+## Functional follow-up verification (2026-10-16)
+
+These checks follow the completed design release; they do not change its status.
+
+- Dependency audit: design PR #93 replaces `vite-plugin-dts` / API Extractor
+  with `vue-tsc` and `rollup-plugin-dts`. `sprintf-js` is absent from the
+  resolved tree and the moderate audit passes without GHSA exceptions. Build,
+  lint, typecheck, component tests and Storybook pass. A published-declaration
+  consumer check rejects invalid component props; replacing declarations with
+  `any` deliberately fails that check. Merge/release verification is pending.
+- Live OAuth: the current Codex/ChatGPT MCTL connection successfully calls
+  `mctl_whoami` as `mashkovd`. Reconnecting the existing Claude connector reaches
+  the ZITADEL callback but is refused because its identity owns a separate
+  principal. Source principal `prn_01M51RRWSHH3VR3W4RTYY9238K` and existing
+  `mashkovd` principal `prn_01M39HRB7JRXZ2PHW5VVB695YZ` are both active human
+  principals. No merge was performed. The documented admin merge moves live
+  identities and disables the source, so the account owner must decide and a
+  human admin must perform it. Other named clients have not been exercised.
+- Human input: API 4.90.0, Portal 4.21.0 and Telegram 0.79.5 are deployed.
+  Both API surface-token references are set; the database contains one active
+  link for each of Telegram and Portal, plus one accepted human-input delivery.
+  Telegram preview enables `HUMAN_INPUT_ENABLED`; production did not. GitOps
+  PR #1911 enables production's existing adapter. Rollout verification pending.
+- Telemetry: the live Collector exports to the evaluation Tempo backend.
+  Synthetic trace `6f466393cdb00be8225a9404fd9c6502` was submitted over OTLP
+  and retrieved from Tempo: `gen_ai.usage.input_tokens` stays integer `17`,
+  `mcp.tool.arguments` becomes `****`, cluster/environment attributes are added.
+  Execution workers already enable bounded DevLoop tracing, while the control
+  worker did not. PR #1911 completes that wiring. Both live CWFTs declare
+  `traceparent`, require a sampled parent and configure OTLP; the live API
+  operation registry declares `traceparent`. Synthetic export establishes
+  pipeline/redaction behavior, not organic DevLoop end-to-end correlation.
