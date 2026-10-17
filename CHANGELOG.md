@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.1.51](https://github.com/mctlhq/mctl-docs/compare/0.1.50...0.1.51) (2026-10-17)
+
+
+### Documentation
+
+* add container requirements and fix scaffold Dockerfiles ([15be864](https://github.com/mctlhq/mctl-docs/commit/15be8646c17a684226366c66fc0caf6e2606ccd1))
+* add container requirements and fix scaffold Dockerfiles ([2d0d0c2](https://github.com/mctlhq/mctl-docs/commit/2d0d0c2badeb896da0eb5fc3a1041110909a4937))
+* clarify designated human input rollout and trace evidence ([d2346e9](https://github.com/mctlhq/mctl-docs/commit/d2346e97e86eeea3ee76b259d580f2fb9ea10581))
+* close design 0.7 release verification ([bc1d1d6](https://github.com/mctlhq/mctl-docs/commit/bc1d1d64d699ee1041c385a74fd7a9efc5282da7))
+* close design 0.7 release verification ([612c01d](https://github.com/mctlhq/mctl-docs/commit/612c01d8b98c0c2be6118343afb2757c57711222))
+* close verified audit and platform rollout checks ([964eba1](https://github.com/mctlhq/mctl-docs/commit/964eba1c6679350ba4ae1c69f0461523f3157172))
+* confirm design alignment in production ([52d9e5d](https://github.com/mctlhq/mctl-docs/commit/52d9e5d4b8ae3df83aa93ea8bf96c60243f39d32))
+* confirm design alignment in production ([479eaf6](https://github.com/mctlhq/mctl-docs/commit/479eaf61b46f1d3433678150b4531f0c599967a2))
+* pin the Python template's group to GID 10001 ([8ab904d](https://github.com/mctlhq/mctl-docs/commit/8ab904db64548864833b0bfcfc24e200150a3899))
+* record merged audit fix and verified surface relay ([7e7b7a0](https://github.com/mctlhq/mctl-docs/commit/7e7b7a0ed1dfa45ba1382ef34fd28756d57af5f2))
+* record platform follow-up verification ([3938867](https://github.com/mctlhq/mctl-docs/commit/39388671075fffcfcd72e766e796836ce7dd1242))
+* record platform follow-up verification ([87da907](https://github.com/mctlhq/mctl-docs/commit/87da907e631b436900d5b8d4a81180ce9ccc5291))
+* **scaffolding:** non-root and read-only root are now the default ([1704e35](https://github.com/mctlhq/mctl-docs/commit/1704e3545736361098468f2b4377dfa169d0a0d7))
+* **scaffolding:** non-root and read-only root are now the default ([bbdbdfe](https://github.com/mctlhq/mctl-docs/commit/bbdbdfe188f0802e9b303e51d5c83418b43b6a80))
+* verify persisted telemetry export ([6ba1463](https://github.com/mctlhq/mctl-docs/commit/6ba1463aeed128197d239b0152a661747bdff06f))
+
 ## [0.1.50](https://github.com/mctlhq/mctl-docs/compare/0.1.49...0.1.50) (2026-10-16)
 
 
