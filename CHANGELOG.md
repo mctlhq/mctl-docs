@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.53](https://github.com/mctlhq/mctl-docs/compare/0.1.52...0.1.53) (2026-10-17)
+
+
+### Bug Fixes
+
+* drop the transitional port 80 listener ([13a70f9](https://github.com/mctlhq/mctl-docs/commit/13a70f95ecddb27b6b72681e26e77eff76747aad))
+* drop the transitional port 80 listener ([1a4ba8b](https://github.com/mctlhq/mctl-docs/commit/1a4ba8b9678864cd555cd67af05d707538c917db))
+
 ## [0.1.52](https://github.com/mctlhq/mctl-docs/compare/0.1.51...0.1.52) (2026-10-17)
 
 
