@@ -26,17 +26,30 @@ it works under these rules:
 
 | Requirement | Why |
 | --- | --- |
-| Run as a **numeric** non-root user: `USER 10001:10001`, not `USER app` | Kubernetes can only check that a container is not root when the user is a number. With a user name it cannot verify, so once non-root is enforced the pod never starts (`CreateContainerConfigError`). |
+| Run as a **numeric** non-root user: `USER 10001:10001`, not `USER app` | Kubernetes can only check that a container is not root when the user is a number. With a user name it cannot verify, so the pod never starts (`CreateContainerConfigError`). |
 | Listen on a port above 1024 (`8080`, `8000`, `8787`) | A non-root process cannot bind ports below 1024. |
-| Write only to `/tmp` at runtime | The root filesystem becomes read-only. `/tmp` is a writable empty directory that is wiped on every restart, so keep durable data in a [database](/guides/databases) or object storage. |
+| Write only to `/tmp` at runtime | The root filesystem is read-only. `/tmp` is a writable empty directory that is wiped on every restart, so keep durable data in a [database](/guides/databases) or object storage. |
 | Need no extra privileges | All Linux capabilities are dropped and privilege escalation is blocked, so `sudo`, `su`, `gosu` and setuid binaries do not work. Do anything that needs root at build time, in `RUN` steps. |
 
-Today every service already runs without capabilities, without privilege
-escalation and under the `RuntimeDefault` seccomp profile. Non-root and a
-read-only root filesystem are being rolled out: platform services already
-run that way, and it will become the default for every service. An image
-that follows the table works both now and after the switch. All templates
-below follow it.
+Every service runs this way by default: as a non-root user, on a
+read-only root filesystem with a writable `/tmp`, without capabilities,
+without privilege escalation and under the `RuntimeDefault` seccomp
+profile. All templates below follow the table.
+
+Deploys check the image user before the new version is committed. When
+you onboard or deploy, the platform reads the `USER` of the image it just
+built. An image that runs as root, or as a user name instead of a number,
+is refused with a `REFUSED:` message in the workflow log, and the running
+version stays as it was. Fix the `USER` line and deploy again.
+
+Writes outside `/tmp` are not checked in advance. They fail at runtime with
+`Read-only file system` (`EROFS`), usually during startup, so the pod
+restarts and the deploy does not become healthy. Run the local check below
+to catch this before you deploy.
+
+A few services that predate these rules still run as root while their
+images are migrated. That is a platform-side exception, not a setting you
+can choose: new services must meet the table.
 
 If a library writes a cache under `$HOME` at runtime, point it at `/tmp`,
 for example with `ENV XDG_CACHE_HOME=/tmp/.cache`.
