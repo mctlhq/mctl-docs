@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.52](https://github.com/mctlhq/mctl-docs/compare/0.1.51...0.1.52) (2026-10-17)
+
+
+### Bug Fixes
+
+* run the docs image as non-root nginx-unprivileged ([c82f6e4](https://github.com/mctlhq/mctl-docs/commit/c82f6e4c27194a27ec14999c8625dfa6864991ee))
+* run the docs image as non-root nginx-unprivileged ([c577d26](https://github.com/mctlhq/mctl-docs/commit/c577d2633ba805788e181916a49901bc7bfe5c93))
+
 ## [0.1.51](https://github.com/mctlhq/mctl-docs/compare/0.1.50...0.1.51) (2026-10-17)
 
 
