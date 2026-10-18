@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.54](https://github.com/mctlhq/mctl-docs/compare/0.1.53...0.1.54) (2026-10-18)
+
+
+### Features
+
+* count docs.mctl.ai visitors with self-hosted Umami ([10acbd7](https://github.com/mctlhq/mctl-docs/commit/10acbd7483a99aeaf6c0d87ec3126bd5c81b6bbc))
+* count docs.mctl.ai visitors with self-hosted Umami ([9f24991](https://github.com/mctlhq/mctl-docs/commit/9f24991da182f2f60ff63e42efe881c02a56ab24))
+
+
+### Documentation
+
+* name App credentials by client ID, not the deleted APP_ID ([b82861c](https://github.com/mctlhq/mctl-docs/commit/b82861c8fc16aa6a090c856d84fb5941dcb650d2))
+* name App credentials by client ID, not the deleted APP_ID ([b1914e0](https://github.com/mctlhq/mctl-docs/commit/b1914e012112cc2d05c0f7e3f92549dd67c57776))
+* **security:** list stats.mctl.ai in the CSP allow-list ([3eea888](https://github.com/mctlhq/mctl-docs/commit/3eea8889ab0ce2c91dc9b74ddf124f3175753edb))
+
 ## [0.1.53](https://github.com/mctlhq/mctl-docs/compare/0.1.52...0.1.53) (2026-10-17)
 
 
