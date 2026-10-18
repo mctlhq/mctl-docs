@@ -34,3 +34,4 @@ This policy applies to all repositories in the mctlhq organization, including:
 - Residual: `style-src` keeps `'unsafe-inline'` because VitePress/Vue emit inline style attributes. Removing it breaks layout.
 - Theme tokens load from `https://ui.mctl.ai` (allow-listed on `style-src`).
 - Brand favicons load from `https://ui.mctl.ai/brand/` (allow-listed on `img-src`).
+- Page-view analytics: the self-hosted Umami tracker loads from `https://stats.mctl.ai/insights.js` and reports to `https://stats.mctl.ai/api/send` (allow-listed on `script-src` and `connect-src`). It is an external script, so it needs no hash.
