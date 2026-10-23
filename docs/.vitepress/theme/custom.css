@@ -136,11 +136,6 @@
   color: var(--accent, #e25a3c);
 }
 
-@media (min-width: 1440px) {
-  .VPNavBar .wrapper,
-  .VPNavBar.has-sidebar .wrapper { padding: 0 !important; }
-}
-
 /* ── Mobile nav screen ── */
 
 .VPNavScreen {
@@ -640,49 +635,15 @@ div[class*='language-'] {
 }
 
 /* ── Footer ── */
+/* Box, centring, links and copy come from ui.mctl.ai site.css
+   (.mctl-site-footer*); only the docs wordmark size is local. */
 
-.docs-footer {
-  padding: 3rem 0;
-  background: color-mix(in srgb, var(--surface-elevated, #0f1114) 85%, transparent);
-  border-top: 1px solid var(--surface-line, #1f242b);
-}
-
-.docs-footer__content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
-  text-align: center;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.docs-footer__logo .brand-mark {
-  font-size: var(--mctl-typography-font-size-xl, 20px);
-}
-
-.docs-footer__links {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.docs-footer__links a {
-  color: var(--accent, #e25a3c);
+.docs-footer__logo-link {
   text-decoration: none;
-  transition: all 0.3s ease;
 }
 
-.docs-footer__links a:hover {
-  color: var(--surface-fg, #e6e7e9);
-  transform: translateY(-2px);
-}
-
-.docs-footer__copy {
-  font-size: var(--text-caption-size, 13px);
-  color: var(--surface-fg-muted, #a4a8ae);
+.docs-footer__logo-link .brand-mark {
+  font-size: var(--mctl-typography-font-size-xl, 20px);
 }
 
 /* Home texture stays outside the reading surface. */
@@ -693,9 +654,54 @@ div[class*='language-'] {
   background-size: 56px 56px;
 }
 
+/* ── Home shell ──
+   The landing uses the shared public-site container from site.css: content
+   --site-content-width wide with --site-gutter on both sides, so the hero
+   title and the feature grid start on the same edge as the header brand.
+   VitePress' own 24/48/64px paddings and 1152px cap are replaced; doc pages
+   (sidebar, aside, 720px prose) are untouched. */
+.VPHome .VPHero,
+.VPHome .VPFeatures {
+  padding-left: var(--site-gutter, 20px) !important;
+  padding-right: var(--site-gutter, 20px) !important;
+}
+
 .VPHome .VPHero .container,
 .VPHome .VPFeatures .container {
   max-width: var(--site-content-width, 1400px) !important;
+}
+
+/* Hero: text left, visual right (7fr / 5fr like .mctl-site-hero). */
+@media (min-width: 960px) {
+  .VPHome .VPHero.has-image .main {
+    flex: 0 0 calc(100% * 7 / 12);
+    max-width: none !important;
+  }
+}
+
+/* Below 960px: one column, text still left-aligned, visual under the text.
+   VitePress centres the text and puts the image first by default. */
+@media (max-width: 959px) {
+  .VPHome .VPHero.has-image .container {
+    text-align: start !important;
+  }
+
+  .VPHome .VPHero.has-image :is(.name, .text, .tagline) {
+    margin: 0 !important;
+  }
+
+  .VPHome .VPHero.has-image .actions {
+    justify-content: flex-start !important;
+  }
+
+  .VPHome .VPHero .image {
+    order: 2 !important;
+    margin: 24px 0 0 !important;
+  }
+
+  .VPHome .VPHero .image-container {
+    height: 200px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
