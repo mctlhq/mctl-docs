@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.55](https://github.com/mctlhq/mctl-docs/compare/0.1.54...0.1.55) (2026-10-23)
+
+
+### Bug Fixes
+
+* **theme:** pin design tokens to ui.mctl.ai 0.14.0 ([b1585e5](https://github.com/mctlhq/mctl-docs/commit/b1585e5d8809e53b87c501e001c46b841d54b706))
+* **theme:** pin design tokens to ui.mctl.ai 0.14.0 ([fdc5c64](https://github.com/mctlhq/mctl-docs/commit/fdc5c64556fdb4d0cc27dcdc786fc0c7efb0bb4b))
+
+
+### Documentation
+
+* **guides:** add kubectl access via ZITADEL sign-in ([757e371](https://github.com/mctlhq/mctl-docs/commit/757e371c9b3a57d7a2160e3303be330f25bd3791))
+
 ## [0.1.54](https://github.com/mctlhq/mctl-docs/compare/0.1.53...0.1.54) (2026-10-18)
 
 
