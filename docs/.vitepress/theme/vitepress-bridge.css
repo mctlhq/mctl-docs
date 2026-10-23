@@ -1,6 +1,6 @@
 /*
  * Maps VitePress CSS variables to MCTL design token variables (--surface-*,
- * --accent, --font-*) provided by https://ui.mctl.ai/0.7.0/mctl.css, which is
+ * --accent, --font-*) provided by https://ui.mctl.ai/0.14.0/mctl.css, which is
  * loaded in docs/.vitepress/config.ts before this file.
  *
  * This file replaces the duplicate :root color block that was previously in
@@ -16,7 +16,9 @@
   --vp-layout-max-width: 1440px;
   --vp-nav-bg-color: var(--surface-bg, #0a0b0d);
   /* Brand → accent */
-  --vp-c-brand-1: var(--accent, #e25a3c);
+  /* brand-1 colours link and active-nav text: use the AA text role (0.14+),
+     falling back to the accent for older token sets. */
+  --vp-c-brand-1: var(--accent-text, var(--accent, #e25a3c));
   --vp-c-brand-2: var(--accent-highlight, #ff8a6a);
   --vp-c-brand-3: var(--accent-highlight, #ff8a6a);
   --vp-c-brand-soft: color-mix(in srgb, var(--accent, #e25a3c) 14%, transparent);
