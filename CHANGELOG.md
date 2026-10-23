@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.57](https://github.com/mctlhq/mctl-docs/compare/0.1.56...0.1.57) (2026-10-23)
+
+
+### Bug Fixes
+
+* **mcp:** point Claude connector setup at Customize -&gt; Connectors ([a02e418](https://github.com/mctlhq/mctl-docs/commit/a02e41825d7effd9504a2adb38f88e8d9e4a6439))
+* **mcp:** point Claude connector setup at Customize -&gt; Connectors ([a826e06](https://github.com/mctlhq/mctl-docs/commit/a826e06797a7f62549466a05cbe00b14cadb18a5))
+
 ## [0.1.56](https://github.com/mctlhq/mctl-docs/compare/0.1.55...0.1.56) (2026-10-23)
 
 
