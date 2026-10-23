@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.56](https://github.com/mctlhq/mctl-docs/compare/0.1.55...0.1.56) (2026-10-23)
+
+
+### Features
+
+* **theme:** adopt shared public-site shell from ui.mctl.ai 0.15.0 ([84a0ab6](https://github.com/mctlhq/mctl-docs/commit/84a0ab65a676969d4142e38f74dd81d1d1d2be84))
+* **theme:** adopt shared public-site shell from ui.mctl.ai 0.15.0 ([a892100](https://github.com/mctlhq/mctl-docs/commit/a8921003012bda584e04a8356c9928b101bca10f))
+
 ## [0.1.55](https://github.com/mctlhq/mctl-docs/compare/0.1.54...0.1.55) (2026-10-23)
 
 
