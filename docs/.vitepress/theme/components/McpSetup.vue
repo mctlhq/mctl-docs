@@ -119,7 +119,7 @@ const tabs = [
 
         <!-- Claude.ai -->
         <div v-show="activeTab === 'claude-ai'" class="tab-content">
-          <p class="config-path"><strong>Claude.ai</strong> &rarr; Settings &rarr; Connectors &rarr; Add custom connector</p>
+          <p class="config-path"><strong>Claude.ai</strong> &rarr; <a href="https://claude.ai/new#customize/connectors/yours" target="_blank" rel="noopener">Customize &rarr; Connectors</a> &rarr; Add custom connector</p>
           <div class="connector-values">
             <div class="val-block">
               <span class="val-label">Remote MCP server URL</span>
@@ -150,7 +150,7 @@ const tabs = [
 
         <!-- Claude Desktop -->
         <div v-show="activeTab === 'claude'" class="tab-content">
-          <p class="config-path"><strong>Claude Desktop</strong> &rarr; Settings &rarr; Connectors &rarr; Add custom connector</p>
+          <p class="config-path"><strong>Claude Desktop</strong> &rarr; <a href="https://claude.ai/new#customize/connectors/yours" target="_blank" rel="noopener">Customize &rarr; Connectors</a> &rarr; Add custom connector</p>
           <div class="connector-values">
             <div class="val-block">
               <span class="val-label">Remote MCP server URL</span>
