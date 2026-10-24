@@ -11,7 +11,7 @@
     "test": "bun test ./docs/.vitepress/theme/mermaid-links.test.ts"
   },
   "devDependencies": {
-    "mermaid": "^11.13.0",
+    "mermaid": "^12.0.0",
     "vitepress": "^1.6.0"
   }
 }
