@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.58](https://github.com/mctlhq/mctl-docs/compare/0.1.57...0.1.58) (2026-10-24)
+
+
+### Features
+
+* **agents:** issue-119-docs-observability-three-consistency-nit ([44b4217](https://github.com/mctlhq/mctl-docs/commit/44b4217cb885fcdfd77395e956df7a9afa332fd4))
+
+
+### Documentation
+
+* **agents:** issue-119-docs-observability-three-consistency-nit ([10e2847](https://github.com/mctlhq/mctl-docs/commit/10e2847d3b75e031b9a4ffa83aeb6ac4e41cafff))
+
 ## [0.1.57](https://github.com/mctlhq/mctl-docs/compare/0.1.56...0.1.57) (2026-10-23)
 
 
