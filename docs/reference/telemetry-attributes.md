@@ -24,7 +24,7 @@ Source audit: 2026-10-15, against mctl-agents `7189793`, mctl-telegram `c23f388`
 
 This catalog fixes *names*. It does not decide which fields the control plane
 is entitled to assert, nor how a workload is prevented from spoofing them —
-that is `mctl-agents#196`, and the two are deliberately separate. A name can be
+that is `mctlhq/mctl-agents#196`, and the two are deliberately separate. A name can be
 agreed now; the trust model is a design question that is still open.
 
 ## Naming rules
@@ -47,7 +47,11 @@ agreed now; the trust model is a design question that is still open.
    is the id of a *run* of that workflow, not of a separate `run` entity, and
    `mctl.edge.request_id` likewise. Upstream has the same shape (`k8s.pod.uid`).
    Promote it to its own level only when the sub-entity gains attributes of its
-   own.
+   own. An identifier assigned by an external system may keep that system's own
+   term for it: `mctl.issue.number` and `mctl.pr.number` carry the GitHub issue
+   and pull-request number, which GitHub calls a number and keeps distinct from
+   its own internal `id`, so renaming them `.id` would obscure which identifier
+   is meant.
 7. **Units in the key for anything measured**, following upstream practice
    (`.duration` in seconds as a float, `.count` as an integer). Do not encode a
    unit in the value.
@@ -99,7 +103,7 @@ trace, and they are the attributes every producer in the epic must carry.
 
 | Attribute | Type | Status | Meaning |
 |---|---|---|---|
-| `mctl.execution.id` | string | reserved | The canonical execution identifier. Semantics owned by `mctl-agents#196`; today the nearest durable value is `attempt.id` in a DevLoop `.status.yaml`. |
+| `mctl.execution.id` | string | reserved | The canonical execution identifier. Semantics owned by `mctlhq/mctl-agents#196`; today the nearest durable value is `attempt.id` in a DevLoop `.status.yaml`. |
 | `mctl.workflow.id` | string | reserved | Temporal workflow id, e.g. `dev-loop-mctlhq-mctl-telegram-617`. |
 | `mctl.workflow.run_id` | string | reserved | Temporal run id. Distinguishes retries of one workflow id. |
 | `mctl.workflow.type` | string | reserved | `investigate`, `implement`, and so on. Low cardinality — safe to group by. |
@@ -188,7 +192,7 @@ identity above, `gen_ai.*` for model and tool spans, and these names for what
 upstream does not model. All are `reserved`: the emitting code is merged in
 `mctl-agents` `orchestrator/tracing.py` and
 `orchestrator/temporal/activities/argo.py`, but nothing exports in production
-until the bounded rollout under the producer amendment to the `#1280` soak
+until the bounded rollout under the producer amendment to the `mctlhq/mctl-gitops#1280` soak
 (`mctlhq/mctl-gitops#1788`).
 
 | Attribute | Where | Type | Status | Meaning |
@@ -250,7 +254,7 @@ For model calls, use `gen_ai.*` as upstream defines it — in particular
 `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens`. Note that
 `gen_ai.usage.prompt_tokens` and `gen_ai.usage.completion_tokens` are the
 deprecated spellings; use the `input`/`output` pair. Upstream defines **no**
-cost or price attribute, so cost attribution — `.github#48` Phase 1 — is
+cost or price attribute, so cost attribution — `mctlhq/.github#48` Phase 1 — is
 computed from the token counts downstream, not emitted as an attribute.
 
 | Attribute | Type | Status | Meaning |
@@ -365,8 +369,9 @@ or a Telegram handle, and never a customer's end-user identifier.
 ## Cardinality
 
 Attribute cardinality decides whether a backend can index a field or merely
-store it. Three classes of *dimension*, plus one kind of attribute that is not a
-dimension at all:
+store it. Three cardinality classes follow, each stating what its members may be used
+for, plus a note on the measurements and per-decision values that fit none of
+them:
 
 **Bounded — safe to group and aggregate by.**
 `mctl.workflow.type`, `mctl.agent.name`, `mctl.actor.type`,
@@ -388,7 +393,7 @@ intended use), the MCP method and protocol version under **both** spellings —
 `mcp.method` and `mcp.protocol_version` as shipped today, `mcp.method.name` and
 `mcp.protocol.version` after `mctlhq/mctl-telegram#658` — `mcp.name`, which is
 bounded because it duplicates `mctl.tool.name`, though group by
-`mctl.tool.name` instead since `#658` removes this one — the three bounded
+`mctl.tool.name` instead since `mctlhq/mctl-telegram#658` removes this one — the three bounded
 `gen_ai.*` attributes above, and every resource attribute. Each has a small,
 slowly-changing domain.
 
