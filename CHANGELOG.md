@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.59](https://github.com/mctlhq/mctl-docs/compare/0.1.58...0.1.59) (2026-10-28)
+
+
+### Dependencies
+
+* bump nginxinc/nginx-unprivileged from 1.30-alpine to 1.31-alpine ([2f40dcb](https://github.com/mctlhq/mctl-docs/commit/2f40dcb27b698fd00938c2b0cb3d8e1f668595a7))
+
 ## [0.1.58](https://github.com/mctlhq/mctl-docs/compare/0.1.57...0.1.58) (2026-10-24)
 
 
