@@ -6,6 +6,11 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    ignore:
+      # mermaid majors need a manual upgrade with bun.lock regenerated;
+      # Dependabot's bump leaves the lockfile untouched and fails --frozen-lockfile.
+      - dependency-name: mermaid
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "deps"
 
