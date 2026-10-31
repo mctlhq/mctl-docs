@@ -1,6 +1,6 @@
 /*
  * Maps VitePress CSS variables to MCTL design token variables (--surface-*,
- * --accent, --font-*) provided by https://ui.mctl.ai/0.15.0/mctl.css, which is
+ * --accent, --font-*) provided by https://ui.mctl.ai/0.19.0/mctl.css, which is
  * loaded in docs/.vitepress/config.ts before this file.
  *
  * This file replaces the duplicate :root color block that was previously in
