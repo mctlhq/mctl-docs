@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.61](https://github.com/mctlhq/mctl-docs/compare/0.1.60...0.1.61) (2026-10-31)
+
+
+### Bug Fixes
+
+* **theme:** neutral content links and inline code per ui.mctl.ai 0.19.0 ([d6fb622](https://github.com/mctlhq/mctl-docs/commit/d6fb6222b06b45fd22a9c63e47c7480edfa88fc0))
+* **theme:** neutral content links and inline code per ui.mctl.ai 0.19.0 ([581ce0c](https://github.com/mctlhq/mctl-docs/commit/581ce0cabe07608706e9716ce9bb3588f11e45e6))
+
 ## [0.1.60](https://github.com/mctlhq/mctl-docs/compare/0.1.59...0.1.60) (2026-10-31)
 
 
