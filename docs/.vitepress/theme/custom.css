@@ -26,16 +26,13 @@
   --vp-button-alt-hover-text: var(--accent, #e25a3c);
   --vp-button-alt-hover-border: var(--accent, #e25a3c);
 
-  /* Code */
-  --vp-code-bg: var(--surface-card, #15181d);
-  --vp-code-color: var(--surface-fg, #e6e7e9);
+  /* Code blocks (inline code roles live in vitepress-bridge.css) */
   --vp-code-block-bg: var(--surface-card, #15181d);
 
   /* Custom blocks */
   --vp-custom-block-tip-bg: color-mix(in srgb, var(--accent, #e25a3c) 6%, transparent);
   --vp-custom-block-tip-border: color-mix(in srgb, var(--accent, #e25a3c) 30%, transparent);
   --vp-custom-block-tip-text: var(--surface-fg, #e6e7e9);
-  --vp-custom-block-tip-code-bg: color-mix(in srgb, var(--accent, #e25a3c) 8%, transparent);
   --vp-custom-block-info-bg: color-mix(in srgb, var(--accent, #e25a3c) 6%, transparent);
   --vp-custom-block-info-border: color-mix(in srgb, var(--accent, #e25a3c) 30%, transparent);
   --vp-custom-block-info-text: var(--surface-fg, #e6e7e9);
@@ -239,14 +236,46 @@
 }
 
 /* ── Links ── */
+/* Content links follow ui.mctl.ai 0.19.0 prose.css: foreground text with an
+   accent underline at 45%, accent on hover. A fully accented link in every
+   paragraph competed with the accented calls to action. Nav, sidebar and
+   buttons are chrome outside .vp-doc and keep their own colours. */
 
 .vp-doc a {
-  color: var(--accent, #e25a3c);
-  transition: color 0.3s ease;
+  color: var(--surface-fg, #e6e7e9);
+  text-decoration: underline;
+  text-decoration-color: var(--link-underline, color-mix(in srgb, #e25a3c 45%, transparent));
+  text-underline-offset: 4px;
+  transition: color 0.25s ease, text-decoration-color 0.25s ease;
 }
 
 .vp-doc a:hover {
-  color: var(--accent-highlight, #ff8a6a);
+  color: var(--accent-text, var(--accent, #e25a3c));
+  text-decoration-color: var(--accent, #e25a3c);
+}
+
+/* Inline code: a hairline border as in prose.css; never on code blocks. */
+.vp-doc :not(pre) > code {
+  border: 1px solid var(--surface-line, #1f242b);
+}
+
+/* Callouts: VitePress colours links and inline code in every
+   `.custom-block.<type>` with the brand/tip accent, which on the light
+   theme's tinted tip background drops a link to 3.2:1. Content inside a
+   callout reads like any other content. */
+.vp-doc .custom-block a:not(.header-anchor) {
+  color: var(--surface-fg, #e6e7e9);
+  text-decoration-color: var(--link-underline, color-mix(in srgb, #e25a3c 45%, transparent));
+}
+
+.vp-doc .custom-block a:not(.header-anchor):hover,
+.vp-doc .custom-block a:not(.header-anchor):hover > code {
+  color: var(--accent-text, var(--accent, #e25a3c));
+}
+
+.vp-doc .custom-block :not(pre) > code {
+  color: var(--code-fg, #e6e7e9);
+  background-color: var(--code-bg, color-mix(in srgb, #e6e7e9 6.5%, transparent));
 }
 
 /* ── Buttons ── */

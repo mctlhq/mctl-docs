@@ -281,7 +281,15 @@ const tabs = [
 }
 
 .auth-hint a {
-  color: var(--accent, #e25a3c);
+  color: var(--surface-fg, #e6e7e9);
+  text-decoration: underline;
+  text-decoration-color: var(--link-underline, color-mix(in srgb, #e25a3c 45%, transparent));
+  text-underline-offset: 4px;
+}
+
+.auth-hint a:hover {
+  color: var(--accent-text, var(--accent, #e25a3c));
+  text-decoration-color: var(--accent, #e25a3c);
 }
 
 .auth-notice {
