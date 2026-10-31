@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.60](https://github.com/mctlhq/mctl-docs/compare/0.1.59...0.1.60) (2026-10-31)
+
+
+### Bug Fixes
+
+* **theme:** release the ui.mctl.ai 0.19.0 design-system pin ([c9380c1](https://github.com/mctlhq/mctl-docs/commit/c9380c19d530af262eafbea37b2939d9c47d06f5))
+* **theme:** release the ui.mctl.ai 0.19.0 design-system pin ([399d571](https://github.com/mctlhq/mctl-docs/commit/399d57129e423b4a5688afbca684a212a5ee812e))
+
 ## [0.1.59](https://github.com/mctlhq/mctl-docs/compare/0.1.58...0.1.59) (2026-10-28)
 
 
