@@ -55,9 +55,16 @@
   --vp-c-tip-1: var(--accent, #e25a3c);
   --vp-c-tip-soft: color-mix(in srgb, var(--accent, #e25a3c) 10%, transparent);
 
+  /* Inline code: the neutral 0.19.0 roles (prose.css `code`). VitePress
+     reads --vp-code-bg / --vp-code-color only for `:not(pre) > code`, so
+     code blocks and Shiki highlighting are untouched. */
+  --vp-code-bg: var(--code-bg, color-mix(in srgb, #e6e7e9 6.5%, transparent));
+  --vp-code-color: var(--code-fg, #e6e7e9);
+  /* A code span inside a link follows the link, not the accent. */
+  --vp-code-link-color: var(--surface-fg, #e6e7e9);
+  --vp-code-link-hover-color: var(--accent-text, var(--accent, #e25a3c));
+
   /* Code blocks */
-  --vp-code-bg: var(--surface-card, #15181d);
-  --vp-code-color: var(--syntax-string, #c4a35a);
   --vp-code-block-bg: var(--surface-card, #15181d);
   --vp-code-block-divider-color: var(--surface-line, #1f242b);
 }
