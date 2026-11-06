@@ -1,3 +1,8 @@
+---
+title: Getting Started with MCTL — AI Infrastructure Platform
+description: Step-by-step guide to onboarding your application, connecting MCP clients, and provisioning Kubernetes workspaces in MCTL.
+---
+
 # Getting Started
 
 Start with an accessible workspace, connect an MCP client, then onboard your

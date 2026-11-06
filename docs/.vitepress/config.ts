@@ -14,7 +14,42 @@ export default defineConfig({
 
   transformPageData(pageData) {
     pageData.frontmatter.head ??= []
-    pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonicalUrl(pageData.relativePath) }])
+    const canonical = canonicalUrl(pageData.relativePath)
+    pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonical }])
+
+    const title = pageData.frontmatter.title || pageData.title || 'MCTL Docs'
+    const description =
+      pageData.frontmatter.description ||
+      pageData.description ||
+      'Documentation for the MCTL platform — AI-native infrastructure management'
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': pageData.relativePath === 'index.md' ? 'WebSite' : 'TechArticle',
+      '@id': `${canonical}#schema`,
+      url: canonical,
+      name: title,
+      headline: title,
+      description,
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': 'https://docs.mctl.ai/#website',
+        name: 'MCTL Docs',
+        url: 'https://docs.mctl.ai',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'MCTL',
+        url: 'https://mctl.ai',
+        logo: 'https://ui.mctl.ai/brand/favicon.svg',
+      },
+    }
+
+    pageData.frontmatter.head.push([
+      'script',
+      { type: 'application/ld+json' },
+      JSON.stringify(schema),
+    ])
   },
 
   head: [

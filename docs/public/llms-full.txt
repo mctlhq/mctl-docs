@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-11-06T21:39:37.413Z
+Generated: 2026-11-06T22:56:18.378Z
 Total Files Included: 34
 
 ================================================================================
@@ -598,6 +598,11 @@ See [MCP Overview](/mcp/overview) and [Tools Reference](/mcp/tools-reference) fo
 ================================================================================
 FILE: /getting-started/index.md
 ================================================================================
+---
+title: Getting Started with MCTL — AI Infrastructure Platform
+description: Step-by-step guide to onboarding your application, connecting MCP clients, and provisioning Kubernetes workspaces in MCTL.
+---
+
 # Getting Started
 
 Start with an accessible workspace, connect an MCP client, then onboard your
@@ -677,6 +682,11 @@ A submitted request or a completed build alone does not prove the service is rea
 ================================================================================
 FILE: /guides/databases.md
 ================================================================================
+---
+title: PostgreSQL Database Provisioning via MCP & GitOps
+description: Provision CNPG PostgreSQL databases with automated HashiCorp Vault secrets and Kubernetes Secret injection via MCTL natural language commands.
+---
+
 # Database Provisioning
 
 MCTL can provision databases for your services within a tenant.
@@ -719,6 +729,11 @@ provisioning template.
 ================================================================================
 FILE: /guides/deploy-first-app.md
 ================================================================================
+---
+title: Deploy Your First App on MCTL (Portal & MCP)
+description: Step-by-step tutorial to deploy a containerized application to Kubernetes via MCTL GitOps workflows using Claude, Cursor, or the Portal.
+---
+
 # Deploy your first app
 
 This guide walks you through taking a GitHub-hosted application from source code to a
@@ -1137,6 +1152,11 @@ the corresponding access. Otherwise inspect status and logs through MCP.
 ================================================================================
 FILE: /guides/gitops-workflows.md
 ================================================================================
+---
+title: GitOps Workflows & Declarative Delivery in MCTL
+description: How GitOps powers MCTL — Argo Workflows, ArgoCD synchronization, Git-driven cluster state convergence, and automated rollouts.
+---
+
 # GitOps Workflows
 
 Declared service configuration in MCTL flows through Git. Registry writes, secrets and ephemeral preview operations have their own persistence and execution paths. ArgoCD watches the `mctl-gitops` repository and syncs the cluster to match the desired state.
@@ -1318,6 +1338,11 @@ rm -rf ~/.kube/cache/oidc-login
 ================================================================================
 FILE: /guides/previews.md
 ================================================================================
+---
+title: Ephemeral Preview Environments in MCTL
+description: Spin up isolated preview environments for PRs and feature branches with automatic TTL cleanup, custom domain routing, and Vault secret separation.
+---
+
 # Preview Environments
 
 Deploy temporary, isolated copies of a service — for a pull request, feature branch, or any arbitrary image tag.
@@ -2049,6 +2074,11 @@ promotion policy before relying on automatic traffic switching.
 ================================================================================
 FILE: /guides/tenants.md
 ================================================================================
+---
+title: Tenant Management & Multi-Tenancy in MCTL
+description: How to create, isolate, and configure Kubernetes namespaces, RBAC policies, and resource quotas using MCTL MCP tools or the self-service portal.
+---
+
 # Tenant Management
 
 Tenants are the primary isolation boundary in MCTL. Each tenant gets its own Kubernetes namespace, RBAC policies, and resource quotas.
@@ -2134,6 +2164,11 @@ Defaults depend on the provisioning entry point. The operations API currently su
 ================================================================================
 FILE: /human-input/agent-authors.md
 ================================================================================
+---
+title: Human-in-the-Loop Guide for AI Agent Authors
+description: Learn how AI agents request human input and review via GitOps contracts, draft validation, and interactive surface adapters in MCTL.
+---
+
 # Human Input: Agent Author Guide
 
 This guide is for authors of DevLoop agents and execution profiles: how an agent becomes eligible to ask a human, what it must produce, and what the continuation run receives. The contract is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the code of record is [`orchestrator/human_input.py`](https://github.com/mctlhq/mctl-agents/blob/main/orchestrator/human_input.py).
@@ -2245,6 +2280,11 @@ Not guaranteed:
 ================================================================================
 FILE: /human-input/architecture.md
 ================================================================================
+---
+title: Human-in-the-Loop Architecture for AI Agents
+description: Architectural specification for human-in-the-loop workflows in MCTL — Temporal signals, request sealing, ledger idempotency, and surface adapters.
+---
+
 # Human Input: Architecture
 
 Human input is the platform primitive that lets a DevLoop agent stop, ask a human a question, and continue with the answer. It is separate from human approval: an answer is information, never authorization (see [Semantics](/human-input/semantics)).
@@ -2760,6 +2800,11 @@ For human input specifically, a relayed answer is accepted as `github:<login>` o
 ================================================================================
 FILE: /mcp/connecting.md
 ================================================================================
+---
+title: Connect MCP Clients to MCTL (Claude, Cursor, VS Code)
+description: Connect Claude Desktop, Cursor, and VS Code to MCTL via Model Context Protocol (MCP) to manage infrastructure with natural language.
+---
+
 # Connecting to MCTL MCP Server
 
 Connect your AI assistant to MCTL to manage infrastructure through natural language.
@@ -2888,6 +2933,11 @@ api-staging.example.com to it"
 ================================================================================
 FILE: /mcp/overview.md
 ================================================================================
+---
+title: MCTL MCP Server Overview — AI Infrastructure Management
+description: Manage Kubernetes infrastructure, deployments, and databases through natural language using the MCTL Model Context Protocol (MCP) server.
+---
+
 # MCP Server Overview
 
 MCTL exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server that lets AI assistants manage your infrastructure through natural language.
@@ -3680,6 +3730,11 @@ FILE: /reference/glossary.md
 ================================================================================
 FILE: /reference/telemetry-attributes.md
 ================================================================================
+---
+title: OpenTelemetry Semantic Attributes for AI Agents
+description: The canonical specification and reference for OpenTelemetry span attributes, traces, and agent observability across the MCTL platform.
+---
+
 # Telemetry Attribute Catalog
 
 The canonical list of attributes MCTL puts on OpenTelemetry spans, and how they
@@ -4144,6 +4199,11 @@ in its own pull request, referencing the epic. Specifically:
 ================================================================================
 FILE: /reference/troubleshooting.md
 ================================================================================
+---
+title: MCTL Troubleshooting & Common Errors Reference
+description: Solutions and debugging steps for MCTL authentication, MCP connection failures, Argo workflow errors, and Kubernetes deployment issues.
+---
+
 # Troubleshooting
 
 Common issues and how to resolve them.

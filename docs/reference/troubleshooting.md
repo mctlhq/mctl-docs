@@ -1,3 +1,8 @@
+---
+title: MCTL Troubleshooting & Common Errors Reference
+description: Solutions and debugging steps for MCTL authentication, MCP connection failures, Argo workflow errors, and Kubernetes deployment issues.
+---
+
 # Troubleshooting
 
 Common issues and how to resolve them.

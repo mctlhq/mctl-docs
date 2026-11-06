@@ -1,3 +1,8 @@
+---
+title: Tenant Management & Multi-Tenancy in MCTL
+description: How to create, isolate, and configure Kubernetes namespaces, RBAC policies, and resource quotas using MCTL MCP tools or the self-service portal.
+---
+
 # Tenant Management
 
 Tenants are the primary isolation boundary in MCTL. Each tenant gets its own Kubernetes namespace, RBAC policies, and resource quotas.
