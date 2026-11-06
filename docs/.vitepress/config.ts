@@ -22,6 +22,12 @@ export default defineConfig({
     ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.19.0/prose.css' }],
     ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.19.0/site.css' }],
     ['meta', { name: 'theme-color', content: '#0a0b0d' }],
+    ['meta', { property: 'og:image', content: 'https://docs.mctl.ai/og-image.png?v=2' }],
+    ['meta', { property: 'og:image:width', content: '1200' }],
+    ['meta', { property: 'og:image:height', content: '630' }],
+    ['meta', { property: 'og:image:type', content: 'image/png' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:image', content: 'https://docs.mctl.ai/og-image.png?v=2' }],
     // Self-hosted Umami (stats.mctl.ai). data-domains keeps previews and
     // local builds out of the numbers; the website ID is public by design.
     ['script', { src: 'https://stats.mctl.ai/insights.js', defer: '', 'data-website-id': 'a28d097d-de76-4beb-9acc-cffdbb85ccbf', 'data-domains': 'docs.mctl.ai' }],
