@@ -1,3 +1,8 @@
+---
+title: OpenTelemetry Semantic Attributes for AI Agents
+description: The canonical specification and reference for OpenTelemetry span attributes, traces, and agent observability across the MCTL platform.
+---
+
 # Telemetry Attribute Catalog
 
 The canonical list of attributes MCTL puts on OpenTelemetry spans, and how they

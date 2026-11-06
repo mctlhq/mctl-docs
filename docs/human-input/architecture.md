@@ -1,3 +1,8 @@
+---
+title: Human-in-the-Loop Architecture for AI Agents
+description: Architectural specification for human-in-the-loop workflows in MCTL — Temporal signals, request sealing, ledger idempotency, and surface adapters.
+---
+
 # Human Input: Architecture
 
 Human input is the platform primitive that lets a DevLoop agent stop, ask a human a question, and continue with the answer. It is separate from human approval: an answer is information, never authorization (see [Semantics](/human-input/semantics)).

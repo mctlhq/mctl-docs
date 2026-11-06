@@ -1,3 +1,8 @@
+---
+title: Deploy Your First App on MCTL (Portal & MCP)
+description: Step-by-step tutorial to deploy a containerized application to Kubernetes via MCTL GitOps workflows using Claude, Cursor, or the Portal.
+---
+
 # Deploy your first app
 
 This guide walks you through taking a GitHub-hosted application from source code to a

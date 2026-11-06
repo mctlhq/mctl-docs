@@ -1,3 +1,8 @@
+---
+title: PostgreSQL Database Provisioning via MCP & GitOps
+description: Provision CNPG PostgreSQL databases with automated HashiCorp Vault secrets and Kubernetes Secret injection via MCTL natural language commands.
+---
+
 # Database Provisioning
 
 MCTL can provision databases for your services within a tenant.

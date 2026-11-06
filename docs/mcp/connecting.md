@@ -1,3 +1,8 @@
+---
+title: Connect MCP Clients to MCTL (Claude, Cursor, VS Code)
+description: Connect Claude Desktop, Cursor, and VS Code to MCTL via Model Context Protocol (MCP) to manage infrastructure with natural language.
+---
+
 # Connecting to MCTL MCP Server
 
 Connect your AI assistant to MCTL to manage infrastructure through natural language.

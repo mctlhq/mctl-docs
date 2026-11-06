@@ -1,3 +1,8 @@
+---
+title: GitOps Workflows & Declarative Delivery in MCTL
+description: How GitOps powers MCTL — Argo Workflows, ArgoCD synchronization, Git-driven cluster state convergence, and automated rollouts.
+---
+
 # GitOps Workflows
 
 Declared service configuration in MCTL flows through Git. Registry writes, secrets and ephemeral preview operations have their own persistence and execution paths. ArgoCD watches the `mctl-gitops` repository and syncs the cluster to match the desired state.

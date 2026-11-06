@@ -1,3 +1,8 @@
+---
+title: MCTL MCP Server Overview — AI Infrastructure Management
+description: Manage Kubernetes infrastructure, deployments, and databases through natural language using the MCTL Model Context Protocol (MCP) server.
+---
+
 # MCP Server Overview
 
 MCTL exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server that lets AI assistants manage your infrastructure through natural language.

@@ -1,3 +1,8 @@
+---
+title: Human-in-the-Loop Guide for AI Agent Authors
+description: Learn how AI agents request human input and review via GitOps contracts, draft validation, and interactive surface adapters in MCTL.
+---
+
 # Human Input: Agent Author Guide
 
 This guide is for authors of DevLoop agents and execution profiles: how an agent becomes eligible to ask a human, what it must produce, and what the continuation run receives. The contract is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the code of record is [`orchestrator/human_input.py`](https://github.com/mctlhq/mctl-agents/blob/main/orchestrator/human_input.py).
