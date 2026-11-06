@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.63](https://github.com/mctlhq/mctl-docs/compare/0.1.62...0.1.63) (2026-11-06)
+
+
+### Bug Fixes
+
+* **seo:** add a canonical link to every docs page ([3a0395e](https://github.com/mctlhq/mctl-docs/commit/3a0395e381e665ef9639c4b78651806decb0390e))
+* **seo:** add a canonical link to every docs page ([3dd70ee](https://github.com/mctlhq/mctl-docs/commit/3dd70eed0c2c19b4ef294a7bd23fd39e547146fe))
+
 ## [0.1.62](https://github.com/mctlhq/mctl-docs/compare/0.1.61...0.1.62) (2026-11-06)
 
 
