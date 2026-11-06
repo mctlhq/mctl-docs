@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.65](https://github.com/mctlhq/mctl-docs/compare/0.1.64...0.1.65) (2026-11-06)
+
+
+### Features
+
+* **seo:** add rich snippets, frontmatter metadata and Schema.org structured data ([d2fb6d9](https://github.com/mctlhq/mctl-docs/commit/d2fb6d9d3896944a9b52ec2cce7e28daa6951ad7))
+* **seo:** add rich snippets, frontmatter metadata and Schema.org structured data ([26d851a](https://github.com/mctlhq/mctl-docs/commit/26d851a28aa171583f7a42ac53e1d315e3362f6d))
+
 ## [0.1.64](https://github.com/mctlhq/mctl-docs/compare/0.1.63...0.1.64) (2026-11-06)
 
 
