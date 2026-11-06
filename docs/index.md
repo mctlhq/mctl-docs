@@ -1,5 +1,7 @@
 ---
 layout: home
+title: MCTL Docs — Infrastructure & AI Agent Platform Documentation
+titleTemplate: false
 hero:
   name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
   text: Platform Documentation

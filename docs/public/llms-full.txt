@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-11-06T19:54:37.320Z
+Generated: 2026-11-06T21:39:37.413Z
 Total Files Included: 34
 
 ================================================================================
@@ -12,6 +12,8 @@ FILE: /index.md
 ================================================================================
 ---
 layout: home
+title: MCTL Docs — Infrastructure & AI Agent Platform Documentation
+titleTemplate: false
 hero:
   name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
   text: Platform Documentation

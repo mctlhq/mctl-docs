@@ -2,7 +2,8 @@ import { defineConfig } from 'vitepress'
 import { canonicalUrl } from './canonical'
 
 export default defineConfig({
-  title: 'MCTL',
+  title: 'MCTL Docs',
+  titleTemplate: ':title | MCTL Docs',
   description: 'Documentation for the MCTL platform — AI-native infrastructure management',
   cleanUrls: true,
   lastUpdated: true,
@@ -55,8 +56,9 @@ export default defineConfig({
         text: 'Links',
         items: [
           { text: 'mctl.ai', link: 'https://mctl.ai' },
+          { text: 'Academy', link: 'https://academy.mctl.ai' },
+          { text: 'Telegram MCP', link: 'https://tg.mctl.ai' },
           { text: 'Portal', link: 'https://app.mctl.ai' },
-          { text: 'Docs', link: 'https://docs.mctl.ai' },
           { text: 'GitHub', link: 'https://github.com/mctlhq' },
         ],
       },
