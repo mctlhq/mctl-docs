@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.64](https://github.com/mctlhq/mctl-docs/compare/0.1.63...0.1.64) (2026-11-06)
+
+
+### Bug Fixes
+
+* **branding:** align page titles and add ecosystem links ([925d9ec](https://github.com/mctlhq/mctl-docs/commit/925d9ec58de19d5985b9e2488642eb1da8f5f669))
+* **branding:** align page titles and add ecosystem links ([782b87f](https://github.com/mctlhq/mctl-docs/commit/782b87f573bf42bf49e61a5379f3ce783d3795be))
+
 ## [0.1.63](https://github.com/mctlhq/mctl-docs/compare/0.1.62...0.1.63) (2026-11-06)
 
 
