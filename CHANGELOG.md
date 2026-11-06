@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.62](https://github.com/mctlhq/mctl-docs/compare/0.1.61...0.1.62) (2026-11-06)
+
+
+### Bug Fixes
+
+* **branding:** add canonical terracotta D badge icons and favicon ([5384949](https://github.com/mctlhq/mctl-docs/commit/53849491f5974ffb8e97da01b06bf33344860bd3))
+* **branding:** add canonical terracotta D badge icons and favicon ([7b3abc2](https://github.com/mctlhq/mctl-docs/commit/7b3abc21d127b5c99d4d4d7440e833d1921cbb20))
+* **seo:** add OpenGraph 1200x630 terracotta preview card ([505d4e5](https://github.com/mctlhq/mctl-docs/commit/505d4e5e185c237db1c36e558356434f74b2062e))
+* **seo:** add OpenGraph 1200x630 terracotta preview card ([669367d](https://github.com/mctlhq/mctl-docs/commit/669367d354469271fb46fbb3afc57305d152047e))
+
 ## [0.1.61](https://github.com/mctlhq/mctl-docs/compare/0.1.60...0.1.61) (2026-10-31)
 
 
