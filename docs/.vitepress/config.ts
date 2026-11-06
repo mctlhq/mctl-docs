@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { canonicalUrl } from './canonical'
 
 export default defineConfig({
   title: 'MCTL',
@@ -8,6 +9,11 @@ export default defineConfig({
   appearance: 'force-dark',
   sitemap: {
     hostname: 'https://docs.mctl.ai',
+  },
+
+  transformPageData(pageData) {
+    pageData.frontmatter.head ??= []
+    pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonicalUrl(pageData.relativePath) }])
   },
 
   head: [
