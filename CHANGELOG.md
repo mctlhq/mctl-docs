@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.66](https://github.com/mctlhq/mctl-docs/compare/0.1.65...0.1.66) (2026-11-08)
+
+
+### Bug Fixes
+
+* ship mctl-design 0.20.2 header spacing ([2a503bb](https://github.com/mctlhq/mctl-docs/commit/2a503bb7dc19f2e780c084af53e0d3a2ccd4df19))
+* ship mctl-design 0.20.2 header spacing ([9342539](https://github.com/mctlhq/mctl-docs/commit/934253969fccefd41ac78be638775b2a5765aead))
+
 ## [0.1.65](https://github.com/mctlhq/mctl-docs/compare/0.1.64...0.1.65) (2026-11-08)
 
 
