@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.65](https://github.com/mctlhq/mctl-docs/compare/0.1.64...0.1.65) (2026-11-08)
+
+
+### Features
+
+* neutral active nav item and shared brand accent, css 0.20.1 ([07816f8](https://github.com/mctlhq/mctl-docs/commit/07816f8c3675c25c20158946f8b46fbf565308b6))
+* neutral active nav item and shared brand accent, css 0.20.1 ([8a109ce](https://github.com/mctlhq/mctl-docs/commit/8a109cea45d7796a3476a9e7ce3e9d02089372ea))
+* **seo:** add rich snippets, frontmatter metadata and Schema.org structured data ([d2fb6d9](https://github.com/mctlhq/mctl-docs/commit/d2fb6d9d3896944a9b52ec2cce7e28daa6951ad7))
+* **seo:** add rich snippets, frontmatter metadata and Schema.org structured data ([26d851a](https://github.com/mctlhq/mctl-docs/commit/26d851a28aa171583f7a42ac53e1d315e3362f6d))
+
 ## [0.1.64](https://github.com/mctlhq/mctl-docs/compare/0.1.63...0.1.64) (2026-11-06)
 
 
