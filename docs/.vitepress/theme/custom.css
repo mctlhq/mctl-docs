@@ -128,9 +128,19 @@
   font-weight: var(--site-nav-weight, 500);
 }
 
+/* Same contract as .mctl-site-nav: the accent marks the primary action only,
+   so the hovered and the current item are neutral, and the current one is
+   underlined 2px in the text colour. */
 .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover,
 .VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active {
-  color: var(--accent, #e25a3c);
+  color: var(--surface-fg, #e6e7e9);
+}
+
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: currentColor;
+  text-underline-offset: 8px;
 }
 
 /* ── Mobile nav screen ── */
@@ -180,10 +190,7 @@
   text-decoration: none;
 }
 
-.brand-mark__m {
-  color: var(--accent, #e25a3c);
-  margin-right: var(--site-wordmark-accent-gap, 2px);
-}
+/* The accent M is the shared .mctl-site-brand__accent (site.css). */
 
 .brand-mark__ctl {
   color: var(--surface-fg, #e6e7e9);
