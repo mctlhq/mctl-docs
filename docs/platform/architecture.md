@@ -1,3 +1,8 @@
+---
+title: Platform Architecture
+description: Technical architecture of MCTL — control plane, Streamable HTTP MCP server, Argo Workflows, GitOps delivery, and external AI agent integration.
+---
+
 # Architecture
 
 MCTL uses GitOps for declared service configuration. Workflows also perform provisioning, while identity, incidents and domain registration use dedicated stores.

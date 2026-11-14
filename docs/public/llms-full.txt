@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-11-06T22:56:18.378Z
+Generated: 2026-11-14T23:31:52.919Z
 Total Files Included: 34
 
 ================================================================================
@@ -14,6 +14,7 @@ FILE: /index.md
 layout: home
 title: MCTL Docs — Infrastructure & AI Agent Platform Documentation
 titleTemplate: false
+description: Platform documentation for MCTL — GitOps Kubernetes platform with AI agent workflows, MCP server hub, Vault secrets, and team isolation.
 hero:
   name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
   text: Platform Documentation
@@ -50,6 +51,11 @@ features:
 ================================================================================
 FILE: /api/index.md
 ================================================================================
+---
+title: REST API Reference
+description: Complete REST API reference for MCTL (api.mctl.ai) — endpoints for tenants, services, deployments, workflows, and infrastructure operations.
+---
+
 # REST API
 
 The MCTL REST API is served by `mctl-api` at `api.mctl.ai`. This page covers common service-management endpoints. The platform also has specialized identity, domain, agent, lifecycle, work-item and commerce APIs; consult the linked schema and implementation for those contracts.
@@ -1066,6 +1072,11 @@ For a curated set of example prompts, see [MCP Examples](/mcp/examples).
 ================================================================================
 FILE: /guides/domains.md
 ================================================================================
+---
+title: Custom Domains
+description: Configure custom domains, DNS ownership verification, automatic TLS certificates, and Kubernetes ingress on MCTL.
+---
+
 # Custom Domains
 
 Custom domains use registration, DNS ownership verification and an asynchronous
@@ -1125,6 +1136,11 @@ API. Operators configure these hosts through GitOps ingress values instead.
 ================================================================================
 FILE: /guides/first-user-checklist.md
 ================================================================================
+---
+title: First-User Checklist
+description: Step-by-step onboarding checklist for new teams and developers setting up workspaces and deploying applications on MCTL.
+---
+
 # First-user checklist
 
 - [ ] Confirm that provisioning has completed and that your operator has enabled
@@ -1252,6 +1268,11 @@ To connect a GitHub repository to a tenant for automated deployments:
 ================================================================================
 FILE: /guides/kubectl.md
 ================================================================================
+---
+title: kubectl Access
+description: How to configure secure, namespaced kubectl access with kubelogin browser authentication for MCTL tenant developers.
+---
+
 # kubectl Access
 
 Tenant developers can inspect their own namespaces with `kubectl`, signing in
@@ -1492,6 +1513,11 @@ Use `mctl_create_preview` with `git_ref` for services that do **not** have their
 ================================================================================
 FILE: /guides/rollbacks.md
 ================================================================================
+---
+title: Rollbacks
+description: How to safely rollback a Kubernetes service to a previous release tag using MCTL GitOps workflows and MCP tools.
+---
+
 # Rollbacks
 
 Quickly revert a service to its previous version when something goes wrong.
@@ -1539,6 +1565,11 @@ Common scenarios:
 ================================================================================
 FILE: /guides/scaffolding.md
 ================================================================================
+---
+title: Service Scaffolding
+description: Dockerfile templates, health check probes, and GitHub Actions CI workflow templates for automatic deployment to MCTL using OIDC.
+---
+
 # Scaffolding a service for mctl deploy
 
 When `mctl_deploy_service action=onboard` runs against your repo, mctl
@@ -1960,6 +1991,11 @@ revoke the PAT on GitHub.
 ================================================================================
 FILE: /guides/scaling.md
 ================================================================================
+---
+title: Scaling Services
+description: Configure Horizontal Pod Autoscaling (HPA) and replica limits for services on MCTL using mctl_scale_service.
+---
+
 # Scaling
 
 `mctl_scale_service` changes HPA autoscaling through the deploy-service
@@ -2000,6 +2036,11 @@ metrics separately before choosing autoscaling thresholds.
 ================================================================================
 FILE: /guides/services.md
 ================================================================================
+---
+title: Service Deployment
+description: Guide to onboarding, deploying, and updating containerized services in Kubernetes via MCTL GitOps workflows and mctl_deploy_service.
+---
+
 # Service Deployment
 
 Services are containerized applications managed through GitOps. Deployment and
@@ -2466,6 +2507,11 @@ mctl-api writes audit entries for submissions with the operations `human_input.s
 ================================================================================
 FILE: /human-input/semantics.md
 ================================================================================
+---
+title: "Human Input: Semantics"
+description: Semantic contract for AI agent human input — distinction between retrieval, clarification, and approval gates per ADR 013.
+---
+
 # Human Input: Semantics
 
 This page states what a human-input answer means, what it cannot mean, and the bounds that keep a clarification loop finite. The normative source is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the rules below restate it and the code that enforces it.
@@ -2546,6 +2592,11 @@ The workflow never writes to mctl-gitops to retire a request. It skips, on read,
 ================================================================================
 FILE: /human-input/surface-adapters.md
 ================================================================================
+---
+title: "Human Input: Surface Adapter Guide"
+description: Integration guide for surfaces (Telegram, Developer Portal, GitHub) to consume and respond to AI agent human-input requests via mctl-api.
+---
+
 # Human Input: Surface Adapter Guide
 
 A surface is any place a human sees a pending question and types an answer: Telegram, the Portal, a GitHub comment, an MCP client. This guide describes how a surface integrates with the mctl-api read model and response endpoint.
@@ -2717,6 +2768,11 @@ There is no `410 Gone`; expiry is reported as `409` with state `expired`.
 ================================================================================
 FILE: /human-input/surface-identity.md
 ================================================================================
+---
+title: "Human Input: Surface Identity and Relay"
+description: How Telegram bot and portal surfaces link machine credentials to verified human identities for AI agent input requests in MCTL.
+---
+
 # Human Input: Surface Identity and Relay
 
 A surface such as the Telegram bot or the portal backend authenticates to mctl-api as a machine. An answer to a human-input request, like a work-item change, must be attributed to the **human** behind the surface. Surface identity links do this without handing any surface a general "act as anyone" credential.
@@ -2850,6 +2906,11 @@ See the [Troubleshooting](/reference/troubleshooting) page for common connection
 ================================================================================
 FILE: /mcp/examples.md
 ================================================================================
+---
+title: MCP Examples
+description: Real-world examples of managing Kubernetes infrastructure through natural language prompts using MCTL Model Context Protocol (MCP) tools.
+---
+
 # MCP Examples
 
 Real-world examples of managing infrastructure through natural language.
@@ -3004,6 +3065,11 @@ See the full [Tools Reference](/mcp/tools-reference) for details on each tool.
 ================================================================================
 FILE: /mcp/tools-reference.md
 ================================================================================
+---
+title: MCP Tools Reference
+description: Complete reference catalog of registered MCTL Model Context Protocol (MCP) tools for tenant inspection, service deployment, workflows, and operations.
+---
+
 # MCP Tools Reference
 
 The catalog below was checked against the registered tools in
@@ -3194,6 +3260,11 @@ Pipeline duration and model cost depend on the work and configured runner.
 ================================================================================
 FILE: /platform/architecture.md
 ================================================================================
+---
+title: Platform Architecture
+description: Technical architecture of MCTL — control plane, Streamable HTTP MCP server, Argo Workflows, GitOps delivery, and external AI agent integration.
+---
+
 # Architecture
 
 MCTL uses GitOps for declared service configuration. Workflows also perform provisioning, while identity, incidents and domain registration use dedicated stores.
@@ -3300,6 +3371,11 @@ graph TB
 ================================================================================
 FILE: /platform/components.md
 ================================================================================
+---
+title: Platform Components
+description: Core components of the MCTL platform — mctl-api, mctl-web, mctl-agent, Argo Workflows, GitOps repository, and supporting services.
+---
+
 # Components
 
 The core MCTL platform includes the following components, each in its own repository.
@@ -3414,6 +3490,11 @@ the same pinned design release.
 ================================================================================
 FILE: /platform/overview.md
 ================================================================================
+---
+title: What is MCTL?
+description: Overview of the MCTL platform — AI-native Kubernetes management through natural language MCP tools, REST APIs, GitOps delivery, and developer portal.
+---
+
 # What is MCTL?
 
 MCTL is an AI-native infrastructure management platform that lets you control Kubernetes infrastructure through natural language, REST APIs, or a developer portal.
@@ -3650,6 +3731,11 @@ architecture-beta
 ================================================================================
 FILE: /reference/faq.md
 ================================================================================
+---
+title: Frequently Asked Questions (FAQ)
+description: Frequently asked questions about MCTL — platform capabilities, supported AI clients, MCP permissions, and GitOps workflows.
+---
+
 # FAQ
 
 ## General
@@ -3708,6 +3794,11 @@ mctl docs runs on VitePress 1.6. The decision to upgrade VitePress is tracked se
 ================================================================================
 FILE: /reference/glossary.md
 ================================================================================
+---
+title: Glossary
+description: Definitions and terms used across the MCTL platform — GitOps, ArgoCD, Model Context Protocol (MCP), Streamable HTTP, and Kubernetes isolation.
+---
+
 # Glossary
 
 | Term | Definition |
@@ -4466,6 +4557,11 @@ If your issue isn't covered here:
 ================================================================================
 FILE: /security/authentication.md
 ================================================================================
+---
+title: Authentication
+description: Authentication in MCTL — OAuth 2.1 with PKCE for MCP clients, dynamic client registration, bearer token validation, and service identities.
+---
+
 # Authentication
 
 Every request to `mctl-api` carries a bearer token, and the API verifies it on every call.
@@ -4516,6 +4612,11 @@ hashes in the server-side refresh store, allowing session refresh and revocation
 ================================================================================
 FILE: /security/authorization.md
 ================================================================================
+---
+title: Authorization
+description: Role-based access control (RBAC) in MCTL — tenant roles (Viewer, Developer, Owner, Admin), operation permissions, and namespace isolation.
+---
+
 # Authorization
 
 Authentication establishes who called the API. Tenant membership and operation

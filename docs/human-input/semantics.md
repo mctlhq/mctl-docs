@@ -1,3 +1,8 @@
+---
+title: "Human Input: Semantics"
+description: Semantic contract for AI agent human input — distinction between retrieval, clarification, and approval gates per ADR 013.
+---
+
 # Human Input: Semantics
 
 This page states what a human-input answer means, what it cannot mean, and the bounds that keep a clarification loop finite. The normative source is [ADR 013](https://github.com/mctlhq/mctl-agents/blob/main/docs/adr/013-human-input-contract.md); the rules below restate it and the code that enforces it.

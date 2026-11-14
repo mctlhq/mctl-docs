@@ -1,3 +1,8 @@
+---
+title: "Human Input: Surface Adapter Guide"
+description: Integration guide for surfaces (Telegram, Developer Portal, GitHub) to consume and respond to AI agent human-input requests via mctl-api.
+---
+
 # Human Input: Surface Adapter Guide
 
 A surface is any place a human sees a pending question and types an answer: Telegram, the Portal, a GitHub comment, an MCP client. This guide describes how a surface integrates with the mctl-api read model and response endpoint.

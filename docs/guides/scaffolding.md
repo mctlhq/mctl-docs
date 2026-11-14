@@ -1,3 +1,8 @@
+---
+title: Service Scaffolding
+description: Dockerfile templates, health check probes, and GitHub Actions CI workflow templates for automatic deployment to MCTL using OIDC.
+---
+
 # Scaffolding a service for mctl deploy
 
 When `mctl_deploy_service action=onboard` runs against your repo, mctl

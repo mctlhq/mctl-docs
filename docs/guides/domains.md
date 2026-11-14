@@ -1,3 +1,8 @@
+---
+title: Custom Domains
+description: Configure custom domains, DNS ownership verification, automatic TLS certificates, and Kubernetes ingress on MCTL.
+---
+
 # Custom Domains
 
 Custom domains use registration, DNS ownership verification and an asynchronous

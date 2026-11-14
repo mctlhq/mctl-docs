@@ -1,3 +1,8 @@
+---
+title: Authentication
+description: Authentication in MCTL — OAuth 2.1 with PKCE for MCP clients, dynamic client registration, bearer token validation, and service identities.
+---
+
 # Authentication
 
 Every request to `mctl-api` carries a bearer token, and the API verifies it on every call.
