@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.67](https://github.com/mctlhq/mctl-docs/compare/0.1.66...0.1.67) (2026-11-14)
+
+
+### Features
+
+* **seo:** add unique frontmatter descriptions across all documentation pages ([84ce300](https://github.com/mctlhq/mctl-docs/commit/84ce300f7f216c3dd53b7ffe5e9a7ca52188600c))
+* **seo:** add unique frontmatter descriptions across all documentation pages ([47ed244](https://github.com/mctlhq/mctl-docs/commit/47ed244e2796be38cb86642dc35ede1765d64fa3))
+
 ## [0.1.66](https://github.com/mctlhq/mctl-docs/compare/0.1.65...0.1.66) (2026-11-08)
 
 
