@@ -1,3 +1,8 @@
+---
+title: Platform Components
+description: Core components of the MCTL platform — mctl-api, mctl-web, mctl-agent, Argo Workflows, GitOps repository, and supporting services.
+---
+
 # Components
 
 The core MCTL platform includes the following components, each in its own repository.

@@ -1,3 +1,8 @@
+---
+title: Service Deployment
+description: Guide to onboarding, deploying, and updating containerized services in Kubernetes via MCTL GitOps workflows and mctl_deploy_service.
+---
+
 # Service Deployment
 
 Services are containerized applications managed through GitOps. Deployment and

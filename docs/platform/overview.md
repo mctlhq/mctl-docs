@@ -1,3 +1,8 @@
+---
+title: What is MCTL?
+description: Overview of the MCTL platform — AI-native Kubernetes management through natural language MCP tools, REST APIs, GitOps delivery, and developer portal.
+---
+
 # What is MCTL?
 
 MCTL is an AI-native infrastructure management platform that lets you control Kubernetes infrastructure through natural language, REST APIs, or a developer portal.

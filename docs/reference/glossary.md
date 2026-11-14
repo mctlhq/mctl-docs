@@ -1,3 +1,8 @@
+---
+title: Glossary
+description: Definitions and terms used across the MCTL platform — GitOps, ArgoCD, Model Context Protocol (MCP), Streamable HTTP, and Kubernetes isolation.
+---
+
 # Glossary
 
 | Term | Definition |

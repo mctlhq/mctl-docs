@@ -1,3 +1,8 @@
+---
+title: First-User Checklist
+description: Step-by-step onboarding checklist for new teams and developers setting up workspaces and deploying applications on MCTL.
+---
+
 # First-user checklist
 
 - [ ] Confirm that provisioning has completed and that your operator has enabled

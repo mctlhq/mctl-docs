@@ -1,3 +1,8 @@
+---
+title: Authorization
+description: Role-based access control (RBAC) in MCTL — tenant roles (Viewer, Developer, Owner, Admin), operation permissions, and namespace isolation.
+---
+
 # Authorization
 
 Authentication establishes who called the API. Tenant membership and operation

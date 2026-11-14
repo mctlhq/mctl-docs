@@ -1,3 +1,8 @@
+---
+title: "Human Input: Surface Identity and Relay"
+description: How Telegram bot and portal surfaces link machine credentials to verified human identities for AI agent input requests in MCTL.
+---
+
 # Human Input: Surface Identity and Relay
 
 A surface such as the Telegram bot or the portal backend authenticates to mctl-api as a machine. An answer to a human-input request, like a work-item change, must be attributed to the **human** behind the surface. Surface identity links do this without handing any surface a general "act as anyone" credential.

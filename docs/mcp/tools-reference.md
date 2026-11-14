@@ -1,3 +1,8 @@
+---
+title: MCP Tools Reference
+description: Complete reference catalog of registered MCTL Model Context Protocol (MCP) tools for tenant inspection, service deployment, workflows, and operations.
+---
+
 # MCP Tools Reference
 
 The catalog below was checked against the registered tools in

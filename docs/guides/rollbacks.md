@@ -1,3 +1,8 @@
+---
+title: Rollbacks
+description: How to safely rollback a Kubernetes service to a previous release tag using MCTL GitOps workflows and MCP tools.
+---
+
 # Rollbacks
 
 Quickly revert a service to its previous version when something goes wrong.

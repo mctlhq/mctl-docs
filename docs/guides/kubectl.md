@@ -1,3 +1,8 @@
+---
+title: kubectl Access
+description: How to configure secure, namespaced kubectl access with kubelogin browser authentication for MCTL tenant developers.
+---
+
 # kubectl Access
 
 Tenant developers can inspect their own namespaces with `kubectl`, signing in

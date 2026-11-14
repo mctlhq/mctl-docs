@@ -1,3 +1,8 @@
+---
+title: REST API Reference
+description: Complete REST API reference for MCTL (api.mctl.ai) — endpoints for tenants, services, deployments, workflows, and infrastructure operations.
+---
+
 # REST API
 
 The MCTL REST API is served by `mctl-api` at `api.mctl.ai`. This page covers common service-management endpoints. The platform also has specialized identity, domain, agent, lifecycle, work-item and commerce APIs; consult the linked schema and implementation for those contracts.

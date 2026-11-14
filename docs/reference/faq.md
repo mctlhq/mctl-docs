@@ -1,3 +1,8 @@
+---
+title: Frequently Asked Questions (FAQ)
+description: Frequently asked questions about MCTL — platform capabilities, supported AI clients, MCP permissions, and GitOps workflows.
+---
+
 # FAQ
 
 ## General

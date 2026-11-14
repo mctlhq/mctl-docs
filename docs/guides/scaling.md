@@ -1,3 +1,8 @@
+---
+title: Scaling Services
+description: Configure Horizontal Pod Autoscaling (HPA) and replica limits for services on MCTL using mctl_scale_service.
+---
+
 # Scaling
 
 `mctl_scale_service` changes HPA autoscaling through the deploy-service

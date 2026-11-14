@@ -1,3 +1,8 @@
+---
+title: MCP Examples
+description: Real-world examples of managing Kubernetes infrastructure through natural language prompts using MCTL Model Context Protocol (MCP) tools.
+---
+
 # MCP Examples
 
 Real-world examples of managing infrastructure through natural language.
