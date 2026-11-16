@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.68](https://github.com/mctlhq/mctl-docs/compare/0.1.67...0.1.68) (2026-11-16)
+
+
+### Bug Fixes
+
+* **nginx:** answer unknown paths with 404 and keep redirects relative ([61d8e97](https://github.com/mctlhq/mctl-docs/commit/61d8e97406bc55d3f7b961a263b1cd5809c27a3c))
+* **nginx:** answer unknown paths with 404 and keep redirects relative ([8536065](https://github.com/mctlhq/mctl-docs/commit/85360655c8e590314bc9f01bf32801a6a998a3f2))
+
 ## [0.1.67](https://github.com/mctlhq/mctl-docs/compare/0.1.66...0.1.67) (2026-11-14)
 
 
