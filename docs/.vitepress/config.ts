@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { canonicalUrl } from './canonical'
+import { socialMeta } from './social'
 
 export default defineConfig({
   title: 'MCTL Docs',
@@ -44,6 +45,10 @@ export default defineConfig({
         logo: 'https://ui.mctl.ai/brand/favicon.svg',
       },
     }
+
+    pageData.frontmatter.head.push(
+      ...socialMeta(title, description, canonical, pageData.relativePath === 'index.md'),
+    )
 
     pageData.frontmatter.head.push([
       'script',
