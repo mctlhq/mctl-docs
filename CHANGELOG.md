@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.69](https://github.com/mctlhq/mctl-docs/compare/0.1.68...0.1.69) (2026-11-18)
+
+
+### Bug Fixes
+
+* **theme:** add metric-matched Onest fallback to cut mobile CLS ([a7ae492](https://github.com/mctlhq/mctl-docs/commit/a7ae492b55a009ff4abd14a151ae0d0ab54a4189))
+* **theme:** add metric-matched Onest fallback to cut mobile CLS ([86a8593](https://github.com/mctlhq/mctl-docs/commit/86a8593c94640c2bd3611073c858db23344c0ea3))
+
+
+### Documentation
+
+* **theme:** explain why Onest Fallback precedes the font token ([fd81b3b](https://github.com/mctlhq/mctl-docs/commit/fd81b3bb026f7718ef8dcf1cea9be4377b59c3e4))
+
 ## [0.1.68](https://github.com/mctlhq/mctl-docs/compare/0.1.67...0.1.68) (2026-11-16)
 
 
