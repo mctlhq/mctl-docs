@@ -59,7 +59,11 @@ export default defineConfig({
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { rel: 'preconnect', href: 'https://ui.mctl.ai' }],
-    ['link', { href: 'https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap', rel: 'stylesheet' }],
+    // Onest is self-hosted (latin subset, variable wght) and preloaded so it is
+    // in place before first paint; the Google Fonts swap reflowed the hero
+    // text and shifted the page (mobile CLS).
+    ['link', { rel: 'preload', href: '/fonts/Onest-latin.woff2', as: 'font', type: 'font/woff2', crossorigin: '' }],
+    ['link', { href: 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap', rel: 'stylesheet' }],
     ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.20.2/mctl.css' }],
     ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.20.2/prose.css' }],
     ['link', { rel: 'stylesheet', href: 'https://ui.mctl.ai/0.20.2/site.css' }],
