@@ -66,7 +66,13 @@
 
   /* Fonts — Onest for UI, JetBrains Mono for code.
    * Fallbacks stay inside var() so a blocked/slow CDN cannot invalidate
-   * the whole font-family declaration (IACVT). */
+   * the whole font-family declaration (IACVT).
+   * --font-display resolves to "'Onest', system-ui, -apple-system, sans-serif"
+   * (ui.mctl.ai mctl.css), so 'Onest Fallback' placed after the token would
+   * never be reached: system-ui matches first. It must sit right after
+   * 'Onest', which is the token's own first family, so nothing is shadowed;
+   * the var() fallback keeps the IACVT protection. Keep in step with the
+   * token if its primary family ever changes. */
   --vp-font-family-base: 'Onest', 'Onest Fallback', var(--font-display, system-ui, -apple-system, sans-serif);
   --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
 
