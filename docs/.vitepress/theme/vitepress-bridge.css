@@ -11,6 +11,16 @@
  * (cool ink × warm paper, terracotta default accent).
  */
 
+/* Self-hosted Onest (OFL, see /fonts/OFL-Onest.txt): latin subset of the
+ * variable font, preloaded from config.ts. */
+@font-face {
+  font-family: 'Onest';
+  src: url('/fonts/Onest-latin.woff2') format('woff2');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Metric-matched fallback for Onest (served with display=swap). The system
  * face is scaled so line breaks and heights match Onest, so the swap does not
  * reflow the large hero text on mobile (CLS). Values: Onest vs Arial average
