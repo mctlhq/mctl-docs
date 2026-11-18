@@ -249,6 +249,8 @@ Whatever the trigger, the deploy runs only on `push` (to `main` or a tag),
 
 ## Pre-merge docker build (recommended)
 
+For services with a database, see [Schema migrations and parallel PRs](/guides/databases#schema-migrations-and-parallel-prs) for an optional, tenant-run pull-request check; mctl does not run it.
+
 Run a `docker build` job on **PRs only** as a pre-merge gate against
 broken Dockerfiles. On push to `main`, mctl rebuilds the same image
 centrally — duplicating that locally just burns CI minutes. Pattern:
