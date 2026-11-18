@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.71](https://github.com/mctlhq/mctl-docs/compare/0.1.70...0.1.71) (2026-11-18)
+
+
+### Bug Fixes
+
+* **nginx:** serve page URLs written with a trailing slash ([8fe5f85](https://github.com/mctlhq/mctl-docs/commit/8fe5f859f0f2327240ad01cb3a335f8faccfbfc6))
+* **nginx:** serve page URLs written with a trailing slash ([7e1b4e0](https://github.com/mctlhq/mctl-docs/commit/7e1b4e03bcd5573168edb6220dce053064d27d31))
+
 ## [0.1.70](https://github.com/mctlhq/mctl-docs/compare/0.1.69...0.1.70) (2026-11-18)
 
 
