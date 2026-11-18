@@ -123,7 +123,7 @@
 .VPNavBar .VPNavBarMenu .VPNavBarMenuLink,
 .VPNavBar .VPNavBarMenu .VPNavBarMenuGroup .button {
   color: var(--surface-fg-muted, #a4a8ae);
-  font-family: var(--font-display, 'Onest', system-ui, -apple-system, sans-serif);
+  font-family: 'Onest', 'Onest Fallback', var(--font-display, system-ui, -apple-system, sans-serif);
   font-size: var(--site-nav-size, 0.95rem);
   font-weight: var(--site-nav-weight, 500);
 }
@@ -290,7 +290,7 @@
 .VPButton {
   border-radius: 4px !important;
   font-weight: var(--mctl-typography-font-weight-medium, 500);
-  font-family: var(--font-display, 'Onest', system-ui, -apple-system, sans-serif);
+  font-family: 'Onest', 'Onest Fallback', var(--font-display, system-ui, -apple-system, sans-serif);
   transition: all 0.3s ease;
 }
 

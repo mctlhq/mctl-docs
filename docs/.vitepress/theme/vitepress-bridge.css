@@ -11,6 +11,31 @@
  * (cool ink × warm paper, terracotta default accent).
  */
 
+/* Metric-matched fallback for Onest (served with display=swap). The system
+ * face is scaled so line breaks and heights match Onest, so the swap does not
+ * reflow the large hero text on mobile (CLS). Values: Onest vs Arial average
+ * lowercase advance (0.5661/0.5462 regular, 0.591/0.580 bold); ascent and
+ * descent are Onest's 0.97 / 0.305 divided by size-adjust. Arimo and
+ * Liberation Sans are Arial-metric, so Linux renders match. */
+@font-face {
+  font-family: 'Onest Fallback';
+  src: local('Arial'), local('Arimo'), local('Liberation Sans'), local('Helvetica');
+  font-weight: 100 600;
+  size-adjust: 103.6%;
+  ascent-override: 93.6%;
+  descent-override: 29.4%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Onest Fallback';
+  src: local('Arial Bold'), local('Arimo Bold'), local('Liberation Sans Bold'), local('Helvetica Bold');
+  font-weight: 700 900;
+  size-adjust: 101.9%;
+  ascent-override: 95.2%;
+  descent-override: 29.9%;
+  line-gap-override: 0%;
+}
+
 :root {
   --vp-nav-height: var(--site-header-height, 80px);
   --vp-layout-max-width: 1440px;
@@ -41,8 +66,14 @@
 
   /* Fonts — Onest for UI, JetBrains Mono for code.
    * Fallbacks stay inside var() so a blocked/slow CDN cannot invalidate
-   * the whole font-family declaration (IACVT). */
-  --vp-font-family-base: var(--font-display, 'Onest', system-ui, -apple-system, sans-serif);
+   * the whole font-family declaration (IACVT).
+   * --font-display resolves to "'Onest', system-ui, -apple-system, sans-serif"
+   * (ui.mctl.ai mctl.css), so 'Onest Fallback' placed after the token would
+   * never be reached: system-ui matches first. It must sit right after
+   * 'Onest', which is the token's own first family, so nothing is shadowed;
+   * the var() fallback keeps the IACVT protection. Keep in step with the
+   * token if its primary family ever changes. */
+  --vp-font-family-base: 'Onest', 'Onest Fallback', var(--font-display, system-ui, -apple-system, sans-serif);
   --vp-font-family-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace);
 
   /* Status */
