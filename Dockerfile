@@ -13,7 +13,7 @@ RUN bun run build && bun run scripts/csp-hashes.ts \
 # nginx-unprivileged runs as uid 101 and keeps its pid and temp files under
 # /tmp, so the container needs no capabilities and works with a read-only
 # root filesystem (base-service step-2 defaults).
-FROM nginxinc/nginx-unprivileged:1.31-alpine
+FROM nginx/nginx-unprivileged:1.31.9-alpine@sha256:60214a103e6f38e953ff957f34b1f2e97a9db801ab2df3821da955d0fe6cadd6
 COPY --from=builder /app/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/docs/.vitepress/dist/ /usr/share/nginx/html/
 USER 101:101
