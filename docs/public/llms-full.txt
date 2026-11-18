@@ -2,7 +2,7 @@
 
 > This document bundles the entire documentation set of the MCTL AI-Native Kubernetes & GitOps Platform into a single unified file designed for LLMs with large context windows (1M+ tokens).
 
-Generated: 2026-11-14T23:31:52.919Z
+Generated: 2026-11-18T21:36:14.517Z
 Total Files Included: 34
 
 ================================================================================
@@ -730,6 +730,62 @@ The provisioning operation supports PostgreSQL on the platform's shared CNPG clu
 The generated database secret exposes the `DB_*` variables above. If your app
 requires `DATABASE_URL`, configure it explicitly; it is not guaranteed by the
 provisioning template.
+
+## Schema migrations and parallel PRs
+
+mctl provisions the database and its credentials. It does not run, order or check your schema migrations. Your
+application, or your own tooling, owns them. This section is guidance only; it describes failure modes and an
+optional check you can add yourself.
+
+### Why a clean Git merge is not a clean apply
+
+Two pull requests that branch from the same schema state are each tested alone. Git can merge them without a
+conflict and the result can still fail or surprise you:
+
+- Two migrations use the same version identifier, or run in a different order in different environments.
+- Both changes assume the pre-merge schema, for example both add a `NOT NULL` column to one table, or one
+  renames a column the other indexes.
+- The merge applies without error but produces a schema that neither author tested.
+
+Use collision-resistant version identifiers and run migrations from one place. An advisory lock serializes
+concurrent runs, but it does not detect logical conflicts.
+
+### Old and new application versions overlap
+
+During a rollout the old and new application versions run at the same time, so the schema must serve both.
+Use expand/contract: add compatible structure first, switch the application, and remove the old structure in a
+later change.
+
+### Two different verifications
+
+- Applying the whole migration set to an empty database shows that it applies from scratch.
+- Upgrading the supported previous schema, populated with synthetic data, shows the real upgrade path.
+
+The first does not prove the second.
+
+### Recovery
+
+Rolling back the application image does not roll back the database. Plan either a coordinated forward fix or a
+schema and data rollback that you verified separately in advance. Backup and restore support is not assumed
+here.
+
+### Optional merge-result check
+
+This is a recommendation, not a platform feature. mctl, `deploy-service` and DevLoop do not run or enforce it.
+If you want it, add it to your own CI as an opt-in job on pull requests. It evaluates the merge result of the
+pull request and its target branch rather than the branch alone: apply the migrations to an empty database and,
+separately, to the previous supported schema with synthetic data.
+
+Limits to keep in mind:
+
+- The merge result goes stale when the target branch moves. Require up-to-date branches or use a merge queue.
+- It needs a deterministic ordering rule for migrations.
+- Independent changes to different objects can merge legitimately, so a failure is not always a conflict.
+- A schema diff is not an oracle. Reviewers need to know the expected semantics, and any committed schema
+  snapshot needs a reviewed refresh procedure. A snapshot refreshed to match a failing result proves nothing.
+
+This idea has not been measured or deployed. Conflict-class coverage, latency, CI cost, false-positive rate and
+the migration tool each service uses are all unmeasured, and no coverage or saving is claimed.
 
 
 ================================================================================
@@ -1816,6 +1872,8 @@ Whatever the trigger, the deploy runs only on `push` (to `main` or a tag),
 
 ## Pre-merge docker build (recommended)
 
+For services with a database, see [Schema migrations and parallel PRs](/guides/databases#schema-migrations-and-parallel-prs) for an optional, tenant-run pull-request check; mctl does not run it.
+
 Run a `docker build` job on **PRs only** as a pre-merge gate against
 broken Dockerfiles. On push to `main`, mctl rebuilds the same image
 centrally — duplicating that locally just burns CI minutes. Pattern:
@@ -2535,7 +2593,7 @@ Approval is tracked separately in [mctl-agents#198](https://github.com/mctlhq/mc
 
 - A human-input answer **must never** satisfy an approval or policy gate. In `DevLoopWorkflow` the `human_input_response` signal handler never touches the approval flag; only the `approve` signal sets it.
 - The two durable waits **must** stay distinguishable by state string. `human_input_state` reports `RUNNING`, `WAITING_FOR_INPUT` or `INPUT_TIMED_OUT`, never `WAITING_FOR_APPROVAL`.
-- mctl-api's response endpoint **never** signals `approve`, and nothing it records is read by the approval path. Approval has its own endpoint, `POST /api/v1/agents/dev-loop/{workflow_id}/approve`.
+- mctl-api's response endpoint **never** signals `approve`, and nothing it records is read by the approval path. Approval has its own path: the owner decides the pending grant on the DevLoop decide page, whose link is the `decide_url` returned by `GET /api/v1/agents/dev-loop/{workflow_id}/approval` (see [Approving a DevLoop proposal](/mcp/tools-reference#approving-a-devloop-proposal)).
 - An answer whose text reads like an approval ("use option B and merge it") resumes the clarification wait and nothing else.
 
 A consequence for surfaces: showing a pending question and showing a pending approval are two different UI states, and one control must not do both.
@@ -3139,9 +3197,9 @@ commerce operations use their own stores and do not all produce Git commits.
 | `mctl_trigger_implementer` | Trigger Tier 2 implementer for at most one accepted proposal. Before any model call it queries GitHub for the deterministic feat/agents-&lt;slug> branch and canonical PR. Existing open/merged/closed results are reconciled without spending model quota. Only when no prior result exists does it run the sub-agent, push the branch, and open a PR. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2604) | Destructive |
 | `mctl_trigger_shepherd` | Trigger Tier 3 PR shepherd to drive an existing implementer-PR through codex review fix loops to merge. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2640) | Destructive |
 | `mctl_trigger_reconcile` | Reconcile pass: read canonical GitHub PR state for every non-terminal proposal and project it onto platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml (merged PR -> merged, closed-unmerged -> rejected, conflicted open PR -> needs-triage). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2685) | Destructive |
-| `mctl_trigger_approve` | Approve one proposal: flip platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml from proposed to accepted via a gitops commit, recording the approver identity. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2783) | Destructive |
+| `mctl_trigger_approve` | Approve one proposal: flip platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml from proposed to accepted via a gitops commit, recording the approver identity. From mctl-api 4.170.0 it is refused for direct use; see [Approving a DevLoop proposal](#approving-a-devloop-proposal). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2783) | Destructive |
 | `mctl_trigger_issue` | Trigger the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven proposal. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2829) | Write |
-| `mctl_approve_dev_loop` | Send the durable Temporal "approve" signal to an EXISTING DevLoopWorkflow execution. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2881) | Write |
+| `mctl_approve_dev_loop` | Send the durable Temporal "approve" signal to an EXISTING DevLoopWorkflow execution. From mctl-api 4.170.0 it refuses a pending grant with `decide_page_required`; the owner decides on the decide page instead, see [Approving a DevLoop proposal](#approving-a-devloop-proposal). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2881) | Write |
 | `mctl_abandon_dev_loop` | Gracefully end an EXISTING DevLoopWorkflow execution by sending its durable Temporal "abandon" signal (mctl-agents#420). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2922) | Destructive |
 | `mctl_get_dev_loop` | Read-only liveness check for a DevLoopWorkflow: is there a live loop for this issue, and is it still running? [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2968) | Read |
 | `mctl_get_lifecycle_ownership` | Read the lifecycle ownership store (ADR-010): who is responsible for an entity phase, whether that owner is still alive, and whether the store agrees with the old DevLoopWorkflow liveness check. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle.go#L116) | Read |
@@ -3255,6 +3313,30 @@ Use each tool's current schema for service filters and execution bounds.
 Proposals and PRs follow the platform review/approval gates; approval belongs to
 the current proposal or commit and must not be assumed from an earlier run.
 Pipeline duration and model cost depend on the work and configured runner.
+
+## Approving a DevLoop proposal
+
+A DevLoop proposal is approved by the owner on the **DevLoop decide page**,
+not by an API or MCP call. The page asks for a fresh sign-in with a second
+factor and records the decision against the pending grant.
+
+1. Read the pending grant with `mctl_get_dev_loop_approval`
+   (`GET /api/v1/agents/dev-loop/{workflow_id}/approval`). While a grant is
+   pending and the page is enabled, the response carries `decide_url`, a link
+   of the form `https://api.mctl.ai/devloop/decide/{workflow_id}?...`.
+2. Hand that link to the owner on its own line. If a terminal wraps it, copy
+   the whole link: a truncated link does not open the decision.
+3. The owner opens it, signs in again with the second factor, and approves or
+   rejects.
+
+Agents and CLIs hand out `decide_url`; they do not approve. From mctl-api
+4.170.0, `mctl_approve_dev_loop` (`POST /api/v1/agents/dev-loop/{workflow_id}/approve`)
+and the generic action-approval route refuse to decide a pending DevLoop grant
+with 403 `decide_page_required`, and the response includes the same
+`decide_url`. `mctl_trigger_approve` (the `mctl-agents-approve` operation) is
+refused for direct use the same way. Re-sending a grant that is already
+approved (its `approval_ref`) still works, as recovery when the approve signal
+was lost.
 
 
 ================================================================================

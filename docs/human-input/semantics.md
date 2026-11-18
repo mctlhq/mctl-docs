@@ -26,7 +26,7 @@ Approval is tracked separately in [mctl-agents#198](https://github.com/mctlhq/mc
 
 - A human-input answer **must never** satisfy an approval or policy gate. In `DevLoopWorkflow` the `human_input_response` signal handler never touches the approval flag; only the `approve` signal sets it.
 - The two durable waits **must** stay distinguishable by state string. `human_input_state` reports `RUNNING`, `WAITING_FOR_INPUT` or `INPUT_TIMED_OUT`, never `WAITING_FOR_APPROVAL`.
-- mctl-api's response endpoint **never** signals `approve`, and nothing it records is read by the approval path. Approval has its own endpoint, `POST /api/v1/agents/dev-loop/{workflow_id}/approve`.
+- mctl-api's response endpoint **never** signals `approve`, and nothing it records is read by the approval path. Approval has its own path: the owner decides the pending grant on the DevLoop decide page, whose link is the `decide_url` returned by `GET /api/v1/agents/dev-loop/{workflow_id}/approval` (see [Approving a DevLoop proposal](/mcp/tools-reference#approving-a-devloop-proposal)).
 - An answer whose text reads like an approval ("use option B and merge it") resumes the clarification wait and nothing else.
 
 A consequence for surfaces: showing a pending question and showing a pending approval are two different UI states, and one control must not do both.

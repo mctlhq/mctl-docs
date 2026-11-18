@@ -72,9 +72,9 @@ commerce operations use their own stores and do not all produce Git commits.
 | `mctl_trigger_implementer` | Trigger Tier 2 implementer for at most one accepted proposal. Before any model call it queries GitHub for the deterministic feat/agents-&lt;slug> branch and canonical PR. Existing open/merged/closed results are reconciled without spending model quota. Only when no prior result exists does it run the sub-agent, push the branch, and open a PR. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2604) | Destructive |
 | `mctl_trigger_shepherd` | Trigger Tier 3 PR shepherd to drive an existing implementer-PR through codex review fix loops to merge. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2640) | Destructive |
 | `mctl_trigger_reconcile` | Reconcile pass: read canonical GitHub PR state for every non-terminal proposal and project it onto platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml (merged PR -> merged, closed-unmerged -> rejected, conflicted open PR -> needs-triage). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2685) | Destructive |
-| `mctl_trigger_approve` | Approve one proposal: flip platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml from proposed to accepted via a gitops commit, recording the approver identity. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2783) | Destructive |
+| `mctl_trigger_approve` | Approve one proposal: flip platform-gitops/agents-state/&lt;service>/proposals/&lt;slug>/.status.yaml from proposed to accepted via a gitops commit, recording the approver identity. From mctl-api 4.170.0 it is refused for direct use; see [Approving a DevLoop proposal](#approving-a-devloop-proposal). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2783) | Destructive |
 | `mctl_trigger_issue` | Trigger the mctl-agents issue-investigator to turn a GitHub issue into a spec-driven proposal. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2829) | Write |
-| `mctl_approve_dev_loop` | Send the durable Temporal "approve" signal to an EXISTING DevLoopWorkflow execution. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2881) | Write |
+| `mctl_approve_dev_loop` | Send the durable Temporal "approve" signal to an EXISTING DevLoopWorkflow execution. From mctl-api 4.170.0 it refuses a pending grant with `decide_page_required`; the owner decides on the decide page instead, see [Approving a DevLoop proposal](#approving-a-devloop-proposal). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2881) | Write |
 | `mctl_abandon_dev_loop` | Gracefully end an EXISTING DevLoopWorkflow execution by sending its durable Temporal "abandon" signal (mctl-agents#420). [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2922) | Destructive |
 | `mctl_get_dev_loop` | Read-only liveness check for a DevLoopWorkflow: is there a live loop for this issue, and is it still running? [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/server.go#L2968) | Read |
 | `mctl_get_lifecycle_ownership` | Read the lifecycle ownership store (ADR-010): who is responsible for an entity phase, whether that owner is still alive, and whether the store agrees with the old DevLoopWorkflow liveness check. [Schema source](https://github.com/mctlhq/mctl-api/blob/b8203cfa23a5371e587754a03521d0906fc9bf7a/internal/mcp/lifecycle.go#L116) | Read |
@@ -188,3 +188,27 @@ Use each tool's current schema for service filters and execution bounds.
 Proposals and PRs follow the platform review/approval gates; approval belongs to
 the current proposal or commit and must not be assumed from an earlier run.
 Pipeline duration and model cost depend on the work and configured runner.
+
+## Approving a DevLoop proposal
+
+A DevLoop proposal is approved by the owner on the **DevLoop decide page**,
+not by an API or MCP call. The page asks for a fresh sign-in with a second
+factor and records the decision against the pending grant.
+
+1. Read the pending grant with `mctl_get_dev_loop_approval`
+   (`GET /api/v1/agents/dev-loop/{workflow_id}/approval`). While a grant is
+   pending and the page is enabled, the response carries `decide_url`, a link
+   of the form `https://api.mctl.ai/devloop/decide/{workflow_id}?...`.
+2. Hand that link to the owner on its own line. If a terminal wraps it, copy
+   the whole link: a truncated link does not open the decision.
+3. The owner opens it, signs in again with the second factor, and approves or
+   rejects.
+
+Agents and CLIs hand out `decide_url`; they do not approve. From mctl-api
+4.170.0, `mctl_approve_dev_loop` (`POST /api/v1/agents/dev-loop/{workflow_id}/approve`)
+and the generic action-approval route refuse to decide a pending DevLoop grant
+with 403 `decide_page_required`, and the response includes the same
+`decide_url`. `mctl_trigger_approve` (the `mctl-agents-approve` operation) is
+refused for direct use the same way. Re-sending a grant that is already
+approved (its `approval_ref`) still works, as recovery when the approve signal
+was lost.
