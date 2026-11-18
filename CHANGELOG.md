@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.70](https://github.com/mctlhq/mctl-docs/compare/0.1.69...0.1.70) (2026-11-18)
+
+
+### Bug Fixes
+
+* **seo:** emit per-page og and twitter text tags ([f83d4bf](https://github.com/mctlhq/mctl-docs/commit/f83d4bf8e66da7a93bff7295db615cb2d620b4ff))
+* **seo:** emit per-page og and twitter text tags ([3ae4c36](https://github.com/mctlhq/mctl-docs/commit/3ae4c366ffaa592b54aad8b16cd3f437bb049b91))
+* **theme:** self-host and preload Onest to stop the hero reflow (CLS) ([e161861](https://github.com/mctlhq/mctl-docs/commit/e161861ea207d451d18fd85fc08d6472a33d88f5))
+* **theme:** self-host and preload Onest to stop the hero reflow (CLS) ([fcc8481](https://github.com/mctlhq/mctl-docs/commit/fcc848114bb60834d7aa7e0b57a2e9beaac56aae))
+
 ## [0.1.69](https://github.com/mctlhq/mctl-docs/compare/0.1.68...0.1.69) (2026-11-18)
 
 
