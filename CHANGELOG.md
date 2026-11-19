@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.72](https://github.com/mctlhq/mctl-docs/compare/0.1.71...0.1.72) (2026-11-19)
+
+
+### Features
+
+* **agents:** issue-208-spike-should-mctl-docs-or-the-devloop-im ([c918468](https://github.com/mctlhq/mctl-docs/commit/c918468cbc2f9a4701e323d10aa192eb2b553463))
+* **agents:** issue-208-spike-should-mctl-docs-or-the-devloop-im ([b6ea4b3](https://github.com/mctlhq/mctl-docs/commit/b6ea4b36898f949667605bc40182ee4d0c1aa240))
+
+
+### Bug Fixes
+
+* **docker:** move base to nginx/nginx-unprivileged 1.31.9 ([ca3ac75](https://github.com/mctlhq/mctl-docs/commit/ca3ac75f6624dbbc08931b1e30b159375da8cecd))
+* **docker:** move base to nginx/nginx-unprivileged 1.31.9 ([98dc1fe](https://github.com/mctlhq/mctl-docs/commit/98dc1fe3c2caf06597a3ac2d79a1477d7ce46171))
+
+
+### Documentation
+
+* DevLoop proposals are approved on the decide page ([9f9040c](https://github.com/mctlhq/mctl-docs/commit/9f9040cd4ff07ae6e28db68d9f87a19c35612840))
+* DevLoop proposals are approved on the decide page ([c7c5629](https://github.com/mctlhq/mctl-docs/commit/c7c5629c2485aad73264c4213a61bb74b6fc211c))
+
 ## [0.1.71](https://github.com/mctlhq/mctl-docs/compare/0.1.70...0.1.71) (2026-11-18)
 
 
