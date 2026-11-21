@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.73](https://github.com/mctlhq/mctl-docs/compare/0.1.72...0.1.73) (2026-11-21)
+
+
+### Bug Fixes
+
+* **seo:** update home page title and description for search CTR ([6c9a3a9](https://github.com/mctlhq/mctl-docs/commit/6c9a3a9bc0617cbd52a9c34b69bc1cf9b3e87e61))
+* **seo:** update home page title and description for search CTR ([078188c](https://github.com/mctlhq/mctl-docs/commit/078188c0f1c41628d10daa4d916b94ff349401cf))
+
 ## [0.1.72](https://github.com/mctlhq/mctl-docs/compare/0.1.71...0.1.72) (2026-11-19)
 
 
