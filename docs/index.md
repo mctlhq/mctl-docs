@@ -1,8 +1,8 @@
 ---
 layout: home
-title: MCTL Docs — Infrastructure & AI Agent Platform Documentation
+title: MCTL Docs — AI Agent & Infrastructure Platform Documentation
 titleTemplate: false
-description: Platform documentation for MCTL — GitOps Kubernetes platform with AI agent workflows, MCP server hub, Vault secrets, and team isolation.
+description: Official documentation for MCTL — AI agent workflows, Telegram & DevOps MCP servers, GitOps Kubernetes deployments, and developer platform guides.
 hero:
   name: <span class="hero-brand"><span class="hero-brand__m">M</span><span class="hero-brand__ctl">CTL</span></span>
   text: Platform Documentation
