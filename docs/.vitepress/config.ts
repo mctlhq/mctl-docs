@@ -5,7 +5,7 @@ import { socialMeta } from './social'
 export default defineConfig({
   title: 'MCTL Docs',
   titleTemplate: ':title | MCTL Docs',
-  description: 'Documentation for the MCTL platform — AI-native infrastructure management',
+  description: 'Official documentation for the MCTL platform — AI agent workflows, MCP servers, and GitOps Kubernetes management',
   cleanUrls: true,
   lastUpdated: true,
   appearance: 'force-dark',
