@@ -10,7 +10,7 @@ permissions: {}
 
 jobs:
   claude-review:
-    uses: mctlhq/.github/.github/workflows/claude-review.yml@648bf5eb714a4b90898e02ce762e193da80a4890
+    uses: mctlhq/.github/.github/workflows/claude-review.yml@599badd590c156f86a4d47cb5541edf213721ece
     permissions:
       contents: read
       pull-requests: write
