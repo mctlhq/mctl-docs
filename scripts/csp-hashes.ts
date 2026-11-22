@@ -4,8 +4,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const dist = join(root, "docs", ".vitepress", "dist");
-const outFile = join(root, "csp-script-src.txt");
+// CSP_DIST_DIR / CSP_OUT_FILE exist so tests can point the script at a fixture.
+const dist = process.env.CSP_DIST_DIR ?? join(root, "docs", ".vitepress", "dist");
+const outFile = process.env.CSP_OUT_FILE ?? join(root, "csp-script-src.txt");
 
 // Inline <script> bodies only (skip src=). VitePress emits a handful of
 // boot scripts that change per build; hashes must match the HTML nginx serves.
