@@ -25,3 +25,25 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           version: v0.69.3
+
+  # Informational only: the blocking job above ignores devDependencies (Trivy's
+  # default for lockfiles). This one includes them and reports CRITICAL and HIGH
+  # findings that have a fix, but must never fail the check.
+  trivy-dev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Trivy filesystem scan (including dev dependencies, non-blocking)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_INCLUDE_DEV_DEPS: "true"
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+          ignore-unfixed: true
+          version: v0.69.3
