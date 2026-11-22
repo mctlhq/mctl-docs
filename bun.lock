@@ -6,7 +6,7 @@
       "name": "mctl-docs",
       "devDependencies": {
         "mermaid": "^11.13.0",
-        "vitepress": "^1.6.0",
+        "vitepress": "1.6.4",
       },
     },
   },

@@ -1,8 +1,9 @@
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
-import { join, relative, extname } from "node:path";
+import { dirname, join, relative, extname } from "node:path";
 
-const DOCS_DIR = join(import.meta.dir, "..", "docs");
-const OUTPUT_FILE = join(DOCS_DIR, "public", "llms-full.txt");
+// LLMS_DOCS_DIR / LLMS_OUTPUT_FILE exist so tests can point the script at a fixture.
+const DOCS_DIR = process.env.LLMS_DOCS_DIR ?? join(import.meta.dir, "..", "docs");
+const OUTPUT_FILE = process.env.LLMS_OUTPUT_FILE ?? join(DOCS_DIR, "public", "llms-full.txt");
 
 const EXCLUDE_DIRS = new Set(["public", ".vitepress", "node_modules", ".git"]);
 
@@ -77,7 +78,7 @@ async function main() {
   }
 
   const fullText = contents.join("\n");
-  await mkdir(join(DOCS_DIR, "public"), { recursive: true });
+  await mkdir(dirname(OUTPUT_FILE), { recursive: true });
   await writeFile(OUTPUT_FILE, fullText, "utf-8");
 
   const sizeKb = (Buffer.byteLength(fullText, "utf-8") / 1024).toFixed(1);

@@ -8,10 +8,10 @@
     "generate:llms": "bun run scripts/generate-llms-full.ts",
     "build": "bun run test && bun run generate:llms && vitepress build docs",
     "preview": "vitepress preview docs",
-    "test": "bun test ./docs/.vitepress/theme/mermaid-links.test.ts ./docs/.vitepress/canonical.test.ts ./docs/.vitepress/social.test.ts"
+    "test": "bun test ./docs/.vitepress/theme/mermaid-links.test.ts ./docs/.vitepress/canonical.test.ts ./docs/.vitepress/social.test.ts ./scripts/csp-hashes.test.ts ./scripts/generate-llms-full.test.ts"
   },
   "devDependencies": {
     "mermaid": "^11.13.0",
-    "vitepress": "^1.6.0"
+    "vitepress": "1.6.4"
   }
 }
