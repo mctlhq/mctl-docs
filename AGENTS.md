@@ -7,3 +7,5 @@ Active canonical plan and audit register:
 Keep implementation notes under context/, outside the published docs tree.
 
 <!-- burst check 1 -->
+
+<!-- burst check 2 -->
