@@ -32,7 +32,7 @@ test('hashes inline scripts from nested pages, skips src= scripts', () => {
   const a = 'window.a=1'
   const b = 'window.b=2'
   const { dist, out } = fixture({
-    'index.html': `<script>${a}</script><script src="/x.js"></script>`,
+    'index.html': `<script>${a}</script><script src="/x.js">SRCBODY</script>`,
     'guides/page.html': `<script type="module">${b}</script>`,
   })
   expect(run(dist, out).code).toBe(0)
